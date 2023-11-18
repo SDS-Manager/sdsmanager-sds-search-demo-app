@@ -1,0 +1,10 @@
+version: '3'
+services:
+  sds-inventory:
+    image: sds-demo-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:80
+    restart: always
