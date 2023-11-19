@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useFormik } from 'formik';
 import axiosInstance from 'api';
+import CustomLoader from 'components/loader/CustomLoader';
 
 const SDSUploadEndpointDetails = () => {
   const [loading, setLoading] = React.useState<boolean>(false)
@@ -97,7 +98,7 @@ const SDSUploadEndpointDetails = () => {
           </Grid>
         </FormControl>
       </Grid>
-      {loading && !sdsDetails && <CircularProgress />}
+      {loading && !sdsDetails && <CustomLoader />}
       {sdsDetails && (
         <Grid container item direction="row" rowSpacing={4}>
           <Grid container item>

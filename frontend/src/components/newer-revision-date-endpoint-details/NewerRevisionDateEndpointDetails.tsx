@@ -11,6 +11,7 @@ import {
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
+import CustomLoader from 'components/loader/CustomLoader';
 
 const NewerRevisionDateEndpointDetails = () => {
   const [loading, setLoading] = React.useState<boolean>(false)
@@ -112,7 +113,7 @@ const NewerRevisionDateEndpointDetails = () => {
           </Grid>
         </FormControl>
       </Grid>
-      {loading && !sdsDetails && <CircularProgress />}
+      {loading && !sdsDetails && <CustomLoader />}
       {sdsDetails && (
         <Grid container item direction="row" rowSpacing={4}>
           <Grid container item>

@@ -19,7 +19,7 @@ import {
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
-
+import CustomLoader from 'components/loader/CustomLoader';
 const SearchEndpointDetails = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [searchResults, setSearchResults] = React.useState<Array<any>>([]);
@@ -282,7 +282,7 @@ const SearchEndpointDetails = () => {
         </FormControl>
       </Grid>
       <Grid container item>
-        {loading && <CircularProgress /> }
+        {loading && <CustomLoader /> }
         {searchResults.length > 0 && (
           <>
             <Grid container item>
