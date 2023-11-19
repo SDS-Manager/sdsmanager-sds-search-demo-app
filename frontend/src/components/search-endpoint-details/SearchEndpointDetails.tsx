@@ -14,12 +14,14 @@ import {
   TableHead,
   TableRow,
   TableBody,
+  CircularProgress,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
 
 const SearchEndpointDetails = () => {
+  const [loading, setLoading] = React.useState<boolean>(false);
   const [searchResults, setSearchResults] = React.useState<Array<any>>([]);
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const formSchema = yup.object().shape({
@@ -37,7 +39,7 @@ const SearchEndpointDetails = () => {
     initialValues: {
       search: '',
       language_code: '',
-      search_type: '',
+      search_type: 'simple_query_string',
       order_by: '',
       minimum_revision_date: '',
       advanced_search_product_name: '',
@@ -77,15 +79,17 @@ const SearchEndpointDetails = () => {
             : null,
         };
       }
+      setLoading(true);
       axiosInstance
         .post(`/sds/search/`, data, { params: { page: 1, page_size: 10 } })
         .then(function (response) {
           setSearchResults(response.data);
+          setLoading(false);
+          setSubmitting(false);
         })
         .catch(function (error) {
           return error.response;
         });
-      setSubmitting(false);
     },
     validationSchema: formSchema,
     enableReinitialize: true,
@@ -278,6 +282,7 @@ const SearchEndpointDetails = () => {
         </FormControl>
       </Grid>
       <Grid container item>
+        {loading && <CircularProgress /> }
         {searchResults.length > 0 && (
           <>
             <Grid container item>

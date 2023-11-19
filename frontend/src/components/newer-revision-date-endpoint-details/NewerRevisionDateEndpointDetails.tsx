@@ -6,12 +6,14 @@ import {
   Grid,
   Button,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
 
 const NewerRevisionDateEndpointDetails = () => {
+  const [loading, setLoading] = React.useState<boolean>(false)
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
   const formSchema = yup.object().shape({
@@ -24,6 +26,7 @@ const NewerRevisionDateEndpointDetails = () => {
       pdf_md5: '',
     },
     onSubmit: (values, { setSubmitting }) => {
+      setLoading(true);
       axiosInstance
         .post(`/sds/newRevisionInfo/`, {
           sds_id: values.sds_id,
@@ -31,6 +34,7 @@ const NewerRevisionDateEndpointDetails = () => {
         })
         .then(function (response) {
           setSdsDetails(response.data);
+          setLoading(false);
         })
         .catch(function (error) {
           return error.response;
@@ -108,6 +112,7 @@ const NewerRevisionDateEndpointDetails = () => {
           </Grid>
         </FormControl>
       </Grid>
+      {loading && !sdsDetails && <CircularProgress />}
       {sdsDetails && (
         <Grid container item direction="row" rowSpacing={4}>
           <Grid container item>

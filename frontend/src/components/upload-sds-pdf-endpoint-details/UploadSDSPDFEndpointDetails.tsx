@@ -5,12 +5,14 @@ import {
   Grid,
   Button,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import axiosInstance from 'api';
 
 const SDSUploadEndpointDetails = () => {
-  const [showRawJSON, setShowRawJSON] = React.useState(false);
+  const [loading, setLoading] = React.useState<boolean>(false)
+  const [showRawJSON, setShowRawJSON] = React.useState<boolean>(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
   const formik = useFormik({
     initialValues: {
@@ -18,9 +20,9 @@ const SDSUploadEndpointDetails = () => {
     },
     onSubmit: (values, { setSubmitting }) => {
       let data = new FormData();
-      console.log(values);
       // @ts-ignore
       data.append('file', values?.file);
+      setLoading(true)
       axiosInstance
         .post(`/sds/upload/`, data, {
           headers: {
@@ -29,6 +31,7 @@ const SDSUploadEndpointDetails = () => {
         })
         .then(function (response) {
           setSdsDetails(response.data);
+          setLoading(false);
         })
         .catch(function (error) {
           return error.response;
@@ -94,6 +97,7 @@ const SDSUploadEndpointDetails = () => {
           </Grid>
         </FormControl>
       </Grid>
+      {loading && !sdsDetails && <CircularProgress />}
       {sdsDetails && (
         <Grid container item direction="row" rowSpacing={4}>
           <Grid container item>

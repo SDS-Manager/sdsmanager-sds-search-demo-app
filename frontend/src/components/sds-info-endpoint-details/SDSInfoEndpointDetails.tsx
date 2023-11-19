@@ -6,12 +6,14 @@ import {
   Grid,
   Button,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
 
 const SDSInfoEndpointDetails = () => {
+  const [loading, setLoading] = React.useState<boolean>(false)
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
   const formSchema = yup.object().shape({
@@ -25,6 +27,7 @@ const SDSInfoEndpointDetails = () => {
       language_code: '',
     },
     onSubmit: (values, { setSubmitting }) => {
+      setLoading(true)
       axiosInstance
         .post(`/sds/details/`, {
           sds_id: values.sds_id,
@@ -33,6 +36,7 @@ const SDSInfoEndpointDetails = () => {
         })
         .then(function (response) {
           setSdsDetails(response.data);
+          setLoading(false)
         })
         .catch(function (error) {
           return error.response;
@@ -126,6 +130,7 @@ const SDSInfoEndpointDetails = () => {
           </Grid>
         </FormControl>
       </Grid>
+      {loading && !sdsDetails && <CircularProgress />}
       {sdsDetails && (
         <Grid container item direction="row" rowSpacing={4}>
           <Grid container item>
