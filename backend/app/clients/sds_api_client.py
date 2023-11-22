@@ -10,8 +10,9 @@ from app.core.config import settings
 from app.exceptions import (
     SDSAPIInternalError,
     SDSAPIParamsRequired,
+    SDSAPIRequestNotAuthorized,
     SDSBadRequestException,
-    SDSNotFoundException, SDSAPIRequestNotAuthorized,
+    SDSNotFoundException,
 )
 
 

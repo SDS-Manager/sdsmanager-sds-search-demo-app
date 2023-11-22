@@ -13,4 +13,3 @@ def decrypt_to_number(encrypted_number, key):
     cipher_suite = Fernet(key)
     decrypted_number = cipher_suite.decrypt(encrypted_number)
     return int(decrypted_number.decode())
-

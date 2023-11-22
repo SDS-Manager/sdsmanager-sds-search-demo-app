@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Body, HTTPException, Query, UploadFile, Request
+from fastapi import APIRouter, Body, HTTPException, Query, Request, UploadFile
 from starlette import status
 
 from app import schemas
 from app.exceptions import (
     SDSAPIInternalError,
     SDSAPIParamsRequired,
+    SDSAPIRequestNotAuthorized,
     SDSBadRequestException,
     SDSNotFoundException,
-    SDSAPIRequestNotAuthorized,
 )
 from app.services.sds_service import SDSService
 from app.throttling import limiter
+
 from .dependencies import sds_service_dependency
 
 router = APIRouter(prefix="/sds")
@@ -146,7 +147,9 @@ async def search_for_new_sds_revision_info(
 )
 @limiter.limit("5/minute")
 async def upload_new_sds(
-    request: Request, file: UploadFile, sds_service: SDSService = sds_service_dependency
+    request: Request,
+    file: UploadFile,
+    sds_service: SDSService = sds_service_dependency,
 ):
     try:
         return await sds_service.upload_sds(file=file)

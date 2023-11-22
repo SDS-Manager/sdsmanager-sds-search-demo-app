@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, validator
 
 from app.core.config import settings
-from app.utils import encrypt_number, decrypt_to_number
+from app.utils import decrypt_to_number, encrypt_number
 
 
 class BaseSDSSchema(BaseModel):
@@ -25,6 +25,7 @@ class BaseSDSSchema(BaseModel):
         if isinstance(value, int):
             return encrypt_number(value, settings.SECRET_KEY)
         return value
+
 
 class ListSDSSchema(BaseSDSSchema):
     pass
@@ -76,6 +77,7 @@ class SDSDetailsBodySchema(BaseModel):
         if value:
             return decrypt_to_number(value, settings.SECRET_KEY)
         return value
+
 
 class MultipleSDSDetailsBodySchema(BaseModel):
     sds_id: list[int] | None
