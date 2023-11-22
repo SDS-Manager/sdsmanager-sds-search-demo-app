@@ -12,7 +12,7 @@ import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
 
 const SDSUploadEndpointDetails = () => {
-  const [loading, setLoading] = React.useState<boolean>(false)
+  const [loading, setLoading] = React.useState<boolean>(false);
   const [showRawJSON, setShowRawJSON] = React.useState<boolean>(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
   const formik = useFormik({
@@ -20,14 +20,21 @@ const SDSUploadEndpointDetails = () => {
       file: [],
     },
     onSubmit: (values, { setSubmitting }) => {
+      const apiKey = localStorage.getItem('apiKey');
+      let headers = {};
+      if (apiKey) {
+        headers = { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey };
+      }
+
       let data = new FormData();
       // @ts-ignore
       data.append('file', values?.file);
-      setLoading(true)
+      setLoading(true);
       axiosInstance
         .post(`/sds/upload/`, data, {
           headers: {
             'Content-Type': 'multipart/form-data',
+            ...headers,
           },
         })
         .then(function (response) {
@@ -35,6 +42,8 @@ const SDSUploadEndpointDetails = () => {
           setLoading(false);
         })
         .catch(function (error) {
+          setLoading(false);
+          setSubmitting(false);
           return error.response;
         });
       setSubmitting(false);
@@ -52,6 +61,13 @@ const SDSUploadEndpointDetails = () => {
   });
   return (
     <Grid container spacing={5}>
+      <Grid container item>
+        <Typography>
+          If SDS will be successfully extracted, all information will be
+          returned in response as JSON.
+          Only 5 requests per minute is allowed without specified API Key.
+        </Typography>
+      </Grid>
       <Grid
         container
         item

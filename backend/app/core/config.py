@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     CORS_ALLOW_HEADERS: List[str]
     SDS_API_URL: str
     SDS_API_KEY: str | None = None
+    SECRET_KEY: str
 
 
 settings = Settings()

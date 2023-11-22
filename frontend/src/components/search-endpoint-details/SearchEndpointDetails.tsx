@@ -14,12 +14,15 @@ import {
   TableHead,
   TableRow,
   TableBody,
-  CircularProgress,
+  Typography,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { renderSnackbar } from '../../utils/renderSnackbar';
+
 const SearchEndpointDetails = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [searchResults, setSearchResults] = React.useState<Array<any>>([]);
@@ -38,7 +41,7 @@ const SearchEndpointDetails = () => {
   const formik = useFormik({
     initialValues: {
       search: '',
-      language_code: '',
+      language_code: 'en',
       search_type: 'simple_query_string',
       order_by: '',
       minimum_revision_date: '',
@@ -49,6 +52,11 @@ const SearchEndpointDetails = () => {
     },
     onSubmit: (values, { setSubmitting }) => {
       let data = {};
+      const apiKey = localStorage.getItem('apiKey');
+      let headers = {};
+      if (apiKey) {
+        headers = { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey };
+      }
       if (
         values.advanced_search_cas_no ||
         values.advanced_search_product_code ||
@@ -81,13 +89,15 @@ const SearchEndpointDetails = () => {
       }
       setLoading(true);
       axiosInstance
-        .post(`/sds/search/`, data, { params: { page: 1, page_size: 10 } })
+        .post(`/sds/search/`, data, { headers: headers })
         .then(function (response) {
           setSearchResults(response.data);
           setLoading(false);
           setSubmitting(false);
         })
         .catch(function (error) {
+          setLoading(false);
+          setSubmitting(false);
           return error.response;
         });
     },
@@ -97,6 +107,12 @@ const SearchEndpointDetails = () => {
   });
   return (
     <Grid container spacing={5}>
+      <Grid container item>
+        <Typography>
+          Search for SDS files. Result is limited to 10 files per search. Only 5
+          requests per minute is allowed without specified API Key.
+        </Typography>
+      </Grid>
       <Grid
         container
         item
@@ -129,28 +145,70 @@ const SearchEndpointDetails = () => {
             <Grid container item spacing={2}>
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor={'language_code'}>
-                    Language Code
-                  </InputLabel>
-                  <OutlinedInput
+                  <InputLabel htmlFor={'language_code'}>Language</InputLabel>
+                  <Select
                     fullWidth
                     id="language_code"
                     name="language_code"
-                    label="Language Code"
-                    value={formik.values.language_code}
+                    label="Language"
                     onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
+                    value={formik.values.language_code}
+                  >
+                    {[
+                      { code: 'sq', name: 'Albanian' },
+                      { code: 'ar', name: 'Arabic' },
+                      { code: 'bg', name: 'Bulgarian' },
+                      { code: 'zh', name: 'Chinese' },
+                      { code: 'hr', name: 'Croatian' },
+                      { code: 'cs', name: 'Czech' },
+                      { code: 'da', name: 'Danish' },
+                      { code: 'nl', name: 'Dutch' },
+                      { code: 'en', name: 'English' },
+                      { code: 'et', name: 'Estonian' },
+                      { code: 'fi', name: 'Finnish' },
+                      { code: 'fr', name: 'French' },
+                      { code: 'de', name: 'German' },
+                      { code: 'el', name: 'Greek' },
+                      { code: 'hi', name: 'Hindi' },
+                      { code: 'hu', name: 'Hungarian' },
+                      { code: 'is', name: 'Icelandic' },
+                      { code: 'id', name: 'Indonesian' },
+                      { code: 'it', name: 'Italian' },
+                      { code: 'ja', name: 'Japanese' },
+                      { code: 'ko', name: 'Korean' },
+                      { code: 'lv', name: 'Latvian' },
+                      { code: 'lt', name: 'Lithuanian' },
+                      { code: 'ms', name: 'Malay' },
+                      { code: 'no', name: 'Norwegian' },
+                      { code: 'pl', name: 'Polish' },
+                      { code: 'pt', name: 'Portuguese' },
+                      { code: 'ro', name: 'Romanian' },
+                      { code: 'ru', name: 'Russian' },
+                      { code: 'sr', name: 'Serbian' },
+                      { code: 'sk', name: 'Slovak' },
+                      { code: 'sl', name: 'Slovenian' },
+                      { code: 'es', name: 'Spanish' },
+                      { code: 'se', name: 'Swedish' },
+                      { code: 'th', name: 'Thai' },
+                      { code: 'tr', name: 'Turkish' },
+                      { code: 'uk', name: 'Ukrainian' },
+                      { code: 'vi', name: 'Vietnamese' },
+                    ].map((el) => (
+                      <MenuItem value={el.code}>{el.name}</MenuItem>
+                    ))}
+                  </Select>
                 </FormControl>
               </Grid>
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor={'search_type'}>Search Type</InputLabel>
+                  <InputLabel htmlFor={'search_type'}>
+                    Search Type ( ElasticSearch operator for query. )
+                  </InputLabel>
                   <Select
                     fullWidth
                     id="search_type"
                     name="search_type"
-                    label="Search Type"
+                    label="Search Type (ElasticSearch operator for query.)"
                     onChange={formik.handleChange}
                     value={formik.values.search_type}
                   >
@@ -282,7 +340,7 @@ const SearchEndpointDetails = () => {
         </FormControl>
       </Grid>
       <Grid container item>
-        {loading && <CustomLoader /> }
+        {loading && <CustomLoader />}
         {searchResults.length > 0 && (
           <>
             <Grid container item>
@@ -299,7 +357,7 @@ const SearchEndpointDetails = () => {
               <Table sx={{ minWidth: '100%' }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center">ID</TableCell>
+                    <TableCell align="center">ID (click on ID to copy)</TableCell>
                     <TableCell align="left">Product Name</TableCell>
                     <TableCell align="left">Supplier Name</TableCell>
                     <TableCell align="left">Revision Data</TableCell>
@@ -313,7 +371,13 @@ const SearchEndpointDetails = () => {
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                     >
                       <TableCell align="center" component="th" scope="row">
-                        {el.id}
+                        <CopyToClipboard
+                          text={el.id}
+                        >
+                          <Typography style={{ cursor: 'pointer' }}>
+                            {el.id.slice(0, 18)}
+                          </Typography>
+                        </CopyToClipboard>
                       </TableCell>
                       <TableCell align="left">
                         {el.sds_pdf_product_name}

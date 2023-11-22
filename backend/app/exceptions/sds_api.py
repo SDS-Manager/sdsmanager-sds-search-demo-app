@@ -12,3 +12,7 @@ class SDSAPIInternalError(Exception):
 
 class SDSAPIParamsRequired(Exception):
     """Raised when all parameters were not specified"""
+
+
+class SDSAPIRequestNotAuthorized(Exception):
+    """Raised when invalid API key was provided"""

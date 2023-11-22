@@ -14,7 +14,7 @@ import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
 
 const NewerRevisionDateEndpointDetails = () => {
-  const [loading, setLoading] = React.useState<boolean>(false)
+  const [loading, setLoading] = React.useState<boolean>(false);
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
   const formSchema = yup.object().shape({
@@ -27,17 +27,28 @@ const NewerRevisionDateEndpointDetails = () => {
       pdf_md5: '',
     },
     onSubmit: (values, { setSubmitting }) => {
+      const apiKey = localStorage.getItem('apiKey');
+      let headers = {};
+      if (apiKey) {
+        headers = { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey };
+      }
       setLoading(true);
       axiosInstance
-        .post(`/sds/newRevisionInfo/`, {
-          sds_id: values.sds_id,
-          pdf_md5: values.pdf_md5,
-        })
+        .post(
+          `/sds/newRevisionInfo/`,
+          {
+            sds_id: values.sds_id,
+            pdf_md5: values.pdf_md5,
+          },
+          { headers: headers }
+        )
         .then(function (response) {
           setSdsDetails(response.data);
           setLoading(false);
         })
         .catch(function (error) {
+          setLoading(false);
+          setSubmitting(false);
           return error.response;
         });
       setSubmitting(false);
@@ -58,6 +69,12 @@ const NewerRevisionDateEndpointDetails = () => {
   });
   return (
     <Grid container spacing={5}>
+      <Grid container item>
+        <Typography>
+          Get newer SDS ID and newer revision date if it exists.
+          Only 5 requests per minute is allowed without specified API Key.
+        </Typography>
+      </Grid>
       <Grid
         container
         item

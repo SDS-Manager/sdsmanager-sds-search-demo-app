@@ -10,10 +10,10 @@ import {
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
-import CustomLoader from "components/loader/CustomLoader";
+import CustomLoader from 'components/loader/CustomLoader';
 
 const SDSInfoEndpointDetails = () => {
-  const [loading, setLoading] = React.useState<boolean>(false)
+  const [loading, setLoading] = React.useState<boolean>(false);
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
   const formSchema = yup.object().shape({
@@ -24,21 +24,30 @@ const SDSInfoEndpointDetails = () => {
     initialValues: {
       sds_id: '',
       pdf_md5: '',
-      language_code: '',
     },
     onSubmit: (values, { setSubmitting }) => {
-      setLoading(true)
+      setLoading(true);
+      const apiKey = localStorage.getItem('apiKey');
+      let headers = {};
+      if (apiKey) {
+        headers = { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey };
+      }
       axiosInstance
-        .post(`/sds/details/`, {
-          sds_id: values.sds_id,
-          pdf_md5: values.pdf_md5,
-          language_code: values.language_code,
-        })
+        .post(
+          `/sds/details/`,
+          {
+            sds_id: values.sds_id,
+            pdf_md5: values.pdf_md5,
+          },
+          { headers: headers }
+        )
         .then(function (response) {
           setSdsDetails(response.data);
-          setLoading(false)
+          setLoading(false);
         })
         .catch(function (error) {
+          setLoading(false);
+          setSubmitting(false);
           return error.response;
         });
       setSubmitting(false);
@@ -59,6 +68,13 @@ const SDSInfoEndpointDetails = () => {
   });
   return (
     <Grid container spacing={5}>
+      <Grid container item>
+        <Typography>
+          API will return JSON with extracted data of SDS if ID/PDF md5 is
+          valid. Only 5 requests per minute is allowed without specified API
+          Key.
+        </Typography>
+      </Grid>
       <Grid
         container
         item
@@ -75,7 +91,7 @@ const SDSInfoEndpointDetails = () => {
         >
           <Grid container item direction="row" rowSpacing={2}>
             <Grid container item spacing={2}>
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <FormControl fullWidth>
                   <InputLabel htmlFor={'sds_id'}>SDS ID</InputLabel>
                   <OutlinedInput
@@ -88,7 +104,7 @@ const SDSInfoEndpointDetails = () => {
                   />
                 </FormControl>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <FormControl fullWidth>
                   <InputLabel htmlFor={'pdf_md5'}>PDF MD5</InputLabel>
                   <OutlinedInput
@@ -98,22 +114,6 @@ const SDSInfoEndpointDetails = () => {
                     label="PDF MD5"
                     onChange={formik.handleChange}
                     value={formik.values.pdf_md5}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={4}>
-                <FormControl fullWidth>
-                  <InputLabel htmlFor={'language_code'}>
-                    Language Code
-                  </InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    id="language_code"
-                    name="language_code"
-                    label="Language Code"
-                    value={formik.values.language_code}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                   />
                 </FormControl>
               </Grid>
@@ -283,6 +283,59 @@ const SDSInfoEndpointDetails = () => {
                   (el: string, index: number) => (
                     <Grid key={index} item xs={1}>
                       <img src={el} alt={'ghs'} />
+                    </Grid>
+                  )
+                )}
+              </Grid>
+            </Grid>
+          )}
+          {sdsDetails?.extracted_data?.sds_components && (
+            <Grid container item direction="row" rowSpacing={2}>
+              <Grid container item>
+                <Grid
+                  sx={{
+                    display: 'flex',
+                    background: '#e0e7fa',
+                    paddingLeft: '15px',
+                    height: '40px',
+                    alignItems: 'center',
+                  }}
+                  item
+                  xs={12}
+                >
+                  <Typography fontWeight="bold">Components</Typography>
+                </Grid>
+              </Grid>
+              <Grid container item spacing={1}>
+                <Grid container item>
+                  <Grid item xs={3}>
+                    Component name
+                  </Grid>
+                  <Grid item xs={3}>
+                    CAS #
+                  </Grid>
+                  <Grid item xs={3}>
+                    EC #
+                  </Grid>
+                  <Grid item xs={3}>
+                    Concentration
+                  </Grid>
+                </Grid>
+                {sdsDetails?.extracted_data?.sds_components.map(
+                  (el: any, index: number) => (
+                    <Grid container item>
+                      <Grid key={index} item xs={3}>
+                        {el.component_name}
+                      </Grid>
+                      <Grid key={index} item xs={3}>
+                        {el.cas_no}
+                      </Grid>
+                      <Grid key={index} item xs={3}>
+                        {el.ec_no}
+                      </Grid>
+                      <Grid key={index} item xs={3}>
+                        {el.concentration}
+                      </Grid>
                     </Grid>
                   )
                 )}

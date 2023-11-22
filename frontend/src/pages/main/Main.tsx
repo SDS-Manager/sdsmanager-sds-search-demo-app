@@ -1,9 +1,22 @@
 import React from 'react';
-import { Box, Tab, Tabs } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormControl,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  Tab,
+  Tabs,
+  Typography,
+} from '@mui/material';
 import SearchEndpointDetails from 'components/search-endpoint-details/SearchEndpointDetails';
 import SDSInfoEndpointDetails from 'components/sds-info-endpoint-details/SDSInfoEndpointDetails';
 import NewerRevisionDateEndpointDetails from 'components/newer-revision-date-endpoint-details/NewerRevisionDateEndpointDetails';
 import SDSUploadEndpointDetails from 'components/upload-sds-pdf-endpoint-details/UploadSDSPDFEndpointDetails';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -37,6 +50,15 @@ const MainPage = () => {
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
 
   return (
     <Box sx={{ flexGrow: 1, padding: '20px' }}>
@@ -53,6 +75,39 @@ const MainPage = () => {
           <Tab label="SDS Upload" {...a11yProps(3)} />
         </Tabs>
       </Box>
+      <Grid sx={{ marginTop: '20px' }} container justifyContent="flex-end">
+        <Grid item xs={3} justifyContent="flex-end">
+          <FormControl fullWidth variant="outlined">
+            <InputLabel htmlFor="outlined-adornment-password">
+              API Key
+            </InputLabel>
+            <OutlinedInput
+              fullWidth
+              id="outlined-adornment-password"
+              type={showPassword ? 'text' : 'password'}
+              onChange={(e) => {
+                localStorage.setItem('apiKey', e.target.value);
+              }}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="API Key"
+            />
+          </FormControl>
+          <Button onClick={() => localStorage.setItem('apiKey', '')}>
+            Reset
+          </Button>
+        </Grid>
+      </Grid>
       <TabPanel value={tabValue} index={0}>
         <SearchEndpointDetails />
       </TabPanel>

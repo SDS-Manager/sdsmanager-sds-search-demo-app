@@ -2,11 +2,14 @@ import datetime
 import enum
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
+
+from app.core.config import settings
+from app.utils import encrypt_number, decrypt_to_number
 
 
 class BaseSDSSchema(BaseModel):
-    id: int
+    id: str
     uuid: UUID
     pdf_md5: str
     sds_pdf_product_name: str
@@ -17,6 +20,11 @@ class BaseSDSSchema(BaseModel):
     regulation_area: str | None
     permanent_link: str
 
+    @validator("id", pre=True)
+    def validate_id(cls, value):
+        if isinstance(value, int):
+            return encrypt_number(value, settings.SECRET_KEY)
+        return value
 
 class ListSDSSchema(BaseSDSSchema):
     pass
@@ -59,10 +67,15 @@ class SearchSDSFilesBodySchema(BaseModel):
 
 
 class SDSDetailsBodySchema(BaseModel):
-    sds_id: int | None
+    sds_id: str | int | None
     pdf_md5: str | None
     language_code: str | None
 
+    @validator("sds_id")
+    def validate_sds_id(cls, value):
+        if value:
+            return decrypt_to_number(value, settings.SECRET_KEY)
+        return value
 
 class MultipleSDSDetailsBodySchema(BaseModel):
     sds_id: list[int] | None

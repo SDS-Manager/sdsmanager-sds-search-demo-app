@@ -11,7 +11,7 @@ from app.exceptions import (
     SDSAPIInternalError,
     SDSAPIParamsRequired,
     SDSBadRequestException,
-    SDSNotFoundException,
+    SDSNotFoundException, SDSAPIRequestNotAuthorized,
 )
 
 
@@ -65,6 +65,9 @@ class SDSAPIClient:
         except HTTPError:
             raise SDSAPIInternalError
 
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            raise SDSAPIRequestNotAuthorized
+
         if response.status_code != status.HTTP_200_OK:
             raise SDSAPIInternalError
         return response.json()
@@ -92,6 +95,9 @@ class SDSAPIClient:
             )
         except HTTPError:
             raise SDSAPIInternalError
+
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -120,6 +126,8 @@ class SDSAPIClient:
         except HTTPError:
             raise SDSAPIInternalError
 
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException
 
@@ -144,6 +152,8 @@ class SDSAPIClient:
         except HTTPError:
             raise SDSAPIInternalError
 
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -160,6 +170,9 @@ class SDSAPIClient:
             )
         except HTTPError:
             raise SDSAPIInternalError
+
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            raise SDSAPIRequestNotAuthorized
 
         if response.status_code != status.HTTP_200_OK:
             raise SDSAPIInternalError
