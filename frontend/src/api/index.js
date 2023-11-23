@@ -1,9 +1,25 @@
 import axios from 'axios';
 import { renderSnackbar } from 'utils/renderSnackbar';
-export const BASE_API_URL = process.env.BASE_API_URL;
+import { getEnv } from 'utils/getEnv';
+
+const SDS_DEMO_URL = 'https://demo.sdsmanager.com';
+const SDS_DEMO_RC_URL = 'https://rc-demo.sdsmanager.com';
+const SDS_DEMO_STAGING_URL = 'https://staging-demo.sdsmanager.com';
+
+const workingEnv = getEnv();
+
+export const BACKEND_URL =
+  workingEnv === 'production'
+    ? SDS_DEMO_URL
+    : workingEnv === 'rc'
+    ? SDS_DEMO_RC_URL
+    : workingEnv === 'staging'
+    ? SDS_DEMO_STAGING_URL
+    : 'http://127.0.0.1:8000';
+
 
 const axiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: BACKEND_URL,
   timeout: 600000,
   headers: {
     'Content-Type': 'application/json',
