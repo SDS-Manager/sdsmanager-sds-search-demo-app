@@ -12,7 +12,11 @@ import * as yup from 'yup';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
 
-const SDSInfoEndpointDetails = () => {
+const SDSInfoEndpointDetails = ({
+  defaultSDSId,
+}: {
+  defaultSDSId: string | null;
+}) => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
@@ -20,9 +24,36 @@ const SDSInfoEndpointDetails = () => {
     sds_id: yup.string(),
     pdf_md5: yup.string(),
   });
+
+  const handleSDSSearch = () => {
+    if (defaultSDSId) {
+      setLoading(true);
+      const apiKey = localStorage.getItem('apiKey');
+      let headers = {};
+      if (apiKey) {
+        headers = { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey };
+      }
+      axiosInstance
+        .post(
+          `/sds/details/`,
+          {
+            sds_id: defaultSDSId,
+          },
+          { headers: headers }
+        )
+        .then(function (response) {
+          setSdsDetails(response.data);
+          setLoading(false);
+        })
+        .catch(function (error) {
+          setLoading(false);
+          return error.response;
+        });
+    }
+  };
   const formik = useFormik({
     initialValues: {
-      sds_id: '',
+      sds_id: defaultSDSId,
       pdf_md5: '',
     },
     onSubmit: (values, { setSubmitting }) => {
@@ -66,6 +97,8 @@ const SDSInfoEndpointDetails = () => {
     enableReinitialize: true,
     validateOnMount: true,
   });
+
+  React.useEffect(() => handleSDSSearch(), [defaultSDSId]);
   return (
     <Grid container spacing={5}>
       <Grid container item>
@@ -227,7 +260,6 @@ const SDSInfoEndpointDetails = () => {
                   </Grid>
                 )
               )}
-              q
             </Grid>
           )}
           {sdsDetails?.extracted_data?.precautionary_codes && (

@@ -21,9 +21,12 @@ import * as yup from 'yup';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { renderSnackbar } from '../../utils/renderSnackbar';
 
-const SearchEndpointDetails = () => {
+const SearchEndpointDetails = ({
+  handleSelectSDS,
+}: {
+  handleSelectSDS: (id: string) => void;
+}) => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [searchResults, setSearchResults] = React.useState<Array<any>>([]);
   const [showRawJSON, setShowRawJSON] = React.useState(false);
@@ -49,6 +52,7 @@ const SearchEndpointDetails = () => {
       advanced_search_supplier_name: '',
       advanced_search_cas_no: '',
       advanced_search_product_code: '',
+      region_short_name: 'all',
     },
     onSubmit: (values, { setSubmitting }) => {
       let data = {};
@@ -73,6 +77,7 @@ const SearchEndpointDetails = () => {
           search: values.search,
           search_type: values.search_type,
           language_code: values.language_code,
+          region_short_name: values.region_short_name,
           order_by: values.order_by,
           minimum_revision_date: values.minimum_revision_date,
         };
@@ -85,6 +90,7 @@ const SearchEndpointDetails = () => {
           minimum_revision_date: values.minimum_revision_date
             ? values.minimum_revision_date
             : null,
+          region_short_name: values.region_short_name,
         };
       }
       setLoading(true);
@@ -128,19 +134,50 @@ const SearchEndpointDetails = () => {
           autoComplete={'off'}
         >
           <Grid container item direction="row" rowSpacing={2}>
-            <Grid container item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor={'search'}>Search</InputLabel>
-                <OutlinedInput
-                  fullWidth
-                  id="search"
-                  name="search"
-                  label="Search"
-                  value={formik.values.search}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-              </FormControl>
+            <Grid container item spacing={2}>
+              <Grid container item xs={6}>
+                <FormControl fullWidth>
+                  <InputLabel htmlFor={'search'}>Search</InputLabel>
+                  <OutlinedInput
+                    fullWidth
+                    id="search"
+                    name="search"
+                    label="Search"
+                    value={formik.values.search}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid container item xs={6}>
+                <FormControl fullWidth>
+                  <InputLabel htmlFor={'region_short_name'}>Region</InputLabel>
+                  <Select
+                    fullWidth
+                    id="region_short_name"
+                    name="region_short_name"
+                    label="Region"
+                    onChange={formik.handleChange}
+                    value={formik.values.region_short_name}
+                  >
+                    {[
+                      { value: 'all', label: 'All' },
+                      { value: 'EU', label: 'EU' },
+                      { value: 'US', label: 'US' },
+                      { value: 'CA', label: 'CA' },
+                      { value: 'NZ', label: 'NZ' },
+                      { value: 'AU', label: 'AU' },
+                      { value: 'MY', label: 'MY' },
+                      { value: 'CN', label: 'CN' },
+                      { value: 'MX', label: 'MX' },
+                      { value: 'ZA', label: 'ZA' },
+
+                    ].map((el) => (
+                      <MenuItem key={el.value} value={el.value}>{el.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
             </Grid>
             <Grid container item spacing={2}>
               <Grid item xs={6}>
@@ -357,7 +394,9 @@ const SearchEndpointDetails = () => {
               <Table sx={{ minWidth: '100%' }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center">ID (click on ID to copy)</TableCell>
+                    <TableCell align="center">
+                      ID (click on ID to copy and open SDS details)
+                    </TableCell>
                     <TableCell align="left">Product Name</TableCell>
                     <TableCell align="left">Supplier Name</TableCell>
                     <TableCell align="left">Revision Data</TableCell>
@@ -371,10 +410,11 @@ const SearchEndpointDetails = () => {
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                     >
                       <TableCell align="center" component="th" scope="row">
-                        <CopyToClipboard
-                          text={el.id}
-                        >
-                          <Typography style={{ cursor: 'pointer' }}>
+                        <CopyToClipboard text={el.id}>
+                          <Typography
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleSelectSDS(el.id)}
+                          >
                             {el.id.slice(0, 18)}
                           </Typography>
                         </CopyToClipboard>

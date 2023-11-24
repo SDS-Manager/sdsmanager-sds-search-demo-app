@@ -47,11 +47,13 @@ function a11yProps(index: number) {
 
 const MainPage = () => {
   const [tabValue, setTabValue] = React.useState<number>(0);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [selectedSDSId, setSelectedSDSId] = React.useState<null | string>(null);
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    setSelectedSDSId(null);
   };
-  const [showPassword, setShowPassword] = React.useState(false);
-
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleMouseDownPassword = (
@@ -109,10 +111,15 @@ const MainPage = () => {
         </Grid>
       </Grid>
       <TabPanel value={tabValue} index={0}>
-        <SearchEndpointDetails />
+        <SearchEndpointDetails
+          handleSelectSDS={(id: string) => {
+            setTabValue(1);
+            setSelectedSDSId(id);
+          }}
+        />
       </TabPanel>
       <TabPanel value={tabValue} index={1}>
-        <SDSInfoEndpointDetails />
+        <SDSInfoEndpointDetails defaultSDSId={selectedSDSId} />
       </TabPanel>
       <TabPanel value={tabValue} index={2}>
         <NewerRevisionDateEndpointDetails />
