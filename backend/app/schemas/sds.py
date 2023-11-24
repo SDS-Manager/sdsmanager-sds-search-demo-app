@@ -62,6 +62,7 @@ class SearchSDSFilesBodySchema(BaseModel):
     advanced_search: AdvancedSearchSchema | None
     search: str | None
     language_code: str | None
+    region_short_name: str | None
     search_type: str | None
     order_by: str | None
     minimum_revision_date: datetime.datetime | None

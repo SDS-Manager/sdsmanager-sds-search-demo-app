@@ -20,6 +20,7 @@ class SDSAPIClient:
     def __init__(self, api_key: str):
         self._session = AsyncClient(
             base_url=settings.SDS_API_URL,
+            timeout=settings.SDS_API_TIMEOUT,
             headers={"SDS-SEARCH-ACCESS-API-KEY": api_key},
         )
 
@@ -28,6 +29,7 @@ class SDSAPIClient:
         if self._session.is_closed:
             self._session = AsyncClient(
                 base_url=settings.SDS_API_URL,
+                timeout=settings.SDS_API_TIMEOUT,
                 headers={"SDS-SEARCH-ACCESS-API-KEY": settings.SDS_API_KEY},
             )
         return self._session
@@ -40,6 +42,7 @@ class SDSAPIClient:
         search_type: str | None = None,
         order_by: str | None = "-id",
         minimum_revision_date: datetime | None = None,
+        region_short_name: str | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> list[dict]:
@@ -56,6 +59,8 @@ class SDSAPIClient:
             search_data["order_by"] = order_by
         if minimum_revision_date:
             search_data["minimum_revision_date"] = minimum_revision_date
+        if region_short_name:
+            search_data["region_short_name"] = region_short_name
 
         try:
             response = await self.session.post(

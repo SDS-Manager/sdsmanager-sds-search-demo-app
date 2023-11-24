@@ -21,6 +21,7 @@ class SDSService:
             language_code=search.language_code,
             order_by=search.order_by,
             minimum_revision_date=search.minimum_revision_date,
+            region_short_name=search.region_short_name,
             page=page,
             page_size=page_size,
         )
