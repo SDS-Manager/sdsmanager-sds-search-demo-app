@@ -231,7 +231,7 @@ const SearchEndpointDetails = ({
                       { code: 'uk', name: 'Ukrainian' },
                       { code: 'vi', name: 'Vietnamese' },
                     ].map((el) => (
-                      <MenuItem value={el.code}>{el.name}</MenuItem>
+                      <MenuItem key={el.code} value={el.code}>{el.name}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>

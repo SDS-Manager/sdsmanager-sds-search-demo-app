@@ -355,8 +355,8 @@ const SDSInfoEndpointDetails = ({
                 </Grid>
                 {sdsDetails?.extracted_data?.sds_components.map(
                   (el: any, index: number) => (
-                    <Grid container item>
-                      <Grid key={index} item xs={3}>
+                    <Grid key={index} container item>
+                      <Grid item xs={3}>
                         {el.component_name}
                       </Grid>
                       <Grid key={index} item xs={3}>
