@@ -17,6 +17,7 @@ import SDSInfoEndpointDetails from 'components/sds-info-endpoint-details/SDSInfo
 import NewerRevisionDateEndpointDetails from 'components/newer-revision-date-endpoint-details/NewerRevisionDateEndpointDetails';
 import SDSUploadEndpointDetails from 'components/upload-sds-pdf-endpoint-details/UploadSDSPDFEndpointDetails';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
+import InfoPanel from '../../components/info-panel/InfoPanel';
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -78,6 +79,7 @@ const MainPage = () => {
         </Tabs>
       </Box>
       <Grid sx={{ marginTop: '20px' }} container justifyContent="flex-end">
+        <InfoPanel />
         <Grid item xs={3} justifyContent="flex-end">
           <FormControl fullWidth variant="outlined">
             <InputLabel htmlFor="outlined-adornment-password">

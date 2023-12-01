@@ -70,8 +70,13 @@ const NewerRevisionDateEndpointDetails = () => {
     <Grid container spacing={5}>
       <Grid container item>
         <Typography>
-          Get newer SDS ID and newer revision date if it exists.
-          Only 5 requests per minute is allowed without specified API Key.
+          Get newer SDS ID and newer revision date if it exists. Only 5 requests
+          per minute is allowed without specified API Key.” to ”Use this feature
+          to periodically poll for new revision of SDSs. If we have a new
+          version in our database, the enpoint will return the SDS ID. You can
+          test the feature using MD5 c66703515396f0edbd32d21201ca71a1 (an SDS
+          from 2020 that is now repleced with a newer version. Only 5 requests
+          per minute is allowed without specified API Key.
         </Typography>
       </Grid>
       <Grid
@@ -124,7 +129,7 @@ const NewerRevisionDateEndpointDetails = () => {
               disabled={formik.isSubmitting}
               type={'submit'}
             >
-              Submit
+              Search
             </Button>
           </Grid>
         </FormControl>

@@ -103,9 +103,8 @@ const SDSInfoEndpointDetails = ({
     <Grid container spacing={5}>
       <Grid container item>
         <Typography>
-          API will return JSON with extracted data of SDS if ID/PDF md5 is
-          valid. Only 5 requests per minute is allowed without specified API
-          Key.
+          API will return JSON with extracted data of SDS if SDS ID or md5 is
+          found in our system
         </Typography>
       </Grid>
       <Grid
@@ -158,7 +157,7 @@ const SDSInfoEndpointDetails = ({
               disabled={formik.isSubmitting}
               type={'submit'}
             >
-              Submit
+              Search
             </Button>
           </Grid>
         </FormControl>
