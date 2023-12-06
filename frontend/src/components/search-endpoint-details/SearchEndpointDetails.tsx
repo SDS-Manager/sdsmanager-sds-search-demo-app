@@ -261,12 +261,12 @@ const SearchEndpointDetails = ({
             <Grid container item spacing={2}>
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor={'order_by'}>Order By</InputLabel>
+                  <InputLabel htmlFor={'order_by'}>Order By (any field from JSON can be used. Add '-' for descending order)</InputLabel>
                   <OutlinedInput
                     fullWidth
                     id="order_by"
                     name="order_by"
-                    label="Order By"
+                    label="Order By (any field from JSON can be used. Add '-' for descending order)"
                     value={formik.values.order_by}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -326,7 +326,7 @@ const SearchEndpointDetails = ({
                     fullWidth
                     id="advanced_search_supplier_name"
                     name="advanced_search_supplier_name"
-                    label="Order By"
+                    label="Supplier Name"
                     value={formik.values.advanced_search_supplier_name}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -371,7 +371,7 @@ const SearchEndpointDetails = ({
               disabled={formik.isSubmitting}
               type={'submit'}
             >
-              Submit
+              Search
             </Button>
           </Grid>
         </FormControl>

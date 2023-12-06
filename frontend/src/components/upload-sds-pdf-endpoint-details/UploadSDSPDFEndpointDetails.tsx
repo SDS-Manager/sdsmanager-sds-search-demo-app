@@ -63,9 +63,11 @@ const SDSUploadEndpointDetails = () => {
     <Grid container spacing={5}>
       <Grid container item>
         <Typography>
-          If SDS will be successfully extracted, all information will be
-          returned in response as JSON.
-          Only 5 requests per minute is allowed without specified API Key.
+          This endpoint allow you convert an SDS PDF file to JSON. For PDFs with
+          missing text layer or bad formatted text layer, OCR can be applied. The
+          SDS you post will be added to SDS Managers database of SDSs if it does
+          not already exists in the database. Only 5 requests per minute is
+          allowed without specified API Key.
         </Typography>
       </Grid>
       <Grid
@@ -109,7 +111,7 @@ const SDSUploadEndpointDetails = () => {
               disabled={formik.isSubmitting}
               type={'submit'}
             >
-              Submit
+              Upload
             </Button>
           </Grid>
         </FormControl>
