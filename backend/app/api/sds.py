@@ -80,7 +80,7 @@ async def multiple_sds_details(
 
 
 @router.post(
-    "/search",
+    "/search/",
     description="Search for SDS files",
     response_model=list[schemas.ListSDSSchema],
 )
