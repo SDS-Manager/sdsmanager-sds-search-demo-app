@@ -18,7 +18,7 @@ router = APIRouter(prefix="/sds")
 
 
 @router.post(
-    "/details",
+    "/details/",
     description="Returns JSON with extracted data of SDS",
     response_model=schemas.SDSDetailsSchema,
 )
@@ -51,7 +51,7 @@ async def sds_details(
 
 
 @router.post(
-    "/multipleDetails",
+    "/multipleDetails/",
     description="return list of SDS extracted data",
     response_model=list[schemas.SDSDetailsSchema],
 )
@@ -108,7 +108,7 @@ async def search_for_sds(
 
 
 @router.post(
-    "/newRevisionInfo",
+    "/newRevisionInfo/",
     description="Get newer SDS ID and newer revision date if it exists",
     response_model=schemas.NewRevisionInfoSchema,
 )
@@ -141,7 +141,7 @@ async def search_for_new_sds_revision_info(
 
 
 @router.post(
-    "/upload",
+    "/upload/",
     description="If SDS will be successfully extracted, all information will be returned in response",
     response_model=schemas.SDSDetailsSchema,
 )
