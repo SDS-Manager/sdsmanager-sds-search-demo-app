@@ -42,7 +42,7 @@ class NewerSDSInfoSchema(BaseModel):
 
 
 class NewRevisionInfoSchema(BaseModel):
-    newer: NewerSDSInfoSchema
+    newer: NewerSDSInfoSchema | None
 
 
 class AdvancedSearchSchema(BaseModel):

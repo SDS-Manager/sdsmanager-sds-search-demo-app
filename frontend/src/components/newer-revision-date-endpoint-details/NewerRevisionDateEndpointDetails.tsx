@@ -16,6 +16,7 @@ const NewerRevisionDateEndpointDetails = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
+  const [requestDone, setRequestDone] = React.useState<boolean>(false);
   const formSchema = yup.object().shape({
     sds_id: yup.string(),
     pdf_md5: yup.string(),
@@ -44,6 +45,7 @@ const NewerRevisionDateEndpointDetails = () => {
         .then(function (response) {
           setSdsDetails(response.data);
           setLoading(false);
+          setRequestDone(true);
         })
         .catch(function (error) {
           setLoading(false);
@@ -135,7 +137,10 @@ const NewerRevisionDateEndpointDetails = () => {
         </FormControl>
       </Grid>
       {loading && !sdsDetails && <CustomLoader />}
-      {sdsDetails && (
+      {!loading && !sdsDetails?.newer && requestDone && (
+        <Typography>No records found</Typography>
+      )}
+      {sdsDetails && sdsDetails.newer && (
         <Grid container item direction="row" rowSpacing={4}>
           <Grid container item>
             <Grid item xs={12}>
