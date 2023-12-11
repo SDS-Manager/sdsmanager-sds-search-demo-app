@@ -1,4 +1,6 @@
-FROM python:3.10.13-slim-bullseye
+FROM python:3.10.13
+
+ENV PYTHONBUFFERED=1
 
 WORKDIR /backend
 
