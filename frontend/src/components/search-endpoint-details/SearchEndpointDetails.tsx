@@ -15,12 +15,15 @@ import {
   TableRow,
   TableBody,
   Typography,
+  TextField,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const SearchEndpointDetails = ({
   handleSelectSDS,
@@ -28,7 +31,7 @@ const SearchEndpointDetails = ({
   handleSelectSDS: (id: string) => void;
 }) => {
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [searchResults, setSearchResults] = React.useState<Array<any>>([]);
+  const [searchResults, setSearchResults] = React.useState<any>(null);
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const formSchema = yup.object().shape({
     search: yup.string(),
@@ -171,9 +174,10 @@ const SearchEndpointDetails = ({
                       { value: 'CN', label: 'CN' },
                       { value: 'MX', label: 'MX' },
                       { value: 'ZA', label: 'ZA' },
-
                     ].map((el) => (
-                      <MenuItem key={el.value} value={el.value}>{el.label}</MenuItem>
+                      <MenuItem key={el.value} value={el.value}>
+                        {el.label}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -231,7 +235,9 @@ const SearchEndpointDetails = ({
                       { code: 'uk', name: 'Ukrainian' },
                       { code: 'vi', name: 'Vietnamese' },
                     ].map((el) => (
-                      <MenuItem key={el.code} value={el.code}>{el.name}</MenuItem>
+                      <MenuItem key={el.code} value={el.code}>
+                        {el.name}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -261,7 +267,10 @@ const SearchEndpointDetails = ({
             <Grid container item spacing={2}>
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor={'order_by'}>Order By (any field from JSON can be used. Add '-' for descending order)</InputLabel>
+                  <InputLabel htmlFor={'order_by'}>
+                    Order By (any field from JSON can be used. Add '-' for
+                    descending order)
+                  </InputLabel>
                   <OutlinedInput
                     fullWidth
                     id="order_by"
@@ -275,14 +284,12 @@ const SearchEndpointDetails = ({
               </Grid>
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor={'minimum_revision_date'}>
-                    Minimum Revision date
-                  </InputLabel>
-                  <OutlinedInput
+                  <TextField
+                    label={'Minimum Revision date'}
+                    InputLabelProps={{ shrink: true }}
                     fullWidth
                     type={'date'}
                     name="minimum_revision_date"
-                    id="minimum_revision_date"
                     onChange={formik.handleChange}
                     value={formik.values.minimum_revision_date}
                   />
@@ -378,7 +385,10 @@ const SearchEndpointDetails = ({
       </Grid>
       <Grid container item>
         {loading && <CustomLoader />}
-        {searchResults.length > 0 && (
+        {!loading && searchResults?.length === 0 && (
+          <Typography>No results found</Typography>
+        )}
+        {searchResults?.length > 0 && (
           <>
             <Grid container item>
               <Grid item xs={12}>
@@ -404,7 +414,7 @@ const SearchEndpointDetails = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {searchResults.map((el) => (
+                  {searchResults.map((el: any) => (
                     <TableRow
                       key={el.id}
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
