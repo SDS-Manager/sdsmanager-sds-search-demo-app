@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 from app.api.sds import router as sds_api_router
 from app.core.config import settings
 
-from .throttling import limiter
+from app.throttling import limiter
 
 app = FastAPI(
     title="SDS Search Service", description="SDS Search APIs", docs_url="/docs"

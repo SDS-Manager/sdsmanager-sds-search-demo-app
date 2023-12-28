@@ -22,8 +22,6 @@ import * as yup from 'yup';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const SearchEndpointDetails = ({
   handleSelectSDS,
@@ -82,7 +80,7 @@ const SearchEndpointDetails = ({
           language_code: values.language_code,
           region_short_name: values.region_short_name,
           order_by: values.order_by,
-          minimum_revision_date: values.minimum_revision_date,
+          minimum_revision_date: values.minimum_revision_date || null,
         };
       } else {
         data = {
@@ -255,11 +253,10 @@ const SearchEndpointDetails = ({
                     onChange={formik.handleChange}
                     value={formik.values.search_type}
                   >
-                    <MenuItem value="simple_query_string">
-                      Simple Query String
-                    </MenuItem>
+                    <MenuItem value="simple_query_string">Simple Query String</MenuItem>
                     <MenuItem value="match">Match</MenuItem>
                     <MenuItem value="match_phrase">Match phrase</MenuItem>
+                    <MenuItem value="close_search">Close Search</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -351,6 +348,7 @@ const SearchEndpointDetails = ({
                     fullWidth
                     name="advanced_search_cas_no"
                     id="advanced_search_cas_no"
+                    label="CAS No"
                     onChange={formik.handleChange}
                     value={formik.values.advanced_search_cas_no}
                   />
@@ -365,6 +363,7 @@ const SearchEndpointDetails = ({
                     fullWidth
                     name="advanced_search_product_code"
                     id="advanced_search_product_code"
+                    label="Product code"
                     onChange={formik.handleChange}
                     value={formik.values.advanced_search_product_code}
                   />

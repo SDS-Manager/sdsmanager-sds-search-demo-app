@@ -136,55 +136,57 @@ const NewerRevisionDateEndpointDetails = () => {
           </Grid>
         </FormControl>
       </Grid>
-      {loading && !sdsDetails && <CustomLoader />}
-      {!loading && !sdsDetails?.newer && requestDone && (
-        <Typography>No records found</Typography>
-      )}
-      {sdsDetails && sdsDetails.newer && (
-        <Grid container item direction="row" rowSpacing={4}>
-          <Grid container item>
-            <Grid item xs={12}>
-              <Button onClick={() => setShowRawJSON(!showRawJSON)}>
-                {showRawJSON ? 'Hide' : 'Show'} raw JSON data
-              </Button>
+      <Grid container item>
+        {loading && !sdsDetails && <CustomLoader />}
+        {!loading && !sdsDetails?.newer && requestDone && (
+          <Typography>No records found</Typography>
+        )}
+        {sdsDetails && sdsDetails.newer && (
+          <Grid container item direction="row" rowSpacing={4}>
+            <Grid container item>
+              <Grid item xs={12}>
+                <Button onClick={() => setShowRawJSON(!showRawJSON)}>
+                  {showRawJSON ? 'Hide' : 'Show'} raw JSON data
+                </Button>
+              </Grid>
+            </Grid>
+            {showRawJSON ? (
+              <pre>{JSON.stringify(sdsDetails, null, 2)}</pre>
+            ) : null}
+            <Grid container item>
+              <Grid
+                sx={{
+                  display: 'flex',
+                  background: '#e0e7fa',
+                  paddingLeft: '15px',
+                  height: '40px',
+                  alignItems: 'center',
+                }}
+                item
+                xs={12}
+              >
+                <Typography fontWeight="bold">SDS Details</Typography>
+              </Grid>
+            </Grid>
+            <Grid container item>
+              <Grid item xs={4}>
+                SDS ID
+              </Grid>
+              <Grid item xs={8}>
+                {sdsDetails.newer.sds_id}
+              </Grid>
+            </Grid>
+            <Grid container item>
+              <Grid item xs={4}>
+                Newer Revision Date
+              </Grid>
+              <Grid item xs={8}>
+                {sdsDetails.newer.revision_date}
+              </Grid>
             </Grid>
           </Grid>
-          {showRawJSON ? (
-            <pre>{JSON.stringify(sdsDetails, null, 2)}</pre>
-          ) : null}
-          <Grid container item>
-            <Grid
-              sx={{
-                display: 'flex',
-                background: '#e0e7fa',
-                paddingLeft: '15px',
-                height: '40px',
-                alignItems: 'center',
-              }}
-              item
-              xs={12}
-            >
-              <Typography fontWeight="bold">SDS Details</Typography>
-            </Grid>
-          </Grid>
-          <Grid container item>
-            <Grid item xs={4}>
-              SDS ID
-            </Grid>
-            <Grid item xs={8}>
-              {sdsDetails.newer.sds_id}
-            </Grid>
-          </Grid>
-          <Grid container item>
-            <Grid item xs={4}>
-              Newer Revision Date
-            </Grid>
-            <Grid item xs={8}>
-              {sdsDetails.newer.revision_date}
-            </Grid>
-          </Grid>
-        </Grid>
-      )}
+        )}
+      </Grid>
     </Grid>
   );
 };

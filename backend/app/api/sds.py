@@ -96,6 +96,11 @@ async def search_for_sds(
             page_size=10,
             page=1,
         )
+    except SDSBadRequestException as ex:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=ex.args[0],
+        )
     except SDSAPIRequestNotAuthorized:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key"

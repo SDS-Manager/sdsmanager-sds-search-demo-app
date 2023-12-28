@@ -1,8 +1,12 @@
 import datetime
 import enum
+import re
 from uuid import UUID
 
+from cryptography.fernet import InvalidToken
+from fastapi import HTTPException
 from pydantic import BaseModel, validator
+from starlette import status
 
 from app.core.config import settings
 from app.utils import decrypt_to_number, encrypt_number
@@ -37,7 +41,7 @@ class SDSDetailsSchema(BaseSDSSchema):
 
 
 class NewerSDSInfoSchema(BaseModel):
-    sds_id: int
+    sds_id: str
     revision_date: datetime.date
 
 
@@ -69,14 +73,32 @@ class SearchSDSFilesBodySchema(BaseModel):
 
 
 class SDSDetailsBodySchema(BaseModel):
-    sds_id: str | int | None
+    sds_id: str | None
     pdf_md5: str | None
     language_code: str | None
 
     @validator("sds_id")
     def validate_sds_id(cls, value):
         if value:
-            return decrypt_to_number(value, settings.SECRET_KEY)
+            try:
+                return decrypt_to_number(value, settings.SECRET_KEY)
+            except InvalidToken:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Unknown SDS ID",
+                )
+
+        return value
+
+    @validator("pdf_md5")
+    def validate_pdf_md5(cls, value):
+        if value:
+            if not re.findall(r"^([a-fA-F\d]{32})$", value):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Unknown PDF MD5",
+                )
+
         return value
 
 

@@ -53,7 +53,7 @@ const SDSInfoEndpointDetails = ({
   };
   const formik = useFormik({
     initialValues: {
-      sds_id: defaultSDSId,
+      sds_id: defaultSDSId || '',
       pdf_md5: '',
     },
     onSubmit: (values, { setSubmitting }) => {
