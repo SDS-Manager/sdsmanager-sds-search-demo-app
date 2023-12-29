@@ -14,6 +14,7 @@ from app.exceptions import (
     SDSBadRequestException,
     SDSNotFoundException,
 )
+from app.utils import encrypt_number
 
 
 class SDSAPIClient:
@@ -74,8 +75,14 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             raise SDSAPIRequestNotAuthorized
 
+        if response.status_code == status.HTTP_400_BAD_REQUEST:
+            raise SDSBadRequestException(
+                response.json().get("error_message", "Default bad request")
+            )
+
         if response.status_code != status.HTTP_200_OK:
             raise SDSAPIInternalError
+
         return response.json()
 
     async def get_sds_details(
@@ -165,7 +172,15 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException
 
-        return response.json()
+        response_json: dict = response.json()
+
+        if response.status_code == status.HTTP_200_OK:
+            if response_json["newer"] and response_json["newer"].get("sds_id"):
+                response_json["newer"]["sds_id"] = encrypt_number(
+                    response_json["newer"]["sds_id"], settings.SECRET_KEY
+                )
+
+        return response_json
 
     async def upload_sds(self, file: UploadFile):
         try:
