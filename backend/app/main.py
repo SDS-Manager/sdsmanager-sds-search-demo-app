@@ -13,7 +13,9 @@ from app.core.config import settings
 from app.throttling import limiter
 
 app = FastAPI(
-    title="SDS Search Service", description="SDS Search APIs", docs_url="/docs"
+    title="SDS Search Service",
+    description="The SDS Manager API is designed to streamline the search process for Safety Data Sheets (SDS). This powerful tool allows users to efficiently locate SDS documents by querying product names, CAS numbers, or supplier details. The API ensures that users have quick access to critical safety information, helping maintain compliance with safety regulations. Its robust search capabilities enable integration into various systems, making it an essential resource for industries that handle hazardous materials. <p><b>You should to fill API key first in Authorize button.<b/><p>",
+    docs_url="/docs",
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
