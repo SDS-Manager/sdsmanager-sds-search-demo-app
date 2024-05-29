@@ -16,6 +16,7 @@ import SearchEndpointDetails from 'components/search-endpoint-details/SearchEndp
 import SDSInfoEndpointDetails from 'components/sds-info-endpoint-details/SDSInfoEndpointDetails';
 import NewerRevisionDateEndpointDetails from 'components/newer-revision-date-endpoint-details/NewerRevisionDateEndpointDetails';
 import SDSUploadEndpointDetails from 'components/upload-sds-pdf-endpoint-details/UploadSDSPDFEndpointDetails';
+import Documentation from 'components/documentation/documentation';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import InfoPanel from '../../components/info-panel/InfoPanel';
 interface TabPanelProps {
@@ -76,6 +77,7 @@ const MainPage = () => {
           <Tab label="SDS Details" {...a11yProps(1)} />
           <Tab label="SDS Newer revision" {...a11yProps(2)} />
           <Tab label="SDS Upload" {...a11yProps(3)} />
+          <Tab label="Documentation" {...a11yProps(4)} />
         </Tabs>
       </Box>
       <Grid sx={{ marginTop: '20px' }} container justifyContent="flex-end">
@@ -128,6 +130,9 @@ const MainPage = () => {
       </TabPanel>
       <TabPanel value={tabValue} index={3}>
         <SDSUploadEndpointDetails />
+      </TabPanel>
+      <TabPanel value={tabValue} index={4}>
+        <Documentation />
       </TabPanel>
     </Box>
   );
