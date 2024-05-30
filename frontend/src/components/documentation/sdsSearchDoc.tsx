@@ -19,8 +19,9 @@ export default function SdsSearchDoc() {
           Navigate to the SDS SEARCH Tab
           <ul>
             <li>
-              Go to the <a href="https://demo.sdsmanager.com/">SDS Manager</a>{' '}
-              and click on the "SDS SEARCH" tab.
+              Go to the{' '}
+              <a href="https://api-demo.sdsmanager.com/">SDS Manager</a> and
+              click on the "SDS SEARCH" tab.
             </li>
           </ul>
         </li>
@@ -130,8 +131,10 @@ export default function SdsSearchDoc() {
       retrieving specific SDS details, and managing other related resources. The
       documentation also covers error handling and rate limiting. You can also
       use the{' '}
-      <a href="https://demo.sdsmanager.com/docs">SDS Manager OpenAPI docs</a> to
-      interact online.
+      <a href="https://api-demo.sdsmanager.com/docs">
+        SDS Manager OpenAPI docs
+      </a>{' '}
+      to interact online.
       <div>
         <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
           SDS Search
@@ -141,7 +144,7 @@ export default function SdsSearchDoc() {
             <strong>URL:</strong>
             <p>
               <code style={styleCodeTag}>
-                http://demo.sdsmanager.com/sds/search/?page_size=10&amp;page=1
+                http://api-demo.sdsmanager.com/sds/search/?page_size=10&amp;page=1
               </code>
               : This is the endpoint where the API request is being sent.
             </p>
@@ -244,7 +247,7 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://demo.sdsmanager.com/sds/search/?page_size=10&page=1' \
+          >{`curl --location 'http://api-demo.sdsmanager.com/sds/search/?page_size=10&page=1' \
 --header 'Content-Type: application/json' \
 --header 'Accept: application/json' \
 --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \
@@ -272,7 +275,7 @@ export default function SdsSearchDoc() {
             <strong>URL:</strong>
             <p>
               <code style={styleCodeTag}>
-                http://demo.sdsmanager.com/sds/details/
+                http://api-demo.sdsmanager.com/sds/details/
               </code>
               : This is the endpoint where the API request is being sent.
             </p>
@@ -315,8 +318,7 @@ export default function SdsSearchDoc() {
               <pre>
                 <code style={styleCodeTag}>{`{
   "sds_id": "<integer>",
-  "customer_sds_wish_list_id": "<integer>",
-  "external_system_id": "<integer>",
+  "language_code": "<string>",
   "pdf_md5": "<string>"
 }`}</code>
               </pre>
@@ -330,12 +332,8 @@ export default function SdsSearchDoc() {
             <strong>sds_id</strong>: The ID of the SDS (Safety Data Sheet).
           </li>
           <li>
-            <strong>customer_sds_wish_list_id</strong>: The ID of the SDS in the
-            customer's wish list.
-          </li>
-          <li>
-            <strong>external_system_id</strong>: The ID of the SDS in the
-            external system.
+            <strong>language_code</strong>: The language code for the search
+            results (e.g., "en" for English).
           </li>
           <li>
             <strong>pdf_md5</strong>: The MD5 hash of the PDF file associated
@@ -347,15 +345,14 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://demo.sdsmanager.com/sds/details/' \\
+          >{`curl --location 'http://api-demo.sdsmanager.com/sds/details/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
 --data '{
-  "sds_id": 12345,
-  "customer_sds_wish_list_id": 67890,
-  "external_system_id": 98765,
-  "pdf_md5": "abcdef1234567890"
+  "sds_id": "gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ==",
+  "language_code": "",
+  "pdf_md5": ""
 }'`}</code>
         </pre>
       </div>
@@ -368,7 +365,7 @@ export default function SdsSearchDoc() {
             <strong>URL:</strong>
             <p>
               <code style={styleCodeTag}>
-                http://demo.sdsmanager.com/sds/multipleDetails/
+                http://api-demo.sdsmanager.com/sds/multipleDetails/
               </code>
               : This is the endpoint where the API request is being sent.
             </p>
@@ -414,14 +411,6 @@ export default function SdsSearchDoc() {
     "<integer>",
     "<integer>"
   ],
-  "customer_sds_wish_list_id": [
-    "<integer>",
-    "<integer>"
-  ],
-  "external_system_id": [
-    "<integer>",
-    "<integer>"
-  ],
   "pdf_md5": [
     "<string>",
     "<string>"
@@ -438,14 +427,6 @@ export default function SdsSearchDoc() {
             <strong>sds_id</strong>: An array containing SDS IDs.
           </li>
           <li>
-            <strong>customer_sds_wish_list_id</strong>: An array containing
-            customer SDS wish list IDs.
-          </li>
-          <li>
-            <strong>external_system_id</strong>: An array containing external
-            system IDs.
-          </li>
-          <li>
             <strong>pdf_md5</strong>: An array containing MD5 hashes of PDF
             files associated with the SDS.
           </li>
@@ -455,15 +436,13 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://demo.sdsmanager.com/sds/multipleDetails/' \\
+          >{`curl --location 'http://api-demo.sdsmanager.com/sds/multipleDetails/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
 --data '{
-  "sds_id": [123, 456],
-  "customer_sds_wish_list_id": [789, 987],
-  "external_system_id": [654, 321],
-  "pdf_md5": ["abcdef123", "uvwxyz456"]
+  "sds_id": ["gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ==", "gAAAAABmWC_OJyuVwqAra-3ERRCDr67IuniTC7xrqccJbzw6gT_7X4zO8EbPjQlqdzebMH24shDODNrTymcQ7uQhXbp5sCmDBw=="],
+  "pdf_md5": ""
 }'`}</code>
         </pre>
       </div>
@@ -476,7 +455,7 @@ export default function SdsSearchDoc() {
             <strong>URL:</strong>
             <p>
               <code style={styleCodeTag}>
-                http://demo.sdsmanager.com/sds/newRevisionInfo/
+                http://api-demo.sdsmanager.com/sds/newRevisionInfo/
               </code>
               : This is the endpoint where the API request is being sent.
             </p>
@@ -519,9 +498,8 @@ export default function SdsSearchDoc() {
               <pre>
                 <code style={styleCodeTag}>{`{
   "sds_id": "<integer>",
-  "customer_sds_wish_list_id": "<integer>",
-  "external_system_id": "<integer>",
-  "pdf_md5": "<string>"
+  "pdf_md5": "<string>",
+  "language_code": "<string>"
 }`}</code>
               </pre>
             </p>
@@ -534,16 +512,12 @@ export default function SdsSearchDoc() {
             <strong>sds_id</strong>: The ID of the SDS (Safety Data Sheet).
           </li>
           <li>
-            <strong>customer_sds_wish_list_id</strong>: The ID of the SDS in the
-            customer's wish list.
-          </li>
-          <li>
-            <strong>external_system_id</strong>: The ID of the SDS in the
-            external system.
-          </li>
-          <li>
             <strong>pdf_md5</strong>: The MD5 hash of the PDF file associated
             with the SDS.
+          </li>
+          <li>
+            <strong>language_code</strong>: The language code for the search
+            results (e.g., "en" for English).
           </li>
         </ul>
         <strong>Example Usage</strong>
@@ -551,15 +525,14 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://demo.sdsmanager.com/sds/newRevisionInfo/' \\
+          >{`curl --location 'http://api-demo.sdsmanager.com/sds/newRevisionInfo/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
 --data '{
-  "sds_id": 12345,
-  "customer_sds_wish_list_id": 67890,
-  "external_system_id": 98765,
-  "pdf_md5": "abcdef1234567890"
+  "sds_id": "",
+  "pdf_md5": "c66703515396f0edbd32d21201ca71a1",
+  "language_code": ""
 }'`}</code>
         </pre>
         <div>
@@ -571,7 +544,7 @@ export default function SdsSearchDoc() {
               <strong>URL:</strong>
               <p>
                 <code style={styleCodeTag}>
-                  http://demo.sdsmanager.com/sds/upload/
+                  http://api-demo.sdsmanager.com/sds/upload/
                 </code>
                 : This is the endpoint where the API request is being sent.
               </p>
@@ -634,7 +607,7 @@ export default function SdsSearchDoc() {
           <pre>
             <code
               style={styleCodeTag}
-            >{`curl --location 'http://demo.sdsmanager.com/sds/upload/' \\
+            >{`curl --location 'http://api-demo.sdsmanager.com/sds/upload/' \\
 --header 'Content-Type: multipart/form-data' \\
 --header 'Accept: application/json' \\
 --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
