@@ -15,7 +15,7 @@ export const BACKEND_URL =
     ? SDS_DEMO_RC_URL
     : workingEnv === 'staging'
     ? SDS_DEMO_STAGING_URL
-    : 'http://127.0.0.1:8000';
+    : 'http://127.0.0.1:8003';
 
 
 const axiosInstance = axios.create({
