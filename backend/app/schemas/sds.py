@@ -22,6 +22,8 @@ class BaseSDSSchema(BaseModel):
     master_date: str | None
     language: str
     regulation_area: str | None
+    product_code: str | None
+    cas_no: str | None
     permanent_link: str
 
     @validator("id", pre=True)

@@ -11,6 +11,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
+import TabularForm from 'components/transport-table/TabularForm';
 
 const SDSInfoEndpointDetails = ({
   defaultSDSId,
@@ -175,6 +176,15 @@ const SDSInfoEndpointDetails = ({
           {showRawJSON ? (
             <pre>{JSON.stringify(sdsDetails, null, 2)}</pre>
           ) : null}
+
+          <Grid container item>
+            <Grid item xs={12}>
+              <Typography>
+                The RAW JSON file contain all extracted data. Below we show selected data in formated style
+              </Typography>
+            </Grid>
+          </Grid>
+
           <Grid container item>
             <Grid
               sx={{
@@ -371,6 +381,31 @@ const SDSInfoEndpointDetails = ({
                   )
                 )}
               </Grid>
+
+              {sdsDetails?.extracted_data?.sds_transport_info && (
+                <>
+                  <Grid container item>
+                    <Grid
+                      sx={{
+                        display: 'flex',
+                        background: '#e0e7fa',
+                        paddingLeft: '15px',
+                        height: '40px',
+                        alignItems: 'center',
+                      }}
+                      item
+                      xs={12}
+                    >
+                      <Typography fontWeight="bold">SDS Transport Information</Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid container item>
+                    <TabularForm data={sdsDetails?.extracted_data?.sds_transport_info} />
+                  </Grid>
+                </>
+              )}
+
+
             </Grid>
           )}
         </Grid>
