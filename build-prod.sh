@@ -1,5 +1,4 @@
 #! /bin/bash
-docker login --username netpowerasdockerhub --password dckr_pat_mhVvWAV8q0SKeGrnIc98K84BCgI
 echo "Please enter your tag version such as v1.x.x or latest"
 read SDS_ADMIN_TAG
 export SDS_ADMIN_TAG=$SDS_ADMIN_TAG
