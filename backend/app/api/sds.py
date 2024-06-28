@@ -35,9 +35,10 @@ async def sds_details(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least one param is required",
         )
-    except SDSAPIRequestNotAuthorized:
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
     except SDSNotFoundException:
         raise HTTPException(
@@ -68,9 +69,10 @@ async def multiple_sds_details(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least one param is required",
         )
-    except SDSAPIRequestNotAuthorized:
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
     except SDSAPIInternalError:
         raise HTTPException(
@@ -101,9 +103,10 @@ async def search_for_sds(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=ex.args[0],
         )
-    except SDSAPIRequestNotAuthorized:
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
     except SDSAPIInternalError:
         raise HTTPException(
@@ -130,9 +133,10 @@ async def search_for_new_sds_revision_info(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least one param is required",
         )
-    except SDSAPIRequestNotAuthorized:
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
     except SDSNotFoundException:
         raise HTTPException(
@@ -158,9 +162,10 @@ async def upload_new_sds(
 ):
     try:
         return await sds_service.upload_sds(file=file)
-    except SDSAPIRequestNotAuthorized:
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
     except SDSAPIInternalError:
         raise HTTPException(
