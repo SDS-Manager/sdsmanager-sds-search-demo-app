@@ -73,6 +73,10 @@ class SDSAPIClient:
             raise SDSAPIInternalError
 
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get("error_message", "You are not authorized")
+                )
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -110,6 +114,10 @@ class SDSAPIClient:
             raise SDSAPIInternalError
 
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get("error_message", "You are not authorized")
+                )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
@@ -140,6 +148,10 @@ class SDSAPIClient:
             raise SDSAPIInternalError
 
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get("error_message", "You are not authorized")
+                )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException
@@ -166,6 +178,10 @@ class SDSAPIClient:
             raise SDSAPIInternalError
 
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get("error_message", "You are not authorized")
+                )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
@@ -193,6 +209,10 @@ class SDSAPIClient:
             raise SDSAPIInternalError
 
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get("error_message", "You are not authorized")
+                )
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code != status.HTTP_200_OK:
