@@ -1,6 +1,6 @@
 # Azure Pipline build and delopment
 pool:
-  name: sds
+  name: Default
   vmImage: ubuntu-latest
 
 trigger:
@@ -8,17 +8,19 @@ trigger:
   branches:
     include:
       - main
+      - rc
       - develop
 
 variables:
-  isMasterBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  isProdBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  isRcBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/rc')]
   isStagingBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/develop')]
 
 stages:
 - stage: All
-  condition: or(eq(variables.isMasterBuild, true), eq(variables.isStagingBuild, true))
+  condition: or(eq(variables.isProdBuild, true), eq(variables.isRcBuild, true), eq(variables.isStagingBuild, true))
   jobs:
-  - job: build_image_with_docker_file
+  - job: build_fe_image_with_docker_file
     steps:
     - task: DockerInstaller@0
       inputs:
@@ -29,14 +31,27 @@ stages:
         containerRegistry: 'sds-netpowerno-docker'
         repository: 'netpowerasdockerhub/sds'
         command: 'buildAndPush'
-        Dockerfile: './Dockerfile'
-        tags: sds_admin.$(Build.SourceBranchName).latest
+        Dockerfile: './frontend/.Dockerfile'
+        tags: sds_demo_fe.$(Build.SourceBranchName).latest
+  - job: build_be_image_with_docker_file
+    steps:
+    - task: DockerInstaller@0
+      inputs:
+        dockerVersion: '17.09.0-ce'
+    - task: Docker@2
+      displayName: Building new image on $(Build.SourceBranchName)
+      inputs:
+        containerRegistry: 'sds-netpowerno-docker'
+        repository: 'netpowerasdockerhub/sds'
+        command: 'buildAndPush'
+        Dockerfile: './backend/.Dockerfile'
+        tags: sds_demo_be.$(Build.SourceBranchName).latest
 - stage: rollout_staging
   condition: eq(variables.isStagingBuild, true)
   variables:
     - group: sds-sudo-password
     - name: shellScriptFilePath
-      value: /sds/staging/sds_admin.sh
+      value: /sds/toolkit/sds/k8s/sds_staging/sds_demo/sds_demo.sh
   jobs:
     - job: rollout_staging
       steps:
@@ -55,7 +70,7 @@ stages:
   variables:
     - group: sds-sudo-password
     - name: shellScriptFilePath
-      value: /sds/rc/sds_admin.sh
+      value: /sds/toolkit/sds/k8s/sds_rc/sds_demo/sds_demo.sh
   jobs:
     - job: rollout_rc
       steps:
