@@ -70,6 +70,10 @@ export default function SdsSearchDoc() {
               <strong>Match phrase:</strong> Looks for the exact phrase
               specified in the search query.
             </li>
+            <li>
+              <strong>Close search:</strong> Finds results that are similar to
+              the search query using fuzzy matching or similar algorithms.
+            </li>
           </ul>
         </li>
         <li>
@@ -224,11 +228,13 @@ export default function SdsSearchDoc() {
           <li>
             <strong>search_type</strong>: Specifies the type of search (e.g., ""
             emtpy default is simple_query_string or "simple_query_string" or
-            "match" or "match_phrase").
+            "match" or "match_phrase", or "close_search").
           </li>
           <li>
-            <strong>order_by</strong>: Specifies the order of the search results
-            (e.g., by date or relevance).
+            <strong>order_by</strong>: Specifies the order of the search
+            results. Use any field from JSON can be used (e.g.,
+            "sds_pdf_revision_date" or "-sds_pdf_revision_date" for descending
+            order).
           </li>
           <li>
             <strong>minimum_revision_date</strong>: Filters results to only
@@ -258,7 +264,7 @@ export default function SdsSearchDoc() {
   "search": "",
   "language_code": "en",
   "search_type": "match",
-  "order_by": "relevance",
+  "order_by": "-sds_pdf_revision_date",
   "minimum_revision_date": ""
 }'`}</code>
         </pre>
