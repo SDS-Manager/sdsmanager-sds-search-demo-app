@@ -70,10 +70,6 @@ export default function SdsSearchDoc() {
               <strong>Match phrase:</strong> Looks for the exact phrase
               specified in the search query.
             </li>
-            <li>
-              <strong>Close search:</strong> Finds results that are similar to
-              the search query using fuzzy matching or similar algorithms.
-            </li>
           </ul>
         </li>
         <li>
@@ -226,8 +222,9 @@ export default function SdsSearchDoc() {
             results (e.g., "en" for English).
           </li>
           <li>
-            <strong>search_type</strong>: Specifies the type of search (e.g.,
-            "basic" or "advanced").
+            <strong>search_type</strong>: Specifies the type of search (e.g., ""
+            emtpy default is simple_query_string or "simple_query_string" or
+            "match" or "match_phrase").
           </li>
           <li>
             <strong>order_by</strong>: Specifies the order of the search results
@@ -260,7 +257,7 @@ export default function SdsSearchDoc() {
   },
   "search": "",
   "language_code": "en",
-  "search_type": "advanced",
+  "search_type": "match",
   "order_by": "relevance",
   "minimum_revision_date": ""
 }'`}</code>
