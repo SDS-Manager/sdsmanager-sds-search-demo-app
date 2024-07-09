@@ -31,7 +31,7 @@ stages:
         containerRegistry: 'sds-netpowerno-docker'
         repository: 'netpowerasdockerhub/sds'
         command: 'buildAndPush'
-        Dockerfile: './frontend/.Dockerfile'
+        Dockerfile: 'frontend/.Dockerfile'
         tags: sds_demo_fe.$(Build.SourceBranchName).latest
   - job: build_be_image_with_docker_file
     steps:
@@ -44,7 +44,7 @@ stages:
         containerRegistry: 'sds-netpowerno-docker'
         repository: 'netpowerasdockerhub/sds'
         command: 'buildAndPush'
-        Dockerfile: './backend/.Dockerfile'
+        Dockerfile: 'backend/.Dockerfile'
         tags: sds_demo_be.$(Build.SourceBranchName).latest
 - stage: rollout_staging
   condition: eq(variables.isStagingBuild, true)
