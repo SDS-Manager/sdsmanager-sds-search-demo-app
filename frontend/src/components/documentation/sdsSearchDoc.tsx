@@ -450,8 +450,8 @@ export default function SdsSearchDoc() {
               <pre>
                 <code style={styleCodeTag}>{`{
   "sds_id": [
-    "<integer>",
-    "<integer>"
+    "<string>",
+    "<string>"
   ],
   "pdf_md5": [
     "<string>",
@@ -478,13 +478,16 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://api-demo.sdsmanager.com/sds/multipleDetails/' \\
+          >{`curl --location 'https://api-demo.sdsmanager.com/sds/multipleDetails/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
---header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
 --data '{
-  "sds_id": ["gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ==", "gAAAAABmWC_OJyuVwqAra-3ERRCDr67IuniTC7xrqccJbzw6gT_7X4zO8EbPjQlqdzebMH24shDODNrTymcQ7uQhXbp5sCmDBw=="],
-  "pdf_md5": ""
+  "sds_id": [
+    "gAAAAABmjjqHXQfCCRpTryV9mMTnJEfmA2MuA-8B7-kxAHlXZoRYnLoIBqTom9YL5IeGHRUwoz_gNZ8_xlbfzd8G-MUpd3lomw==",
+    "gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ=="
+  ],
+  "pdf_md5": null
 }'`}</code>
         </pre>
       </div>
