@@ -75,7 +75,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
 
@@ -116,7 +118,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_404_NOT_FOUND:
@@ -129,7 +133,7 @@ class SDSAPIClient:
     async def get_multiple_sds_details(
         self,
         sds_id: list[int] = None,
-        pdf_md5: list[int] = None,
+        pdf_md5: list[str] = None,
     ):
         search_data = {}
         if sds_id:
@@ -150,7 +154,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -180,7 +186,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_404_NOT_FOUND:
@@ -211,7 +219,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
 
