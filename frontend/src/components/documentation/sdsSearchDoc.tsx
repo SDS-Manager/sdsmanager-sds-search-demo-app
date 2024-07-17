@@ -637,6 +637,10 @@ export default function SdsSearchDoc() {
                 </pre>
               </p>
             </li>
+            <li>
+              <strong>Upload limit:</strong>
+              <p>The maximum of a pdf file size: 25MB</p>
+            </li>
           </ul>
           <strong>Explanation of Form Data</strong>
           <p>The form data consists of a single field:</p>

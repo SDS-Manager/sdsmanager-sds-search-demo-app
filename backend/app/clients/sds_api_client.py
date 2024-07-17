@@ -211,7 +211,7 @@ class SDSAPIClient:
             response = await self.session.post(
                 url="/sds/upload/",
                 timeout=600,
-                files={"file": ("sds.pdf", await file.read())},
+                files={"file": (file.filename, await file.read())},
             )
         except HTTPError:
             raise SDSAPIInternalError
