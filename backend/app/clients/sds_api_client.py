@@ -75,7 +75,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
 
@@ -116,7 +118,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_404_NOT_FOUND:
@@ -150,7 +154,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -180,7 +186,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_404_NOT_FOUND:
@@ -203,7 +211,7 @@ class SDSAPIClient:
             response = await self.session.post(
                 url="/sds/upload/",
                 timeout=600,
-                files={"file": ("sds.pdf", await file.read())},
+                files={"file": (file.filename, await file.read())},
             )
         except HTTPError:
             raise SDSAPIInternalError
@@ -211,7 +219,9 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_401_UNAUTHORIZED:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
-                    response.json().get("error_message", "You are not authorized")
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
                 )
             raise SDSAPIRequestNotAuthorized
 
