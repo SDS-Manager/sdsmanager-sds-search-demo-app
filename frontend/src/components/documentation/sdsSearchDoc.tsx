@@ -226,9 +226,10 @@ export default function SdsSearchDoc() {
             results (e.g., "en" for English).
           </li>
           <li>
-            <strong>search_type</strong>: Specifies the type of search (e.g., ""
-            emtpy default is simple_query_string or "simple_query_string" or
-            "match" or "match_phrase", or "close_search").
+            <strong>search_type</strong>: Specifies the type of search (e.g.
+            "simple_query_string" or "match" or "match_phrase", or
+            "close_search"). Default of search type is simple_query_string when
+            filling empty string or removing this field.
           </li>
           <li>
             <strong>order_by</strong>: Specifies the order of the search
