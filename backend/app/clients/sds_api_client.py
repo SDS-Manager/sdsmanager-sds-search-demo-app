@@ -133,7 +133,7 @@ class SDSAPIClient:
     async def get_multiple_sds_details(
         self,
         sds_id: list[int] = None,
-        pdf_md5: list[int] = None,
+        pdf_md5: list[str] = None,
     ):
         search_data = {}
         if sds_id:

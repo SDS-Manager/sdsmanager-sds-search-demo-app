@@ -105,5 +105,32 @@ class SDSDetailsBodySchema(BaseModel):
 
 
 class MultipleSDSDetailsBodySchema(BaseModel):
-    sds_id: list[int] | None
+    sds_id: list[str] | None
     pdf_md5: list[str] | None
+
+    @validator("sds_id")
+    def validate_sds_id(cls, value):
+        if value:
+            try:
+                return [
+                    decrypt_to_number(v, settings.SECRET_KEY) for v in value
+                ]
+            except InvalidToken:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Unknown SDS ID",
+                )
+
+        return value
+
+    @validator("pdf_md5")
+    def validate_pdf_md5(cls, value):
+        if value:
+            for v in value:
+                if not re.findall(r"^([a-fA-F\d]{32})$", v):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Unknown PDF MD5",
+                    )
+
+        return value
