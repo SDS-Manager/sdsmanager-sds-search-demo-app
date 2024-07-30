@@ -428,11 +428,11 @@ export default function SdsSearchDoc() {
         <p>The JSON payload consists of arrays for each parameter:</p>
         <ul>
           <li>
-            <strong>sds_id</strong>: An array containing SDS IDs.
+            <strong>sds_id</strong>: An array containing SDS IDs (The limit is 100 elements).
           </li>
           <li>
             <strong>pdf_md5</strong>: An array containing MD5 hashes of PDF
-            files associated with the SDS.
+            files associated with the SDS (The limit is 100 elements).
           </li>
         </ul>
         <strong>Example Usage</strong>
@@ -539,6 +539,99 @@ export default function SdsSearchDoc() {
   "language_code": ""
 }'`}</code>
         </pre>
+        <div>
+          <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
+            Muiltiple SDS New Revision Info
+          </h3>
+          <ul>
+            <li>
+              <strong>URL:</strong>
+              <p>
+                <code style={styleCodeTag}>
+                  http://api-demo.sdsmanager.com/sds/multipleNewRevisionInfo/
+                </code>
+                : This is the endpoint where the API request is being sent.
+              </p>
+            </li>
+            <li>
+              <strong>HTTP Method:</strong>
+              <p>
+                <code style={styleCodeTag}>POST</code>: This is implied by the use
+                of <code style={styleCodeTag}>--data</code> (sending data in the
+                request body). It indicates that you're sending data to the
+                server.
+              </p>
+            </li>
+            <li>
+              <strong>Headers:</strong>
+              <ul>
+                <li>
+                  <code style={styleCodeTag}>Content-Type: application/json</code>
+                  : Indicates that the body of the request is in JSON format.
+                </li>
+                <li>
+                  <code style={styleCodeTag}>Accept: application/json</code>:
+                  Specifies that the client expects a JSON response.
+                </li>
+                <li>
+                  <code style={styleCodeTag}>
+                    X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]
+                  </code>
+                  : An API key used for authentication, allowing access to the
+                  API.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <strong>Data:</strong>
+              <p>
+                The <code style={styleCodeTag}>--data</code> flag is used to send
+                JSON data in the request body. Here's what the JSON data looks
+                like:
+                <pre>
+                  <code style={styleCodeTag}>{`{
+  "sds_id": [
+    "<string>",
+    "<string>"
+  ],
+  "pdf_md5": [
+    "<string>",
+    "<string>"
+  ]
+}`}</code>
+                </pre>
+              </p>
+            </li>
+          </ul>
+          <strong>Explanation of JSON Payload</strong>
+          <p>The JSON payload consists of arrays for each parameter:</p>
+          <ul>
+            <li>
+              <strong>sds_id</strong>: An array containing SDS IDs (The limit is 100 elements).
+            </li>
+            <li>
+              <strong>pdf_md5</strong>: An array containing MD5 hashes of PDF
+              files associated with the SDS (The limit is 100 elements).
+            </li>
+          </ul>
+          <strong>Example Usage</strong>
+          <p>Here's an example of how to use the cURL command:</p>
+          <pre>
+            <code
+              style={styleCodeTag}
+            >{`curl --location 'https://api-demo.sdsmanager.com/sds/multipleNewRevisionInfo/' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/json' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
+--data '{
+  "sds_id": [
+    "gAAAAABmjjqHXQfCCRpTryV9mMTnJEfmA2MuA-8B7-kxAHlXZoRYnLoIBqTom9YL5IeGHRUwoz_gNZ8_xlbfzd8G-MUpd3lomw==",
+    "gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ=="
+  ],
+  "pdf_md5": null
+}'`}</code>
+          </pre>
+        </div>
         <div>
           <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
             SDS Upload

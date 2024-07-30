@@ -50,6 +50,15 @@ class NewerSDSInfoSchema(BaseModel):
 class NewRevisionInfoSchema(BaseModel):
     newer: NewerSDSInfoSchema | None
 
+class MultipleNewerSDSInfoSchema(BaseModel):
+    sds_id: str
+    revision_date: datetime.date
+    search_id: str
+    search_pdf_md5: str
+
+class MultipleNewRevisionInfoSchema(BaseModel):
+    newer: MultipleNewerSDSInfoSchema | None
+
 
 class AdvancedSearchSchema(BaseModel):
     supplier_name: str | None
@@ -111,6 +120,11 @@ class MultipleSDSDetailsBodySchema(BaseModel):
     @validator("sds_id")
     def validate_sds_id(cls, value):
         if value:
+            if len(value) > settings.VALUE_LIMIT:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Value limit is {settings.VALUE_LIMIT} SDS IDs",
+                )
             try:
                 return [
                     decrypt_to_number(v, settings.SECRET_KEY) for v in value
@@ -126,6 +140,11 @@ class MultipleSDSDetailsBodySchema(BaseModel):
     @validator("pdf_md5")
     def validate_pdf_md5(cls, value):
         if value:
+            if len(value) > settings.VALUE_LIMIT:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Value limit is {settings.VALUE_LIMIT} PDF MD5",
+                )
             for v in value:
                 if not re.findall(r"^([a-fA-F\d]{32})$", v):
                     raise HTTPException(
