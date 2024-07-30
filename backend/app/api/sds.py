@@ -64,10 +64,10 @@ async def multiple_sds_details(
 ):
     try:
         return await sds_service.get_multiple_sds_details(search=search_body)
-    except (SDSAPIParamsRequired, SDSBadRequestException):
+    except (SDSAPIParamsRequired, SDSBadRequestException) as ex:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="At least one param is required",
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "At least one param is required",
         )
     except SDSAPIRequestNotAuthorized as ex:
         detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
@@ -141,6 +141,36 @@ async def search_for_new_sds_revision_info(
     except SDSNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="SDS not found"
+        )
+    except SDSAPIInternalError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="SDS API request failed",
+        )
+
+
+@router.post(
+    "/multipleNewRevisionInfo/",
+    description="return list of newer SDS ID and newer revision date if it exists",
+    response_model=list[schemas.MultipleNewRevisionInfoSchema],
+)
+@limiter.limit("5/minute")
+async def search_for_multiple_new_sds_revision_info(
+    request: Request,
+    search_body: schemas.MultipleSDSDetailsBodySchema = Body(...),
+    sds_service: SDSService = sds_service_dependency,
+):
+    try:
+        return await sds_service.get_multiple_newer_sds_info(search=search_body)
+    except (SDSAPIParamsRequired, SDSBadRequestException) as ex:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "At least one param is required",
+        )
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
     except SDSAPIInternalError:
         raise HTTPException(
