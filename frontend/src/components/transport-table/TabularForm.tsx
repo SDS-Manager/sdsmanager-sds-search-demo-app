@@ -1,5 +1,4 @@
 import {
-  ClassNameMap,
   Table,
   TableBody,
   TableCell,
@@ -8,18 +7,18 @@ import {
   TableRow,
 } from '@mui/material';
 
-import { useEffect, useState } from 'react';
 import useStyles from './styles';
+import React from 'react';
 
 const TabularForm = ({
   data }: {
     data: object;
     isEditable?: boolean
   }) => {
-  const classes: ClassNameMap = useStyles();
-  const [columns, setColumns] = useState<Array<string>>([]);
-  const [rowData, setRowData] = useState<Array<Array<string>>>([]);
-  const [isReRender, setIsReRender] = useState<boolean>(false);
+  const classes: any = useStyles();
+  const [columns, setColumns] = React.useState<Array<string>>([]);
+  const [rowData, setRowData] = React.useState<Array<Array<string>>>([]);
+  const [isReRender, setIsReRender] = React.useState<boolean>(false);
 
   const rawDataToMatrix = (rawData: any) => {
     let columns: Array<string> = [];
@@ -69,8 +68,8 @@ const TabularForm = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {rowData.map((rowDataList: Array<string>) => {
-              return (<TableRow>
+            {rowData.map((rowDataList: Array<string>, key) => {
+              return (<TableRow key={key}>
                 {rowDataList.map((cellData: string, cellIndex: number) => {
                   return (
                     <TableCell style={{ width: '20%' }} key={cellIndex} className={cellIndex === 0 ? classes.tableHeader : ""}>
@@ -88,9 +87,9 @@ const TabularForm = ({
   }
 
 
-  useEffect(() => {
+  React.useEffect(() => {
     rawDataToMatrix(data);
-  }, []);
+  }, [data]);
 
   return tableRender();
 
