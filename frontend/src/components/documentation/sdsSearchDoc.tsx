@@ -583,7 +583,7 @@ export default function SdsSearchDoc() {
         </pre>
         <div>
           <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
-            Muiltiple SDS New Revision Info
+            Multiple SDS New Revision Info
           </h3>
           <ul>
             <li>

@@ -44,7 +44,7 @@ class SDSDetailsSchema(BaseSDSSchema):
 
 class NewerSDSInfoSchema(BaseModel):
     sds_id: str
-    revision_date: datetime.date
+    revision_date: datetime.date | None
 
 
 class NewRevisionInfoSchema(BaseModel):
@@ -52,7 +52,7 @@ class NewRevisionInfoSchema(BaseModel):
 
 class MultipleNewerSDSInfoSchema(BaseModel):
     sds_id: str
-    revision_date: datetime.date
+    revision_date: datetime.date | None
     search_id: str
     search_pdf_md5: str
 
