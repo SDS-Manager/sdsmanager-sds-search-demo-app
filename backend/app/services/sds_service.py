@@ -54,6 +54,15 @@ class SDSService:
             pdf_md5=search.pdf_md5,
         )
         return schemas.NewRevisionInfoSchema(**api_response)
+    
+    async def get_multiple_newer_sds_info(
+        self, search: schemas.MultipleSDSDetailsBodySchema
+    ) -> list[schemas.MultipleNewRevisionInfoSchema]:
+        api_response = await self.sds_api_client.get_multiple_new_revision_sds_info(
+            sds_id=search.sds_id,
+            pdf_md5=search.pdf_md5,
+        )
+        return [schemas.MultipleNewRevisionInfoSchema(**el) for el in api_response]
 
     async def upload_sds(self, file: UploadFile) -> schemas.SDSDetailsSchema:
         api_response = await self.sds_api_client.upload_sds(file=file)

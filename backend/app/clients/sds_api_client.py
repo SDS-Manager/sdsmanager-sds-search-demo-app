@@ -160,6 +160,12 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_400_BAD_REQUEST:
+            if response.content:
+                raise SDSBadRequestException(
+                    response.json().get(
+                        "error_message", "At least one param is required"
+                    )
+                )
             raise SDSBadRequestException
 
         return response.json()
@@ -205,6 +211,60 @@ class SDSAPIClient:
                 )
 
         return response_json
+
+    async def get_multiple_new_revision_sds_info(
+        self,
+        sds_id: list[int] = None,
+        pdf_md5: list[str] = None,
+    ):
+        search_data = {}
+        if sds_id:
+            search_data["sds_id"] = sds_id
+        if pdf_md5:
+            search_data["pdf_md5"] = pdf_md5
+        if not search_data:
+            raise SDSAPIParamsRequired
+
+        try:
+            response = await self.session.post(
+                url="/sds/multipleNewRevisionInfo/",
+                json=search_data,
+            )
+        except HTTPError:
+            raise SDSAPIInternalError
+
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
+                )
+            raise SDSAPIRequestNotAuthorized
+        if response.status_code == status.HTTP_400_BAD_REQUEST:
+            if response.content:
+                raise SDSBadRequestException(
+                    response.json().get(
+                        "error_message", "At least one param is required"
+                    )
+                )
+            raise SDSBadRequestException
+
+        response_jsons: dict = response.json()
+
+        if response.status_code == status.HTTP_200_OK:
+            for response_json in response_jsons:
+                if response_json["newer"] and response_json["newer"].get("sds_id"):
+                    response_json["newer"]["sds_id"] = encrypt_number(
+                        response_json["newer"]["sds_id"], settings.SECRET_KEY
+                    )
+                if response_json["newer"] and response_json["newer"].get("search_id"):
+                    response_json["newer"]["search_id"] = encrypt_number(
+                        response_json["newer"]["search_id"], settings.SECRET_KEY
+                    )
+
+        return response_jsons
+
 
     async def upload_sds(self, file: UploadFile):
         try:

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     SDS_API_KEY: str | None = None
     SDS_API_TIMEOUT: int = 120
     SECRET_KEY: str
+    VALUE_LIMIT: int = 100
 
 
 settings = Settings()
