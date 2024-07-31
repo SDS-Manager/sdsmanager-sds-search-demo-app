@@ -428,7 +428,8 @@ export default function SdsSearchDoc() {
         <p>The JSON payload consists of arrays for each parameter:</p>
         <ul>
           <li>
-            <strong>sds_id</strong>: An array containing SDS IDs (The limit is 100 elements).
+            <strong>sds_id</strong>: An array containing SDS IDs (The limit is
+            100 elements).
           </li>
           <li>
             <strong>pdf_md5</strong>: An array containing MD5 hashes of PDF
@@ -541,7 +542,7 @@ export default function SdsSearchDoc() {
         </pre>
         <div>
           <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
-            Muiltiple SDS New Revision Info
+            Multiple SDS New Revision Info
           </h3>
           <ul>
             <li>
@@ -556,9 +557,9 @@ export default function SdsSearchDoc() {
             <li>
               <strong>HTTP Method:</strong>
               <p>
-                <code style={styleCodeTag}>POST</code>: This is implied by the use
-                of <code style={styleCodeTag}>--data</code> (sending data in the
-                request body). It indicates that you're sending data to the
+                <code style={styleCodeTag}>POST</code>: This is implied by the
+                use of <code style={styleCodeTag}>--data</code> (sending data in
+                the request body). It indicates that you're sending data to the
                 server.
               </p>
             </li>
@@ -566,7 +567,9 @@ export default function SdsSearchDoc() {
               <strong>Headers:</strong>
               <ul>
                 <li>
-                  <code style={styleCodeTag}>Content-Type: application/json</code>
+                  <code style={styleCodeTag}>
+                    Content-Type: application/json
+                  </code>
                   : Indicates that the body of the request is in JSON format.
                 </li>
                 <li>
@@ -585,9 +588,9 @@ export default function SdsSearchDoc() {
             <li>
               <strong>Data:</strong>
               <p>
-                The <code style={styleCodeTag}>--data</code> flag is used to send
-                JSON data in the request body. Here's what the JSON data looks
-                like:
+                The <code style={styleCodeTag}>--data</code> flag is used to
+                send JSON data in the request body. Here's what the JSON data
+                looks like:
                 <pre>
                   <code style={styleCodeTag}>{`{
   "sds_id": [
@@ -607,7 +610,8 @@ export default function SdsSearchDoc() {
           <p>The JSON payload consists of arrays for each parameter:</p>
           <ul>
             <li>
-              <strong>sds_id</strong>: An array containing SDS IDs (The limit is 100 elements).
+              <strong>sds_id</strong>: An array containing SDS IDs (The limit is
+              100 elements).
             </li>
             <li>
               <strong>pdf_md5</strong>: An array containing MD5 hashes of PDF
