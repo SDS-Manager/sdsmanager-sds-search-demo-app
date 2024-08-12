@@ -21,6 +21,7 @@ const SDSInfoEndpointDetails = ({
   const [loading, setLoading] = React.useState<boolean>(false);
   const [showRawJSON, setShowRawJSON] = React.useState(false);
   const [sdsDetails, setSdsDetails] = React.useState<any>(null);
+  const [sdsTransportInfo, setSdsTransportInfo] = React.useState<any>(null);
   const formSchema = yup.object().shape({
     sds_id: yup.string(),
     pdf_md5: yup.string(),
@@ -44,6 +45,10 @@ const SDSInfoEndpointDetails = ({
         )
         .then(function (response) {
           setSdsDetails(response.data);
+          if (response.data && response.data.extracted_data?.sds_transport_info !== undefined) {
+            setSdsTransportInfo(response.data.extracted_data?.sds_transport_info);
+          }
+          
           setLoading(false);
         })
         .catch(function (error) {
@@ -75,6 +80,10 @@ const SDSInfoEndpointDetails = ({
         )
         .then(function (response) {
           setSdsDetails(response.data);
+          if (response.data && response.data.extracted_data?.sds_transport_info !== undefined) {
+            setSdsTransportInfo(response.data.extracted_data?.sds_transport_info);
+          }
+          
           setLoading(false);
         })
         .catch(function (error) {
@@ -382,7 +391,7 @@ const SDSInfoEndpointDetails = ({
                 )}
               </Grid>
 
-              {sdsDetails?.extracted_data?.sds_transport_info && (
+              {sdsTransportInfo && (
                 <>
                   <Grid container item>
                     <Grid
@@ -400,12 +409,10 @@ const SDSInfoEndpointDetails = ({
                     </Grid>
                   </Grid>
                   <Grid container item>
-                    <TabularForm data={sdsDetails?.extracted_data?.sds_transport_info} />
+                    <TabularForm data={sdsTransportInfo} />
                   </Grid>
                 </>
               )}
-
-
             </Grid>
           )}
         </Grid>

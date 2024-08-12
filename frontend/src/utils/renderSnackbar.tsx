@@ -1,11 +1,12 @@
 import React from 'react';
 import CustomSnackbar from 'components/custom-snackbar/CustomSnackbar';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 export function renderSnackbar(text: Array<string>) {
   const sNew = document.createElement('div');
+  const root = createRoot(sNew!);
   document.getElementsByTagName('body')[0].appendChild(sNew);
-  ReactDOM.render(
+  root.render(
     <CustomSnackbar
       onClose={() => {
         sNew.remove();
@@ -16,6 +17,5 @@ export function renderSnackbar(text: Array<string>) {
       }}
       actionLabel={'Close'}
     />,
-    sNew
   );
 }

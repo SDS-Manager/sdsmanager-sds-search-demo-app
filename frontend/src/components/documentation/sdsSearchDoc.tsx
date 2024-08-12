@@ -244,29 +244,68 @@ export default function SdsSearchDoc() {
         </ul>
         <strong>Example Usage</strong>
         <p>
-          If you want to search for products with the name "Acetone" supplied by
-          "Sigma-Aldrich", your <code style={styleCodeTag}>curl</code> command
-          would look like this:
+          The simple query to search for products with the name "Acetone", your{' '}
+          <code style={styleCodeTag}>curl</code> command would look like this:
         </p>
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://api-demo.sdsmanager.com/sds/search/?page_size=10&page=1' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \
+          >{`curl --location 'https://api-demo.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/json' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
+--data '{
+  "search": "Acetone",
+  "language_code": "en",
+  "search_type": "match",
+  "order_by": null,
+  "minimum_revision_date": null
+}'`}</code>
+        </pre>
+        <p>
+          The simple query to search for products with the name "Acetone" and
+          sort by revision date for descending order, your{' '}
+          <code style={styleCodeTag}>curl</code> command would look like this:
+        </p>
+        <pre>
+          <code
+            style={styleCodeTag}
+          >{`curl --location 'https://api-demo.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/json' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
+--data '{
+  "search": "Acetone",
+  "language_code": "en",
+  "search_type": "match",
+  "order_by": "-sds_pdf_revision_date",
+  "minimum_revision_date": null
+}'`}</code>
+        </pre>
+        <p>
+          The advanced query to search for products with the name "Acetone" and
+          ssupplier with the name "Sigma-Aldrich", your{' '}
+          <code style={styleCodeTag}>curl</code> command would look like this:
+        </p>
+        <pre>
+          <code
+            style={styleCodeTag}
+          >{`curl --location 'https://api-demo.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/json' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
 --data '{
   "advanced_search": {
     "product_name": "Acetone",
     "supplier_name": "Sigma-Aldrich",
-    "cas_no": "",
-    "product_code": ""
+    "cas_no": null,
+    "product_code": null
   },
-  "search": "",
+  "search": null,
   "language_code": "en",
   "search_type": "match",
-  "order_by": "-sds_pdf_revision_date",
-  "minimum_revision_date": ""
+  "order_by": null,
+  "minimum_revision_date": null
 }'`}</code>
         </pre>
       </div>
@@ -349,14 +388,14 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://api-demo.sdsmanager.com/sds/details/' \\
+          >{`curl --location 'https://api-demo.sdsmanager.com/sds/details/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
---header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
 --data '{
   "sds_id": "gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ==",
-  "language_code": "",
-  "pdf_md5": ""
+  "pdf_md5": null,
+  "language_code": null
 }'`}</code>
         </pre>
       </div>
@@ -412,8 +451,8 @@ export default function SdsSearchDoc() {
               <pre>
                 <code style={styleCodeTag}>{`{
   "sds_id": [
-    "<integer>",
-    "<integer>"
+    "<string>",
+    "<string>"
   ],
   "pdf_md5": [
     "<string>",
@@ -441,13 +480,16 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://api-demo.sdsmanager.com/sds/multipleDetails/' \\
+          >{`curl --location 'https://api-demo.sdsmanager.com/sds/multipleDetails/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
---header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
 --data '{
-  "sds_id": ["gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ==", "gAAAAABmWC_OJyuVwqAra-3ERRCDr67IuniTC7xrqccJbzw6gT_7X4zO8EbPjQlqdzebMH24shDODNrTymcQ7uQhXbp5sCmDBw=="],
-  "pdf_md5": ""
+  "sds_id": [
+    "gAAAAABmjjqHXQfCCRpTryV9mMTnJEfmA2MuA-8B7-kxAHlXZoRYnLoIBqTom9YL5IeGHRUwoz_gNZ8_xlbfzd8G-MUpd3lomw==",
+    "gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ=="
+  ],
+  "pdf_md5": null
 }'`}</code>
         </pre>
       </div>
