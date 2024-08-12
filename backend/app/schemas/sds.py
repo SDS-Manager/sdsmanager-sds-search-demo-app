@@ -71,6 +71,17 @@ class MultipleNewRevisionInfoSchema(BaseModel):
     newer: MultipleNewerSDSInfoSchema | None
 
 
+class MultipleNewerSDSInfoSchema(BaseModel):
+    sds_id: str
+    revision_date: datetime.date | None
+    search_id: str
+    search_pdf_md5: str
+
+
+class MultipleNewRevisionInfoSchema(BaseModel):
+    newer: MultipleNewerSDSInfoSchema | None
+
+
 class AdvancedSearchSchema(BaseModel):
     supplier_name: str | None
     product_name: str | None

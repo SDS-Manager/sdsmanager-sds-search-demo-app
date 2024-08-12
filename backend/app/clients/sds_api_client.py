@@ -254,17 +254,21 @@ class SDSAPIClient:
 
         if response.status_code == status.HTTP_200_OK:
             for response_json in response_jsons:
-                if response_json["newer"] and response_json["newer"].get("sds_id"):
+                if response_json["newer"] and response_json["newer"].get(
+                    "sds_id"
+                ):
                     response_json["newer"]["sds_id"] = encrypt_number(
                         response_json["newer"]["sds_id"], settings.SECRET_KEY
                     )
-                if response_json["newer"] and response_json["newer"].get("search_id"):
+                if response_json["newer"] and response_json["newer"].get(
+                    "search_id"
+                ):
                     response_json["newer"]["search_id"] = encrypt_number(
-                        response_json["newer"]["search_id"], settings.SECRET_KEY
+                        response_json["newer"]["search_id"],
+                        settings.SECRET_KEY,
                     )
 
         return response_jsons
-
 
     async def upload_sds(self, file: UploadFile):
         try:
