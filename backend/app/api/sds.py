@@ -157,7 +157,7 @@ async def search_for_new_sds_revision_info(
 @limiter.limit("5/minute")
 async def search_for_multiple_new_sds_revision_info(
     request: Request,
-    search_body: schemas.MultipleSDSDetailsBodySchema = Body(...),
+    search_body: schemas.MultipleSDSNewRevisionsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
 ):
     try:
