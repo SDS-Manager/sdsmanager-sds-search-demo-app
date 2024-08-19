@@ -56,7 +56,7 @@ class SDSService:
         return schemas.NewRevisionInfoSchema(**api_response)
     
     async def get_multiple_newer_sds_info(
-        self, search: schemas.MultipleSDSDetailsBodySchema
+        self, search: schemas.MultipleSDSNewRevisionsBodySchema
     ) -> list[schemas.MultipleNewRevisionInfoSchema]:
         api_response = await self.sds_api_client.get_multiple_new_revision_sds_info(
             sds_id=search.sds_id,

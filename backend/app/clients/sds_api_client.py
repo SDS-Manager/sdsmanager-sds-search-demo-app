@@ -219,7 +219,7 @@ class SDSAPIClient:
     ):
         search_data = {}
         if sds_id:
-            search_data["sds_id"] = sds_id
+            search_data["sds_id"] = [item.get("id") for item in sds_id]
         if pdf_md5:
             search_data["pdf_md5"] = pdf_md5
         if not search_data:
@@ -254,17 +254,25 @@ class SDSAPIClient:
 
         if response.status_code == status.HTTP_200_OK:
             for response_json in response_jsons:
-                if response_json["newer"] and response_json["newer"].get("sds_id"):
+                if response_json["newer"] and response_json["newer"].get(
+                    "sds_id"
+                ):
                     response_json["newer"]["sds_id"] = encrypt_number(
                         response_json["newer"]["sds_id"], settings.SECRET_KEY
                     )
-                if response_json["newer"] and response_json["newer"].get("search_id"):
-                    response_json["newer"]["search_id"] = encrypt_number(
-                        response_json["newer"]["search_id"], settings.SECRET_KEY
-                    )
+                if response_json["newer"] and response_json["newer"].get(
+                    "search_id"
+                ):
+                    for item in sds_id:
+                        if item.get("id") == response_json["newer"]["search_id"]:
+                            response_json["newer"]["search_id"] = item.get("encrypt")
+                        else:
+                            response_json["newer"]["search_id"] = encrypt_number(
+                                response_json["newer"]["search_id"],
+                                settings.SECRET_KEY,
+                            )
 
         return response_jsons
-
 
     async def upload_sds(self, file: UploadFile):
         try:
