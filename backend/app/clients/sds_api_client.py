@@ -46,6 +46,7 @@ class SDSAPIClient:
         region_short_name: str | None = None,
         page: int = 1,
         page_size: int = 20,
+        fe: bool = False,
     ) -> list[dict]:
         search_data = {}
         if advanced_search:
@@ -89,17 +90,30 @@ class SDSAPIClient:
         if response.status_code != status.HTTP_200_OK:
             raise SDSAPIInternalError
 
-        return response.json()
+        response_jsons: dict = response.json()
+        if response.status_code == status.HTTP_200_OK:
+            for response_json in response_jsons:
+                if response_json and response_json.get("id"):
+                    if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                        response_json["search_id"] = encrypt_number(
+                            response_json.get("id"),
+                            settings.SECRET_KEY,
+                        )
+                    else:
+                        response_json["search_id"] = response_json.get("id")
+
+        return response_jsons
 
     async def get_sds_details(
         self,
         sds_id: int | None = None,
         pdf_md5: str | None = None,
         language_code: str | None = None,
+        fe: bool = False,
     ):
         search_data = {}
         if sds_id:
-            search_data["sds_id"] = sds_id
+            search_data["sds_id"] = sds_id.get("id")
         if pdf_md5:
             search_data["pdf_md5"] = pdf_md5
         if language_code:
@@ -128,16 +142,31 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException
 
-        return response.json()
+        response_json: dict = response.json()
+        if response.status_code == status.HTTP_200_OK:
+            if response_json and response_json.get("id"):
+                if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                    if sds_id.get("id") == response_json.get("id"):
+                        response_json["search_id"] = sds_id.get("encrypt")
+                    else:
+                        response_json["search_id"] = encrypt_number(
+                            response_json.get("id"),
+                            settings.SECRET_KEY,
+                        )
+                else:
+                    response_json["search_id"] = response_json.get("id")
+
+        return response_json
 
     async def get_multiple_sds_details(
         self,
         sds_id: list[int] = None,
         pdf_md5: list[str] = None,
+        fe: bool = False,
     ):
         search_data = {}
         if sds_id:
-            search_data["sds_id"] = sds_id
+            search_data["sds_id"] = [item.get("id") for item in sds_id]
         if pdf_md5:
             search_data["pdf_md5"] = pdf_md5
         if not search_data:
@@ -168,16 +197,33 @@ class SDSAPIClient:
                 )
             raise SDSBadRequestException
 
-        return response.json()
+        response_jsons: dict = response.json()
+        if response.status_code == status.HTTP_200_OK:
+            for response_json in response_jsons:
+                if response_json and response_json.get("id"):
+                    if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                        for item in sds_id:
+                            if item.get("id") == response_json.get("id"):
+                                response_json["search_id"] = item.get("encrypt")
+                            else:
+                                response_json["search_id"] = encrypt_number(
+                                    response_json.get("id"),
+                                    settings.SECRET_KEY,
+                                )
+                    else:
+                        response_json["search_id"] = response_json.get("id")
+
+        return response_jsons
 
     async def get_new_revision_sds_info(
         self,
         sds_id: list[int] = None,
         pdf_md5: list[int] = None,
+        fe: bool = False,
     ):
         search_data = {}
         if sds_id:
-            search_data["sds_id"] = sds_id
+            search_data["sds_id"] = sds_id.get("id")
         if pdf_md5:
             search_data["pdf_md5"] = pdf_md5
 
@@ -209,6 +255,21 @@ class SDSAPIClient:
                 response_json["newer"]["sds_id"] = encrypt_number(
                     response_json["newer"]["sds_id"], settings.SECRET_KEY
                 )
+            if response_json["newer"] and response_json["newer"].get(
+                "search_id"
+            ):
+                if sds_id.get("id") == response_json["newer"]["search_id"]:
+                    if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                        response_json["newer"]["search_id"] = sds_id.get("encrypt")
+                    response_json["newer"]["encryption_search_id"] = sds_id.get("encrypt")
+                else:
+                    search_id = encrypt_number(
+                        response_json["newer"]["search_id"],
+                        settings.SECRET_KEY,
+                    )
+                    if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                        response_json["newer"]["search_id"] = search_id
+                    response_json["newer"]["encryption_search_id"] = search_id
 
         return response_json
 
@@ -216,6 +277,7 @@ class SDSAPIClient:
         self,
         sds_id: list[int] = None,
         pdf_md5: list[str] = None,
+        fe: bool = False,
     ):
         search_data = {}
         if sds_id:
@@ -265,16 +327,21 @@ class SDSAPIClient:
                 ):
                     for item in sds_id:
                         if item.get("id") == response_json["newer"]["search_id"]:
-                            response_json["newer"]["search_id"] = item.get("encrypt")
+                            if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                                response_json["newer"]["search_id"] = item.get("encrypt")
+                            response_json["newer"]["encryption_search_id"] = item.get("encrypt")
                         else:
-                            response_json["newer"]["search_id"] = encrypt_number(
+                            search_id = encrypt_number(
                                 response_json["newer"]["search_id"],
                                 settings.SECRET_KEY,
                             )
+                            if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                                response_json["newer"]["search_id"] = search_id
+                            response_json["newer"]["encryption_search_id"] = search_id
 
         return response_jsons
 
-    async def upload_sds(self, file: UploadFile):
+    async def upload_sds(self, file: UploadFile, fe: bool = False):
         try:
             response = await self.session.post(
                 url="/sds/upload/",
@@ -296,4 +363,15 @@ class SDSAPIClient:
         if response.status_code != status.HTTP_200_OK:
             raise SDSAPIInternalError
 
-        return response.json()
+        response_json: dict = response.json()
+        if response.status_code == status.HTTP_200_OK:
+            if response_json and response_json.get("id"):
+                if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                    response_json["search_id"] = encrypt_number(
+                        response_json.get("id"),
+                        settings.SECRET_KEY,
+                    )
+                else:
+                    response_json["search_id"] = response_json.get("id")
+
+        return response_json

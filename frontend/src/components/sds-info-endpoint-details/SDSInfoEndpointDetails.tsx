@@ -37,7 +37,7 @@ const SDSInfoEndpointDetails = ({
       }
       axiosInstance
         .post(
-          `/sds/details/`,
+          `/sds/details/?fe=true`,
           {
             sds_id: defaultSDSId,
           },
@@ -71,7 +71,7 @@ const SDSInfoEndpointDetails = ({
       }
       axiosInstance
         .post(
-          `/sds/details/`,
+          `/sds/details/?fe=true`,
           {
             sds_id: values.sds_id,
             pdf_md5: values.pdf_md5,
