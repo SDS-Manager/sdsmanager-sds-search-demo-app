@@ -35,7 +35,7 @@ const NewerRevisionDateEndpointDetails = () => {
       setLoading(true);
       axiosInstance
         .post(
-          `/sds/newRevisionInfo/`,
+          `/sds/newRevisionInfo/?fe=true`,
           {
             sds_id: values.sds_id,
             pdf_md5: values.pdf_md5,

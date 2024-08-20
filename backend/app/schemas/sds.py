@@ -14,6 +14,7 @@ from app.utils import decrypt_to_number, encrypt_number
 
 class BaseSDSSchema(BaseModel):
     id: str
+    search_id: str | None
     uuid: UUID
     pdf_md5: str
     sds_pdf_product_name: str
@@ -45,6 +46,9 @@ class SDSDetailsSchema(BaseSDSSchema):
 class NewerSDSInfoSchema(BaseModel):
     sds_id: str
     revision_date: datetime.date | None
+    search_id: str
+    encryption_search_id: str
+    search_pdf_md5: str
 
 
 class NewRevisionInfoSchema(BaseModel):
@@ -55,6 +59,7 @@ class MultipleNewerSDSInfoSchema(BaseModel):
     sds_id: str
     revision_date: datetime.date | None
     search_id: str
+    encryption_search_id: str
     search_pdf_md5: str
 
 
@@ -94,7 +99,10 @@ class SDSDetailsBodySchema(BaseModel):
     def validate_sds_id(cls, value):
         if value:
             try:
-                return decrypt_to_number(value, settings.SECRET_KEY)
+                return {
+                    "id": decrypt_to_number(value, settings.SECRET_KEY),
+                    "encrypt": f"{value}",
+                }
             except InvalidToken:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -129,7 +137,11 @@ class MultipleSDSDetailsBodySchema(BaseModel):
                 )
             try:
                 return [
-                    decrypt_to_number(v, settings.SECRET_KEY) for v in value
+                    {
+                        "id": decrypt_to_number(v, settings.SECRET_KEY),
+                        "encrypt": f"{v}",
+                    }
+                    for v in value
                 ]
             except InvalidToken:
                 raise HTTPException(
