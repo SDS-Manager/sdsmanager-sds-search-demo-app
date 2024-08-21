@@ -13,8 +13,8 @@ from app.utils import decrypt_to_number, encrypt_number
 
 
 class BaseSDSSchema(BaseModel):
-    id: str
     search_id: str | None
+    id: str
     uuid: UUID
     pdf_md5: str
     sds_pdf_product_name: str
@@ -28,9 +28,14 @@ class BaseSDSSchema(BaseModel):
     permanent_link: str
 
     @validator("id", pre=True)
-    def validate_id(cls, value):
+    def validate_id(cls, value, values):
         if isinstance(value, int):
-            return encrypt_number(value, settings.SECRET_KEY)
+            value =  encrypt_number(value, settings.SECRET_KEY)
+            search_id = values.get("search_id")
+            if isinstance(search_id, str):
+                if not search_id.isdigit():
+                    if search_id != value:
+                        return search_id
         return value
 
 

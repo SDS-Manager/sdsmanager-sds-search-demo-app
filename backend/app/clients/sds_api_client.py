@@ -14,7 +14,7 @@ from app.exceptions import (
     SDSBadRequestException,
     SDSNotFoundException,
 )
-from app.utils import encrypt_number
+from app.utils import encrypt_number, update_search_id
 
 
 class SDSAPIClient:
@@ -145,16 +145,15 @@ class SDSAPIClient:
         response_json: dict = response.json()
         if response.status_code == status.HTTP_200_OK:
             if response_json and response_json.get("id"):
-                if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
-                    if sds_id.get("id") == response_json.get("id"):
-                        response_json["search_id"] = sds_id.get("encrypt")
-                    else:
-                        response_json["search_id"] = encrypt_number(
-                            response_json.get("id"),
-                            settings.SECRET_KEY,
-                        )
-                else:
-                    response_json["search_id"] = response_json.get("id")
+                access_key_match = fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY
+
+                update_search_id(
+                    response_json,
+                    [sds_id] if sds_id else None,
+                    access_key_match,
+                    search_key="id",
+                    allow_none=True
+                )
 
         return response_json
 
@@ -201,17 +200,15 @@ class SDSAPIClient:
         if response.status_code == status.HTTP_200_OK:
             for response_json in response_jsons:
                 if response_json and response_json.get("id"):
-                    if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
-                        for item in sds_id:
-                            if item.get("id") == response_json.get("id"):
-                                response_json["search_id"] = item.get("encrypt")
-                            else:
-                                response_json["search_id"] = encrypt_number(
-                                    response_json.get("id"),
-                                    settings.SECRET_KEY,
-                                )
-                    else:
-                        response_json["search_id"] = response_json.get("id")
+                    access_key_match = fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY
+
+                    update_search_id(
+                        response_json,
+                        sds_id,
+                        access_key_match,
+                        search_key="id",
+                        allow_none=True
+                    )
 
         return response_jsons
 
@@ -258,18 +255,15 @@ class SDSAPIClient:
             if response_json["newer"] and response_json["newer"].get(
                 "search_id"
             ):
-                if sds_id.get("id") == response_json["newer"]["search_id"]:
-                    if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
-                        response_json["newer"]["search_id"] = sds_id.get("encrypt")
-                    response_json["newer"]["encryption_search_id"] = sds_id.get("encrypt")
-                else:
-                    search_id = encrypt_number(
-                        response_json["newer"]["search_id"],
-                        settings.SECRET_KEY,
-                    )
-                    if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
-                        response_json["newer"]["search_id"] = search_id
-                    response_json["newer"]["encryption_search_id"] = search_id
+                access_key_match = fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY
+
+                update_search_id(
+                    response_json["newer"],
+                    [sds_id] if sds_id else None,
+                    access_key_match,
+                    search_key="search_id",
+                    allow_none=False
+                )
 
         return response_json
 
@@ -325,19 +319,15 @@ class SDSAPIClient:
                 if response_json["newer"] and response_json["newer"].get(
                     "search_id"
                 ):
-                    for item in sds_id:
-                        if item.get("id") == response_json["newer"]["search_id"]:
-                            if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
-                                response_json["newer"]["search_id"] = item.get("encrypt")
-                            response_json["newer"]["encryption_search_id"] = item.get("encrypt")
-                        else:
-                            search_id = encrypt_number(
-                                response_json["newer"]["search_id"],
-                                settings.SECRET_KEY,
-                            )
-                            if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
-                                response_json["newer"]["search_id"] = search_id
-                            response_json["newer"]["encryption_search_id"] = search_id
+                    access_key_match = fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY
+
+                    update_search_id(
+                        response_json["newer"],
+                        sds_id,
+                        access_key_match,
+                        search_key="search_id",
+                        allow_none=False
+                    )
 
         return response_jsons
 
