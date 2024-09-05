@@ -27,7 +27,7 @@ async def sds_details(
     request: Request,
     search_body: schemas.SDSDetailsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
-    fe: bool = Query(False, description="Optional 'fe' parameter")
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
         return await sds_service.get_sds_details(search=search_body, fe=fe)
@@ -37,7 +37,11 @@ async def sds_details(
             detail="At least one param is required",
         )
     except SDSAPIRequestNotAuthorized as ex:
-        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
@@ -62,17 +66,27 @@ async def multiple_sds_details(
     request: Request,
     search_body: schemas.MultipleSDSDetailsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
-    fe: bool = Query(False, description="Optional 'fe' parameter")
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
-        return await sds_service.get_multiple_sds_details(search=search_body, fe=fe)
+        return await sds_service.get_multiple_sds_details(
+            search=search_body, fe=fe
+        )
     except (SDSAPIParamsRequired, SDSBadRequestException) as ex:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "At least one param is required",
+            detail=(
+                ex.args[0]
+                if len(ex.args) > 0 and ex.args[0]
+                else "At least one param is required"
+            ),
         )
     except SDSAPIRequestNotAuthorized as ex:
-        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
@@ -93,14 +107,13 @@ async def search_for_sds(
     request: Request,
     search_body: schemas.SearchSDSFilesBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
-    fe: bool = Query(False, description="Optional 'fe' parameter")
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
         return await sds_service.search_sds(
             search=search_body,
-            page_size=10,
-            page=1,
-            fe=fe,
+            page_size=request.query_params._dict.get("page_size", 10),
+            page=request.query_params._dict.get("page", 1),
         )
     except SDSBadRequestException as ex:
         raise HTTPException(
@@ -108,7 +121,11 @@ async def search_for_sds(
             detail=ex.args[0],
         )
     except SDSAPIRequestNotAuthorized as ex:
-        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
@@ -129,7 +146,7 @@ async def search_for_new_sds_revision_info(
     request: Request,
     search_body: schemas.SDSDetailsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
-    fe: bool = Query(False, description="Optional 'fe' parameter")
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
         return await sds_service.get_newer_sds_info(search=search_body, fe=fe)
@@ -139,7 +156,11 @@ async def search_for_new_sds_revision_info(
             detail="At least one param is required",
         )
     except SDSAPIRequestNotAuthorized as ex:
-        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
@@ -164,17 +185,27 @@ async def search_for_multiple_new_sds_revision_info(
     request: Request,
     search_body: schemas.MultipleSDSNewRevisionsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
-    fe: bool = Query(False, description="Optional 'fe' parameter")
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
-        return await sds_service.get_multiple_newer_sds_info(search=search_body, fe=fe)
+        return await sds_service.get_multiple_newer_sds_info(
+            search=search_body, fe=fe
+        )
     except (SDSAPIParamsRequired, SDSBadRequestException) as ex:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "At least one param is required",
+            detail=(
+                ex.args[0]
+                if len(ex.args) > 0 and ex.args[0]
+                else "At least one param is required"
+            ),
         )
     except SDSAPIRequestNotAuthorized as ex:
-        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
@@ -195,12 +226,16 @@ async def upload_new_sds(
     request: Request,
     file: UploadFile,
     sds_service: SDSService = sds_service_dependency,
-    fe: bool = Query(False, description="Optional 'fe' parameter")
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
         return await sds_service.upload_sds(file=file, fe=fe)
     except SDSAPIRequestNotAuthorized as ex:
-        detail = ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Invalid API key"
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
