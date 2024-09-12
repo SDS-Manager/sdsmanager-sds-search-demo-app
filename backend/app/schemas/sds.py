@@ -19,7 +19,6 @@ class BaseSDSSchema(BaseModel):
     pdf_md5: str
     sds_pdf_product_name: str
     sds_pdf_manufacture_name: str
-    sds_pdf_manufacture_full_info: dict
     sds_pdf_revision_date: str | None
     master_date: str | None
     language: str
@@ -47,6 +46,7 @@ class ListSDSSchema(BaseSDSSchema):
 class SDSDetailsSchema(BaseSDSSchema):
     extracted_data: dict
     other_data: dict
+    sds_pdf_manufacture_full_info: dict
 
 
 class NewerSDSInfoSchema(BaseModel):
