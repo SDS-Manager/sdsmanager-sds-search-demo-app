@@ -114,6 +114,7 @@ async def search_for_sds(
             search=search_body,
             page_size=request.query_params._dict.get("page_size", 10),
             page=request.query_params._dict.get("page", 1),
+            fe=fe
         )
     except SDSBadRequestException as ex:
         raise HTTPException(
