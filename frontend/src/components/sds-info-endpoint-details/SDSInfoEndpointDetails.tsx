@@ -249,6 +249,99 @@ const SDSInfoEndpointDetails = ({
               {sdsDetails.sds_pdf_revision_date}
             </Grid>
           </Grid>
+
+          <Grid container item>
+            <Grid
+              sx={{
+                display: 'flex',
+                background: '#e0e7fa',
+                paddingLeft: '15px',
+                height: '40px',
+                alignItems: 'center',
+              }}
+              item
+              xs={12}
+            >
+              <Typography fontWeight="bold">Company details</Typography>
+            </Grid>
+          </Grid>
+          {sdsDetails?.sds_pdf_manufacture_full_info?.id && (
+            <Grid container item spacing={1}>
+              <Grid container item>
+                <Grid item xs={4}>
+                  ID
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.id}
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                  Name
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.name}
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                  Email
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.email}
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                  Address
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.address}
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                  Apt/Suite
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.address_app_suite}
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                  City
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.city}
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                  State
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.state}
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                ZIP/Postal
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.zip_code}
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                  Country
+                </Grid>
+                <Grid item xs={8}>
+                  {sdsDetails.sds_pdf_manufacture_full_info.country}
+                </Grid>
+              </Grid>
+            </Grid>
+          )}
+
           {sdsDetails?.extracted_data?.hazard_codes && (
             <Grid container item direction="row" rowSpacing={2}>
               <Grid container item>
