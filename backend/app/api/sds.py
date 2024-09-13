@@ -27,9 +27,10 @@ async def sds_details(
     request: Request,
     search_body: schemas.SDSDetailsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
-        return await sds_service.get_sds_details(search=search_body)
+        return await sds_service.get_sds_details(search=search_body, fe=fe)
     except (SDSAPIParamsRequired, SDSBadRequestException):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -65,9 +66,12 @@ async def multiple_sds_details(
     request: Request,
     search_body: schemas.MultipleSDSDetailsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
-        return await sds_service.get_multiple_sds_details(search=search_body)
+        return await sds_service.get_multiple_sds_details(
+            search=search_body, fe=fe
+        )
     except (SDSAPIParamsRequired, SDSBadRequestException) as ex:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -103,12 +107,14 @@ async def search_for_sds(
     request: Request,
     search_body: schemas.SearchSDSFilesBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
         return await sds_service.search_sds(
             search=search_body,
             page_size=request.query_params._dict.get("page_size", 10),
             page=request.query_params._dict.get("page", 1),
+            fe=fe
         )
     except SDSBadRequestException as ex:
         raise HTTPException(
@@ -141,9 +147,10 @@ async def search_for_new_sds_revision_info(
     request: Request,
     search_body: schemas.SDSDetailsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
-        return await sds_service.get_newer_sds_info(search=search_body)
+        return await sds_service.get_newer_sds_info(search=search_body, fe=fe)
     except (SDSAPIParamsRequired, SDSBadRequestException):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -177,12 +184,13 @@ async def search_for_new_sds_revision_info(
 @limiter.limit("5/minute")
 async def search_for_multiple_new_sds_revision_info(
     request: Request,
-    search_body: schemas.MultipleSDSDetailsBodySchema = Body(...),
+    search_body: schemas.MultipleSDSNewRevisionsBodySchema = Body(...),
     sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
         return await sds_service.get_multiple_newer_sds_info(
-            search=search_body
+            search=search_body, fe=fe
         )
     except (SDSAPIParamsRequired, SDSBadRequestException) as ex:
         raise HTTPException(
@@ -219,9 +227,10 @@ async def upload_new_sds(
     request: Request,
     file: UploadFile,
     sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
 ):
     try:
-        return await sds_service.upload_sds(file=file)
+        return await sds_service.upload_sds(file=file, fe=fe)
     except SDSAPIRequestNotAuthorized as ex:
         detail = (
             ex.args[0]

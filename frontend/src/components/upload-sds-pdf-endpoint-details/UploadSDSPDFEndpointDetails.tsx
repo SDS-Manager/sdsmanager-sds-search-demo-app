@@ -31,7 +31,7 @@ const SDSUploadEndpointDetails = () => {
       data.append('file', values?.file);
       setLoading(true);
       axiosInstance
-        .post(`/sds/upload/`, data, {
+        .post(`/sds/upload/?fe=true`, data, {
           headers: {
             'Content-Type': 'multipart/form-data',
             ...headers,

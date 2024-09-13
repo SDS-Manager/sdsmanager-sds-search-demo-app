@@ -578,7 +578,7 @@ export default function SdsSearchDoc() {
 --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
 --data '{
   "sds_id": "",
-  "pdf_md5": "c66703515396f0edbd32d21201ca71a1",
+  "pdf_md5": "d534edfac8a5981c9164632eaa83add6",
   "language_code": ""
 }'`}</code>
         </pre>
@@ -671,8 +671,8 @@ export default function SdsSearchDoc() {
 --header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
 --data '{
   "sds_id": [
-    "gAAAAABmjjqHXQfCCRpTryV9mMTnJEfmA2MuA-8B7-kxAHlXZoRYnLoIBqTom9YL5IeGHRUwoz_gNZ8_xlbfzd8G-MUpd3lomw==",
-    "gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ=="
+    "gAAAAABmuvt5gg5yXeVFsmZm0o9Y_Tg4xtqWxMzNkXGV18d9ryQS_Vgl4GMNKU_NTiZCAl7EU49YzBYD5TaRDKHuLMOUeIWydw==",
+    "gAAAAABmuvvH79LY7zdm-cXp8OgvOgpoqOdh9yN2jzTZ9bS1XGLrVFV0PxY936iE7wmrFcTncfAKV3hPj55PFQBk1nZtqeOEyg=="
   ],
   "pdf_md5": null
 }'`}</code>
