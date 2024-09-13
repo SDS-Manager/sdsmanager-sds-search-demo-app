@@ -96,7 +96,7 @@ const SearchEndpointDetails = ({
       }
       setLoading(true);
       axiosInstance
-        .post(`/sds/search/`, data, { headers: headers })
+        .post(`/sds/search/?fe=true`, data, { headers: headers })
         .then(function (response) {
           setSearchResults(response.data);
           setLoading(false);

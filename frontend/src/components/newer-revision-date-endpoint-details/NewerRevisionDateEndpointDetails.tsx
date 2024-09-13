@@ -35,7 +35,7 @@ const NewerRevisionDateEndpointDetails = () => {
       setLoading(true);
       axiosInstance
         .post(
-          `/sds/newRevisionInfo/`,
+          `/sds/newRevisionInfo/?fe=true`,
           {
             sds_id: values.sds_id,
             pdf_md5: values.pdf_md5,
@@ -76,7 +76,7 @@ const NewerRevisionDateEndpointDetails = () => {
           per minute is allowed without specified API Key.” to ”Use this feature
           to periodically poll for new revision of SDSs. If we have a new
           version in our database, the enpoint will return the SDS ID. You can
-          test the feature using MD5 c66703515396f0edbd32d21201ca71a1 (an SDS
+          test the feature using MD5 d534edfac8a5981c9164632eaa83add6 (an SDS
           from 2020 that is now repleced with a newer version. Only 5 requests
           per minute is allowed without specified API Key.
         </Typography>
