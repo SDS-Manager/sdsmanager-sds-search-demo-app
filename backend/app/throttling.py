@@ -19,5 +19,11 @@ class CustomLimiter(Limiter):
             request, endpoint_func, in_middleware
         )
 
+def get_real_ip(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For", request.headers.get("x-forwarded-for"))
+    if forwarded:
+        return forwarded.split(",")[0]
+    return get_remote_address(request)
 
-limiter = CustomLimiter(key_func=get_remote_address)
+
+limiter = CustomLimiter(key_func=get_real_ip)
