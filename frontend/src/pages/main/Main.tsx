@@ -51,6 +51,7 @@ const MainPage = () => {
   const [tabValue, setTabValue] = React.useState<number>(0);
   const [showPassword, setShowPassword] = React.useState(false);
   const [selectedSDSId, setSelectedSDSId] = React.useState<null | string>(null);
+  const [apiKey, setApiKey] = React.useState<null | string>(localStorage.getItem('apiKey'));
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -93,6 +94,7 @@ const MainPage = () => {
               type={showPassword ? 'text' : 'password'}
               onChange={(e) => {
                 localStorage.setItem('apiKey', e.target.value);
+                setApiKey(e.target.value);
               }}
               endAdornment={
                 <InputAdornment position="end">
@@ -107,9 +109,14 @@ const MainPage = () => {
                 </InputAdornment>
               }
               label="API Key"
+              value={apiKey}
             />
           </FormControl>
-          <Button onClick={() => localStorage.setItem('apiKey', '')}>
+          <Button onClick={() => {
+            localStorage.setItem('apiKey', '');
+            setApiKey('');
+          }}
+          >
             Reset
           </Button>
         </Grid>
