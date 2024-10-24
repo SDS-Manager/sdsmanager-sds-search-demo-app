@@ -5,6 +5,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 
+# Custom Limiter that skips rate limiting for certain requests
 class CustomLimiter(Limiter):
     def _check_request_limit(
         self,
@@ -12,9 +13,10 @@ class CustomLimiter(Limiter):
         endpoint_func: Optional[Callable[..., Any]],
         in_middleware: bool = True,
     ) -> None:
+        # Skip rate limiting if 'X-SDS-SEARCH-ACCESS-API-KEY' is present in the header
         if request.headers.get("X-SDS-SEARCH-ACCESS-API-KEY"):
-            request.state.view_rate_limit = 1
             return
+        # Otherwise, apply rate limiting as normal
         return super()._check_request_limit(
             request, endpoint_func, in_middleware
         )
