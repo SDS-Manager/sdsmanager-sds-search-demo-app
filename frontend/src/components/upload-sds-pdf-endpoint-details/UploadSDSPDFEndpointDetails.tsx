@@ -186,7 +186,7 @@ const SDSUploadEndpointDetails = () => {
           </Grid>
           <Grid container item>
             <Grid item xs={4}>
-              Replace by SDS ID
+              Replaced by SDS ID
             </Grid>
             <Grid item xs={8}>
               {sdsDetails.replaced_by_id}
