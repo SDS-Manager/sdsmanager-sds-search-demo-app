@@ -159,6 +159,7 @@ const SDSInfoEndpointDetails = ({
                   />
                 </FormControl>
               </Grid>
+              
             </Grid>
           </Grid>
           <Grid sx={{ marginTop: '20px' }} container item>
@@ -247,6 +248,22 @@ const SDSInfoEndpointDetails = ({
             </Grid>
             <Grid item xs={8}>
               {sdsDetails.sds_pdf_revision_date}
+            </Grid>
+          </Grid>
+          <Grid container item>
+            <Grid item xs={4}>
+              Replaced by SDS ID
+            </Grid>
+            <Grid item xs={8}>
+              {sdsDetails.replaced_by_id}
+            </Grid>
+          </Grid>
+          <Grid container item>
+            <Grid item xs={4}>
+             Newest version of SDS ID
+            </Grid>
+            <Grid item xs={8}>
+              {sdsDetails.newest_version_of_sds_id}
             </Grid>
           </Grid>
 

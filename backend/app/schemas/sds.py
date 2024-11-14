@@ -26,6 +26,8 @@ class BaseSDSSchema(BaseModel):
     product_code: str | None
     cas_no: str | None
     permanent_link: str
+    replaced_by_id: str | None
+    newest_version_of_sds_id: str | None
 
     @validator("id", pre=True)
     def validate_id(cls, value, values):
@@ -37,6 +39,22 @@ class BaseSDSSchema(BaseModel):
                     if search_id != value:
                         return search_id
         return value
+    
+    @validator("replaced_by_id", pre=True)
+    def validate_replaced_by_id(cls, value, values):
+        if isinstance(value, int):
+            value =  encrypt_number(value, settings.SECRET_KEY)
+            return value
+        return value
+    
+    @validator("newest_version_of_sds_id", pre=True)
+    def validate_newest_version_of_sds_id(cls, value, values):
+        if isinstance(value, int):
+            value =  encrypt_number(value, settings.SECRET_KEY)
+            return value
+        return value
+    
+    
 
 
 class ListSDSSchema(BaseSDSSchema):
