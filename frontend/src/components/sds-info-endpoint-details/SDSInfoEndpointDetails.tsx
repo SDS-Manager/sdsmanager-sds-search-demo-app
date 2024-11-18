@@ -266,7 +266,14 @@ const SDSInfoEndpointDetails = ({
               {sdsDetails.newest_version_of_sds_id}
             </Grid>
           </Grid>
-
+          <Grid container item>
+            <Grid item xs={4}>
+             Newest version
+            </Grid>
+            <Grid item xs={8}>
+              {sdsDetails.is_current_version ? 'True' : 'False'}
+            </Grid>
+          </Grid>
           <Grid container item>
             <Grid
               sx={{

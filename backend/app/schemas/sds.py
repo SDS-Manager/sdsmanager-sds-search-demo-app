@@ -28,6 +28,7 @@ class BaseSDSSchema(BaseModel):
     permanent_link: str
     replaced_by_id: str | None
     newest_version_of_sds_id: str | None
+    is_current_version: bool | None
 
     @validator("id", pre=True)
     def validate_id(cls, value, values):
@@ -112,6 +113,7 @@ class SearchSDSFilesBodySchema(BaseModel):
     search_type: str | None
     order_by: str | None
     minimum_revision_date: datetime.datetime | None
+    is_current_version: bool | None
 
 
 class SDSDetailsBodySchema(BaseModel):
