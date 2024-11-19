@@ -23,6 +23,7 @@ class SDSService:
             order_by=search.order_by,
             minimum_revision_date=search.minimum_revision_date,
             region_short_name=search.region_short_name,
+            is_current_version=search.is_current_version,
             page=page,
             page_size=page_size,
             fe=fe,
