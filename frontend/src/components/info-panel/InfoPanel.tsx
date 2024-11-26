@@ -22,10 +22,10 @@ const InfoPanel = () => {
         files. For cases where we are missing the SDS your customer need, the
         API allow you to insert a SDS PDF file and use the extracted data. The
         source code of this app can be found in this repository:
-        <a href="https://bitbucket.org/ebruvik/sdsmanager-sds-search-demo-app/src/main/">
+        <a href="https://github.com/SDS-Manager/sdsmanager-sds-search-demo-app">
           ebruvik/sdsmanager-sds-search-demo-app
         </a>
-        Feel free to look at our SDS Management solution to see example of SDS
+        . Feel free to look at our SDS Management solution to see example of SDS
         Management functions you may want to offer to your EHS customers.
         Contact us for information about pricing and to get an API key for your
         testing.

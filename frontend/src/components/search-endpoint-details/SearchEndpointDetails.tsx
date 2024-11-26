@@ -16,13 +16,16 @@ import {
   TableBody,
   Typography,
   TextField,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 const SearchEndpointDetails = ({
   handleSelectSDS,
 }: {
@@ -54,6 +57,7 @@ const SearchEndpointDetails = ({
       advanced_search_cas_no: '',
       advanced_search_product_code: '',
       region_short_name: 'all',
+      is_current_version: true,
     },
     onSubmit: (values, { setSubmitting }) => {
       let data = {};
@@ -81,6 +85,7 @@ const SearchEndpointDetails = ({
           region_short_name: values.region_short_name,
           order_by: values.order_by,
           minimum_revision_date: values.minimum_revision_date || null,
+          is_current_version: values.is_current_version ? "true" : null,
         };
       } else {
         data = {
@@ -92,6 +97,7 @@ const SearchEndpointDetails = ({
             ? values.minimum_revision_date
             : null,
           region_short_name: values.region_short_name,
+          is_current_version: values.is_current_version ? "true" : null,
         };
       }
       setLoading(true);
@@ -369,8 +375,22 @@ const SearchEndpointDetails = ({
                   />
                 </FormControl>
               </Grid>
+              <Grid item xs={6}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      id="is_current_version"
+                      name="is_current_version"
+                      checked={formik.values.is_current_version ? true : false}
+                      onChange={formik.handleChange}
+                    />
+                  }
+                  label="Newest Version Only"
+                />
+              </Grid>
             </Grid>
           </Grid>
+
           <Grid sx={{ marginTop: '20px' }} container item>
             <Button
               variant={'contained'}
@@ -410,6 +430,7 @@ const SearchEndpointDetails = ({
                     <TableCell align="left">Supplier Name</TableCell>
                     <TableCell align="left">Revision Data</TableCell>
                     <TableCell align="left">Open PDF</TableCell>
+                    <TableCell align="left">Newest Version</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -446,6 +467,13 @@ const SearchEndpointDetails = ({
                           PDF file
                         </a>
                       </TableCell>
+                        <TableCell align="left">
+                        {el.is_current_version ? (
+                          <CheckIcon color="success" />
+                        ) : (
+                          <CloseIcon color="error" />
+                        )}
+                        </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
