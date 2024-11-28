@@ -7,18 +7,20 @@ trigger:
   batch: true
   branches:
     include:
-      - main
       - rc
       - develop
+  tags:
+    include:
+      - 'prod-v*'
 
 variables:
-  isProdBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  isProdBuild: $[startsWith(variables['Build.SourceBranchName'], 'prod-v')]
   isRcBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/rc')]
   isStagingBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/develop')]
 
 stages:
-- stage: All
-  condition: or(eq(variables.isProdBuild, true), eq(variables.isRcBuild, true), eq(variables.isStagingBuild, true))
+- stage: Build_RC_or_Staging
+  condition: or(eq(variables.isRcBuild, true), eq(variables.isStagingBuild, true))
   jobs:
   - job: build_fe_image_with_docker_file
     steps:
@@ -46,6 +48,36 @@ stages:
         command: 'buildAndPush'
         Dockerfile: 'backend/Dockerfile'
         tags: sds_demo_be.$(Build.SourceBranchName).latest
+
+- stage: Build_PROD
+  condition: eq(variables.isProdBuild, true)
+  jobs:
+  - job: build_fe_image_with_docker_file
+    steps:
+    - task: DockerInstaller@0
+      inputs:
+        dockerVersion: '17.09.0-ce'
+    - task: Docker@2
+      displayName: Building new font-end image on tag $(Build.SourceBranchName) for production.
+      inputs:
+        containerRegistry: 'sds-netpowerno-docker'
+        repository: 'netpowerasdockerhub/sds'
+        command: 'buildAndPush'
+        Dockerfile: 'frontend/Dockerfile'
+        tags: sds_demo_fe.prod.latest
+  - job: build_be_image_with_docker_file
+    steps:
+    - task: DockerInstaller@0
+      inputs:
+        dockerVersion: '17.09.0-ce'
+    - task: Docker@2
+      displayName: Building new back-end image on tag $(Build.SourceBranchName) for production.
+      inputs:
+        containerRegistry: 'sds-netpowerno-docker'
+        repository: 'netpowerasdockerhub/sds'
+        command: 'buildAndPush'
+        Dockerfile: 'backend/Dockerfile'
+        tags: sds_demo_be.prod.latest
 - stage: rollout_staging
   condition: eq(variables.isStagingBuild, true)
   variables:
@@ -80,6 +112,25 @@ stages:
             runOptions: 'commands'
             commands: |
               echo "ssh and rollout $(Build.SourceBranchName)"
+              echo $(SUDO_PWD) | sudo -S sh $(shellScriptFilePath) $(Build.SourceBranchName) $(SUDO_PWD)
+            failOnStderr: true
+            interactiveSession: true
+            readyTimeout: '120000'
+- stage: rollout_prod
+  condition: eq(variables.isRcBuild, true)
+  variables:
+    - group: sds-sudo-password
+    - name: shellScriptFilePath
+      value: /sds/toolkit/sds/k8s/sds_prod/sds_demo/sds_demo.sh
+  jobs:
+    - job: rollout_prod
+      steps:
+        - task: SSH@0
+          inputs:
+            sshEndpoint: 'SSH-luannguyen'
+            runOptions: 'commands'
+            commands: |
+              echo "ssh and rollout production for $(Build.SourceBranchName)"
               echo $(SUDO_PWD) | sudo -S sh $(shellScriptFilePath) $(Build.SourceBranchName) $(SUDO_PWD)
             failOnStderr: true
             interactiveSession: true
