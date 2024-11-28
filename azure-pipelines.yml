@@ -14,9 +14,9 @@ trigger:
       - 'prod-v*'
 
 variables:
-  isProdBuild: $[startsWith(variables['Build.SourceBranchName'], 'prod-v')]
   isRcBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/rc')]
   isStagingBuild: $[eq(variables['Build.SourceBranch'], 'refs/heads/develop')]
+  isProdBuild: $[startsWith(variables['Build.SourceBranchName'], 'prod-v')]
 
 stages:
 - stage: Build_RC_or_Staging
@@ -117,7 +117,7 @@ stages:
             interactiveSession: true
             readyTimeout: '120000'
 - stage: rollout_prod
-  condition: eq(variables.isRcBuild, true)
+  condition: eq(variables.isProdBuild, true)
   variables:
     - group: sds-sudo-password
     - name: shellScriptFilePath
