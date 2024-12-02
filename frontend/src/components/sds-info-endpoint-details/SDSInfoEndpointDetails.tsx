@@ -480,14 +480,17 @@ const SDSInfoEndpointDetails = ({
                   <Grid item xs={3}>
                     Component name
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={2}>
                     CAS #
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={2}>
                     EC #
                   </Grid>
                   <Grid item xs={3}>
                     Concentration
+                  </Grid>
+                  <Grid item xs={2}>
+                    Hazards Statements
                   </Grid>
                 </Grid>
                 {sdsDetails?.extracted_data?.sds_components.map(
@@ -496,14 +499,17 @@ const SDSInfoEndpointDetails = ({
                       <Grid item xs={3}>
                         {el.component_name}
                       </Grid>
-                      <Grid key={index} item xs={3}>
+                      <Grid key={index} item xs={2}>
                         {el.cas_no}
                       </Grid>
-                      <Grid key={index} item xs={3}>
+                      <Grid key={index} item xs={2}>
                         {el.ec_no}
                       </Grid>
                       <Grid key={index} item xs={3}>
                         {el.concentration}
+                      </Grid>
+                      <Grid key={index} item xs={2}>
+                        {el.hazards_statements}
                       </Grid>
                     </Grid>
                   )
@@ -535,60 +541,6 @@ const SDSInfoEndpointDetails = ({
             </Grid>
           )}
 
-          {sdsDetails?.sds_pdf_chemical_components && (
-            <Grid container item direction="row" rowSpacing={2}>
-              <Grid container item>
-                <Grid
-                  sx={{
-                    display: 'flex',
-                    background: '#e0e7fa',
-                    paddingLeft: '15px',
-                    height: '40px',
-                    alignItems: 'center',
-                  }}
-                  item
-                  xs={12}
-                >
-                  <Typography fontWeight="bold">SDS Chemical Components</Typography>
-                </Grid>
-              </Grid>
-              <Grid container item spacing={1}>
-                <Grid container item>
-                  <Grid item xs={3} sx={{fontWeight: 'bold'}}>
-                    Component name
-                  </Grid>
-                  <Grid item xs={3} sx={{fontWeight: 'bold'}}>
-                    CAS #
-                  </Grid>
-                  <Grid item xs={3} sx={{fontWeight: 'bold'}}>
-                    EC #
-                  </Grid>
-                  <Grid item xs={3} sx={{fontWeight: 'bold'}}>
-                    Concentration
-                  </Grid>
-                </Grid>
-                {sdsDetails?.sds_pdf_chemical_components.map(
-                  (el: any, index: number) => (
-                    <Grid key={index} container item>
-                      <Grid item xs={3}>
-                        {el.component_name}
-                      </Grid>
-                      <Grid key={index} item xs={3}>
-                        {el.cas_no}
-                      </Grid>
-                      <Grid key={index} item xs={3}>
-                        {el.ec_no}
-                      </Grid>
-                      <Grid key={index} item xs={3}>
-                        {el.concentraction}
-                      </Grid>
-                    </Grid>
-                  )
-                )}
-              </Grid>
-
-            </Grid>
-          )}
         </Grid>
       )}
     </Grid>
