@@ -65,6 +65,14 @@ stages:
         command: 'buildAndPush'
         Dockerfile: 'frontend/Dockerfile'
         tags: sds_demo_fe.prod.latest
+    - task: Docker@2
+      displayName: Building new font-end image sds_demo_fe.$(Build.SourceBranchName).
+      inputs:
+        containerRegistry: 'sds-netpowerno-docker'
+        repository: 'netpowerasdockerhub/sds'
+        command: 'buildAndPush'
+        Dockerfile: 'frontend/Dockerfile'
+        tags: sds_demo_fe.$(Build.SourceBranchName)
   - job: build_be_image_with_docker_file
     steps:
     - task: DockerInstaller@0
@@ -78,6 +86,14 @@ stages:
         command: 'buildAndPush'
         Dockerfile: 'backend/Dockerfile'
         tags: sds_demo_be.prod.latest
+    - task: Docker@2
+      displayName: Building new font-end image sds_demo_be.$(Build.SourceBranchName).
+      inputs:
+        containerRegistry: 'sds-netpowerno-docker'
+        repository: 'netpowerasdockerhub/sds'
+        command: 'buildAndPush'
+        Dockerfile: 'backend/Dockerfile'
+        tags: sds_demo_be.$(Build.SourceBranchName)
 - stage: rollout_staging
   condition: eq(variables.isStagingBuild, true)
   variables:
