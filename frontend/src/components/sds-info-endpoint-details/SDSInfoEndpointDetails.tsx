@@ -48,7 +48,7 @@ const SDSInfoEndpointDetails = ({
           if (response.data && response.data.extracted_data?.sds_transport_info !== undefined) {
             setSdsTransportInfo(response.data.extracted_data?.sds_transport_info);
           }
-          
+
           setLoading(false);
         })
         .catch(function (error) {
@@ -83,7 +83,7 @@ const SDSInfoEndpointDetails = ({
           if (response.data && response.data.extracted_data?.sds_transport_info !== undefined) {
             setSdsTransportInfo(response.data.extracted_data?.sds_transport_info);
           }
-          
+
           setLoading(false);
         })
         .catch(function (error) {
@@ -159,7 +159,7 @@ const SDSInfoEndpointDetails = ({
                   />
                 </FormControl>
               </Grid>
-              
+
             </Grid>
           </Grid>
           <Grid sx={{ marginTop: '20px' }} container item>
@@ -260,7 +260,7 @@ const SDSInfoEndpointDetails = ({
           </Grid>
           <Grid container item>
             <Grid item xs={4}>
-             Newest version of SDS ID
+              Newest version of SDS ID
             </Grid>
             <Grid item xs={8}>
               {sdsDetails.newest_version_of_sds_id}
@@ -268,12 +268,14 @@ const SDSInfoEndpointDetails = ({
           </Grid>
           <Grid container item>
             <Grid item xs={4}>
-             Newest version
+              Newest version
             </Grid>
             <Grid item xs={8}>
               {sdsDetails.is_current_version ? 'True' : 'False'}
             </Grid>
           </Grid>
+
+
           <Grid container item>
             <Grid
               sx={{
@@ -349,7 +351,7 @@ const SDSInfoEndpointDetails = ({
               </Grid>
               <Grid container item>
                 <Grid item xs={4}>
-                ZIP/Postal
+                  ZIP/Postal
                 </Grid>
                 <Grid item xs={8}>
                   {sdsDetails.sds_pdf_manufacture_full_info.zip_code}
@@ -478,14 +480,17 @@ const SDSInfoEndpointDetails = ({
                   <Grid item xs={3}>
                     Component name
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={2}>
                     CAS #
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={2}>
                     EC #
                   </Grid>
                   <Grid item xs={3}>
                     Concentration
+                  </Grid>
+                  <Grid item xs={2}>
+                    Hazards Statements
                   </Grid>
                 </Grid>
                 {sdsDetails?.extracted_data?.sds_components.map(
@@ -494,14 +499,17 @@ const SDSInfoEndpointDetails = ({
                       <Grid item xs={3}>
                         {el.component_name}
                       </Grid>
-                      <Grid key={index} item xs={3}>
+                      <Grid key={index} item xs={2}>
                         {el.cas_no}
                       </Grid>
-                      <Grid key={index} item xs={3}>
+                      <Grid key={index} item xs={2}>
                         {el.ec_no}
                       </Grid>
                       <Grid key={index} item xs={3}>
                         {el.concentration}
+                      </Grid>
+                      <Grid key={index} item xs={2}>
+                        {el.hazards_statements}
                       </Grid>
                     </Grid>
                   )
@@ -532,6 +540,7 @@ const SDSInfoEndpointDetails = ({
               )}
             </Grid>
           )}
+
         </Grid>
       )}
     </Grid>
