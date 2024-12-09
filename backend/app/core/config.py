@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     SDS_API_TIMEOUT: int = 120
     SECRET_KEY: str
     VALUE_LIMIT: int = 100
-
+    REDIS_HOST: str | None = None
+    REDIS_PORT: int | None = None
+    REDIS_DB: int | None = None
 
 settings = Settings()
