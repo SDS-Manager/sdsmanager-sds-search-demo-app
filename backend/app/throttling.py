@@ -21,7 +21,7 @@ class CustomLimiter(Limiter):
 
 def get_real_ip(request: Request) -> str:
     real_ip = request.headers.get("x-real-ip", request.headers.get("x-remote_addr"))
-    print(f"Real IP: {real_ip}")
+    # print(f"Real IP: {real_ip}")
     return real_ip
 
 
