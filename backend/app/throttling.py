@@ -3,7 +3,7 @@ from typing import Any, Callable, Optional
 from fastapi import Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-
+from app.core.config import settings
 
 class CustomLimiter(Limiter):
     def _check_request_limit(
@@ -20,10 +20,12 @@ class CustomLimiter(Limiter):
         )
 
 def get_real_ip(request: Request) -> str:
-    forwarded = request.headers.get("X-Forwarded-For", request.headers.get("x-forwarded-for"))
-    if forwarded:
-        return forwarded.split(",")[0]
-    return get_remote_address(request)
+    real_ip = request.headers.get("x-real-ip", request.headers.get("x-remote_addr"))
+    # print(f"Real IP: {real_ip}")
+    return real_ip
 
 
-limiter = CustomLimiter(key_func=get_real_ip)
+if settings.REDIS_HOST and settings.REDIS_PORT and settings.REDIS_DB:
+    limiter = CustomLimiter(key_func=get_real_ip, storage_uri=f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}")
+else:
+    limiter = CustomLimiter(key_func=get_real_ip)
