@@ -27,7 +27,7 @@ def get_real_ip(request: Request) -> str:
 
 if settings.REDIS_HOST and settings.REDIS_PORT and settings.REDIS_DB:
     redis_url = (
-        f"redis://{quote(settings.REDIS_PASSWORD, '')}@{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
+        f"redis://:{quote(settings.REDIS_PASSWORD, '')}@{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
         if settings.REDIS_PASSWORD
         else f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
     )
