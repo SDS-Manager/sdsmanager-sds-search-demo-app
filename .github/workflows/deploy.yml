@@ -1,0 +1,89 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - rc
+      - develop
+    tags:
+      - "prod-v*"
+
+env:
+  DOCKER_REPO: "netpowerasdockerhub/sds"
+  SSH_HOST: ${{ secrets.SSH_HOST }}
+  SSH_USER: ${{ secrets.SSH_USER }}
+  SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  SUDO_PWD: ${{ secrets.SUDO_PWD }}
+
+jobs:
+  build_and_push:
+    runs-on: sds-runners
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      tag_name: ${{ steps.set-env.outputs.tag_name }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Determine Environment
+        id: set-env
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            echo "environment=develop" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == "refs/heads/rc" ]]; then
+            echo "environment=rc" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == refs/tags/prod-v* ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and Push Docker Image
+        run: |
+          if [[ "${{ steps.set-env.outputs.environment }}" == "develop" || "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
+            docker build -t $DOCKER_REPO:sds_demo_be.${{ steps.set-env.outputs.environment }}.latest -f ./backend/Dockerfile ./backend
+            docker build -t $DOCKER_REPO:sds_demo_fe.${{ steps.set-env.outputs.environment }}.latest -f ./frontend/Dockerfile ./frontend
+            timeout 300 docker push $DOCKER_REPO:sds_demo_be.${{ steps.set-env.outputs.environment }}.latest
+            timeout 300 docker push $DOCKER_REPO:sds_demo_fe.${{ steps.set-env.outputs.environment }}.latest
+
+          elif [[ "${{ steps.set-env.outputs.environment }}" == "production" ]]; then
+            docker build -t $DOCKER_REPO:sds_demo_be.prod.latest -f ./backend/Dockerfile ./backend
+            docker build -t $DOCKER_REPO:sds_demo_fe.prod.latest -f ./frontend/Dockerfile ./frontend
+            timeout 300 docker push $DOCKER_REPO:sds_demo_be.prod.latest
+            timeout 300 docker push $DOCKER_REPO:sds_demo_fe.prod.latest
+
+            docker build -t $DOCKER_REPO:sds_demo_be.${{ steps.set-env.outputs.tag_name }} -f ./backend/Dockerfile ./backend
+            docker build -t $DOCKER_REPO:sds_demo_fe.${{ steps.set-env.outputs.tag_name }} -f ./frontend/Dockerfile ./frontend
+            timeout 300 docker push $DOCKER_REPO:sds_demo_be.${{ steps.set-env.outputs.tag_name }}
+            timeout 300 docker push $DOCKER_REPO:sds_demo_fe.${{ steps.set-env.outputs.tag_name }}
+          fi
+
+  release_new_version:
+    needs: build_and_push
+    runs-on: sds-runners
+    steps:
+      - name: Release new version to Correct Environment via SSH
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
+          envs: SUDO_PWD
+          script: |
+            echo "Releasing to ${{ needs.build_and_push.outputs.environment }}..."
+            if [[ "${{ needs.build_and_push.outputs.environment }}" == "develop" ]]; then
+              echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_staging/sds_demo/sds_demo.sh develop $SUDO_PWD
+            elif [[ "${{ needs.build_and_push.outputs.environment }}" == "rc" ]]; then
+              echo $SUDO_PWD | sudo -S sh /sds/toolkit/sds/k8s/sds_rc/sds_demo/sds_demo.sh rc $SUDO_PWD
+            elif [[ "${{ needs.build_and_push.outputs.environment }}" == "production" ]]; then
+              echo $SUDO_PWD | sudo -S sh /sds/toolkit/sds/k8s/sds_prod/sds_demo/sds_demo.sh ${{ needs.build_and_push.outputs.tag_name }} $SUDO_PWD
+            fi
