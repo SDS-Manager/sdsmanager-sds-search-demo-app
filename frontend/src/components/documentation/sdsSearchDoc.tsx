@@ -20,7 +20,7 @@ export default function SdsSearchDoc() {
           <ul>
             <li>
               Go to the{' '}
-              <a href="https://api-demo.sdsmanager.com/">SDS Manager</a> and
+              <a href="https://api.sdsmanager.com/">SDS Manager</a> and
               click on the "SDS SEARCH" tab.
             </li>
           </ul>
@@ -131,7 +131,7 @@ export default function SdsSearchDoc() {
       retrieving specific SDS details, and managing other related resources. The
       documentation also covers error handling and rate limiting. You can also
       use the{' '}
-      <a href="https://api-demo.sdsmanager.com/docs">
+      <a href="https://api.sdsmanager.com/docs">
         SDS Manager OpenAPI docs
       </a>{' '}
       to interact online.
@@ -144,7 +144,7 @@ export default function SdsSearchDoc() {
             <strong>URL:</strong>
             <p>
               <code style={styleCodeTag}>
-                http://api-demo.sdsmanager.com/sds/search/?page_size=10&amp;page=1
+                http://api.sdsmanager.com/sds/search/?page_size=10&amp;page=1
               </code>
               : This is the endpoint where the API request is being sent.
             </p>
@@ -250,7 +250,7 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'https://api-demo.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
@@ -270,7 +270,7 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'https://api-demo.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
@@ -290,7 +290,7 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'https://api-demo.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
@@ -318,7 +318,7 @@ export default function SdsSearchDoc() {
             <strong>URL:</strong>
             <p>
               <code style={styleCodeTag}>
-                http://api-demo.sdsmanager.com/sds/details/
+                http://api.sdsmanager.com/sds/details/
               </code>
               : This is the endpoint where the API request is being sent.
             </p>
@@ -388,7 +388,7 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'https://api-demo.sdsmanager.com/sds/details/' \\
+          >{`curl --location 'https://api.sdsmanager.com/sds/details/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
@@ -408,7 +408,7 @@ export default function SdsSearchDoc() {
             <strong>URL:</strong>
             <p>
               <code style={styleCodeTag}>
-                http://api-demo.sdsmanager.com/sds/multipleDetails/
+                http://api.sdsmanager.com/sds/multipleDetails/
               </code>
               : This is the endpoint where the API request is being sent.
             </p>
@@ -480,7 +480,7 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'https://api-demo.sdsmanager.com/sds/multipleDetails/' \\
+          >{`curl --location 'https://api.sdsmanager.com/sds/multipleDetails/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
@@ -502,7 +502,7 @@ export default function SdsSearchDoc() {
             <strong>URL:</strong>
             <p>
               <code style={styleCodeTag}>
-                http://api-demo.sdsmanager.com/sds/newRevisionInfo/
+                http://api.sdsmanager.com/sds/newRevisionInfo/
               </code>
               : This is the endpoint where the API request is being sent.
             </p>
@@ -572,7 +572,7 @@ export default function SdsSearchDoc() {
         <pre>
           <code
             style={styleCodeTag}
-          >{`curl --location 'http://api-demo.sdsmanager.com/sds/newRevisionInfo/' \\
+          >{`curl --location 'http://api.sdsmanager.com/sds/newRevisionInfo/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
@@ -591,7 +591,7 @@ export default function SdsSearchDoc() {
               <strong>URL:</strong>
               <p>
                 <code style={styleCodeTag}>
-                  http://api-demo.sdsmanager.com/sds/multipleNewRevisionInfo/
+                  http://api.sdsmanager.com/sds/multipleNewRevisionInfo/
                 </code>
                 : This is the endpoint where the API request is being sent.
               </p>
@@ -665,7 +665,7 @@ export default function SdsSearchDoc() {
           <pre>
             <code
               style={styleCodeTag}
-            >{`curl --location 'https://api-demo.sdsmanager.com/sds/multipleNewRevisionInfo/' \\
+            >{`curl --location 'https://api.sdsmanager.com/sds/multipleNewRevisionInfo/' \\
 --header 'Content-Type: application/json' \\
 --header 'Accept: application/json' \\
 --header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
@@ -687,7 +687,7 @@ export default function SdsSearchDoc() {
               <strong>URL:</strong>
               <p>
                 <code style={styleCodeTag}>
-                  http://api-demo.sdsmanager.com/sds/upload/
+                  http://api.sdsmanager.com/sds/upload/
                 </code>
                 : This is the endpoint where the API request is being sent.
               </p>
@@ -754,7 +754,7 @@ export default function SdsSearchDoc() {
           <pre>
             <code
               style={styleCodeTag}
-            >{`curl --location 'http://api-demo.sdsmanager.com/sds/upload/' \\
+            >{`curl --location 'http://api.sdsmanager.com/sds/upload/' \\
 --header 'Content-Type: multipart/form-data' \\
 --header 'Accept: application/json' \\
 --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
