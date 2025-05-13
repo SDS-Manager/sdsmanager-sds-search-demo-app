@@ -1,3 +1,4 @@
+from uuid import UUID
 from cryptography.fernet import Fernet
 from app.core.config import settings
 
@@ -40,3 +41,11 @@ def update_search_id(response_json, sds_id, access_key_match, search_key="id", a
         response_json["search_id"] = encrypt_number(search_id, settings.SECRET_KEY)
         # Ensure encryption_search_id matches search_id if search_id is encrypted
         response_json["encryption_search_id"] = response_json["search_id"]
+
+
+def is_valid_uuid(uuid_to_test):
+    try:
+        uuid_obj = UUID(uuid_to_test)
+    except ValueError:
+        return False
+    return str(uuid_obj).lower() == uuid_to_test.lower()
