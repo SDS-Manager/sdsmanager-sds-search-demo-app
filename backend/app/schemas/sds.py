@@ -2,6 +2,7 @@ import datetime
 import enum
 import re
 from uuid import UUID
+import uuid
 
 from cryptography.fernet import InvalidToken
 from fastapi import HTTPException
@@ -9,7 +10,7 @@ from pydantic import BaseModel, validator
 from starlette import status
 
 from app.core.config import settings
-from app.utils import decrypt_to_number, encrypt_number
+from app.utils import decrypt_to_number, encrypt_number, is_valid_uuid
 
 
 class BaseSDSSchema(BaseModel):
@@ -72,8 +73,9 @@ class SDSDetailsSchema(BaseSDSSchema):
 class NewerSDSInfoSchema(BaseModel):
     sds_id: str
     revision_date: datetime.date | None
+    uuid: uuid.UUID
     search_id: str
-    encryption_search_id: str
+    # encryption_search_id: str
     search_pdf_md5: str
 
 
@@ -125,6 +127,11 @@ class SDSDetailsBodySchema(BaseModel):
     @validator("sds_id")
     def validate_sds_id(cls, value):
         if value:
+            if is_valid_uuid(value):
+                return {
+                    "id": value,
+                }
+
             try:
                 return {
                     "id": decrypt_to_number(value, settings.SECRET_KEY),

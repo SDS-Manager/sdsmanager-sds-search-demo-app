@@ -99,12 +99,12 @@ const NewerRevisionDateEndpointDetails = () => {
             <Grid container item spacing={2}>
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel htmlFor={'sds_id'}>SDS ID</InputLabel>
+                  <InputLabel htmlFor={'sds_id'}>SDS ID (UUID)</InputLabel>
                   <OutlinedInput
                     fullWidth
                     id="sds_id"
                     name="sds_id"
-                    label="SDS ID"
+                    label="SDS ID (UUID)"
                     onChange={formik.handleChange}
                     value={formik.values.sds_id}
                   />
