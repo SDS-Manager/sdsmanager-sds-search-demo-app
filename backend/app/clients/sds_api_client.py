@@ -150,15 +150,20 @@ class SDSAPIClient:
         response_json: dict = response.json()
         if response.status_code == status.HTTP_200_OK:
             if response_json and response_json.get("id"):
-                access_key_match = fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY
+                response_json["search_id"] = encrypt_number(
+                        response_json.get("id"),
+                        settings.SECRET_KEY,
+                    )
+                
+                # access_key_match = fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY
 
-                update_search_id(
-                    response_json,
-                    [sds_id] if sds_id else None,
-                    access_key_match,
-                    search_key="id",
-                    allow_none=True
-                )
+                # update_search_id(
+                #     response_json,
+                #     [sds_id] if sds_id else None,
+                #     access_key_match,
+                #     search_key="id",
+                #     allow_none=True
+                # )
 
         return response_json
 
@@ -260,16 +265,18 @@ class SDSAPIClient:
             if response_json["newer"] and response_json["newer"].get(
                 "search_id"
             ):
-                access_key_match = fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY
-
-                update_search_id(
-                    response_json["newer"],
-                    [sds_id] if sds_id else None,
-                    access_key_match,
-                    search_key="search_id",
-                    allow_none=False
+                response_json["newer"]["search_id"] = encrypt_number(
+                    response_json["newer"]["search_id"], settings.SECRET_KEY
                 )
+            #     access_key_match = fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY
 
+            #     update_search_id(
+            #         response_json["newer"],
+            #         [sds_id] if sds_id else None,
+            #         access_key_match,
+            #         search_key="search_id",
+            #         allow_none=False
+            #     )
         return response_json
 
     async def get_multiple_new_revision_sds_info(
