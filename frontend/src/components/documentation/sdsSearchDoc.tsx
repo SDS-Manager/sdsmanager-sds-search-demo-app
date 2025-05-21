@@ -360,7 +360,7 @@ export default function SdsSearchDoc() {
               like:
               <pre>
                 <code style={styleCodeTag}>{`{
-  "sds_id": "<integer>",
+  "sds_id": "<string>",
   "language_code": "<string>",
   "pdf_md5": "<string>"
 }`}</code>
@@ -544,19 +544,20 @@ export default function SdsSearchDoc() {
               like:
               <pre>
                 <code style={styleCodeTag}>{`{
-  "sds_id": "<integer>",
+  "sds_id": "<string>",
   "pdf_md5": "<string>",
   "language_code": "<string>"
 }`}</code>
               </pre>
             </p>
+            <p>You can use a UUID as the value for sds_id.</p>
           </li>
         </ul>
         <strong>Explanation of JSON Payload</strong>
         <p>The JSON payload consists of the following fields:</p>
         <ul>
           <li>
-            <strong>sds_id</strong>: The ID of the SDS (Safety Data Sheet).
+            <strong>sds_id</strong>: The ID or UUID of the SDS (Safety Data Sheet).
           </li>
           <li>
             <strong>pdf_md5</strong>: The MD5 hash of the PDF file associated
