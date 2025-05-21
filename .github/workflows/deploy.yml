@@ -84,6 +84,4 @@ jobs:
               echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_staging/sds_demo/sds_demo.sh develop $SUDO_PWD
             elif [[ "${{ needs.build_and_push.outputs.environment }}" == "rc" ]]; then
               echo $SUDO_PWD | sudo -S sh /sds/toolkit/sds/k8s/sds_rc/sds_demo/sds_demo.sh rc $SUDO_PWD
-            elif [[ "${{ needs.build_and_push.outputs.environment }}" == "production" ]]; then
-              echo $SUDO_PWD | sudo -S sh /sds/toolkit/sds/k8s/sds_prod/sds_demo/sds_demo.sh ${{ needs.build_and_push.outputs.tag_name }} $SUDO_PWD
             fi
