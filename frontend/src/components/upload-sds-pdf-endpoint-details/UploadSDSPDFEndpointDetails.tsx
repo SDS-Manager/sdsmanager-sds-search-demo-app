@@ -1,64 +1,117 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   FormControl,
   OutlinedInput,
   Grid,
   Button,
   Typography,
-  CircularProgress,
+  InputLabel,
 } from '@mui/material';
-import { useFormik } from 'formik';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
 
-const SDSUploadEndpointDetails = () => {
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const [showRawJSON, setShowRawJSON] = React.useState<boolean>(false);
-  const [sdsDetails, setSdsDetails] = React.useState<any>(null);
-  const formik = useFormik({
-    initialValues: {
-      file: [],
-    },
-    onSubmit: (values, { setSubmitting }) => {
-      const apiKey = localStorage.getItem('apiKey');
-      let headers = {};
-      if (apiKey) {
-        headers = { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey };
-      }
+interface FormValues {
+  file: File | null;
+  sku: string;
+  upc_ean: string;
+  product_code: string;
+}
 
-      let data = new FormData();
-      // @ts-ignore
-      data.append('file', values?.file);
-      setLoading(true);
-      axiosInstance
-        .post(`/sds/upload/?fe=true`, data, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            ...headers,
-          },
-        })
-        .then(function (response) {
-          setSdsDetails(response.data);
-          setLoading(false);
-        })
-        .catch(function (error) {
-          setLoading(false);
-          setSubmitting(false);
-          return error.response;
-        });
-      setSubmitting(false);
-    },
-    validate: (values) => {
-      const errors: { file: null | string } = {
-        file: null,
-      };
-      if (!values.file) {
-        errors.file = 'Required';
-      }
-    },
-    enableReinitialize: true,
-    validateOnMount: true,
+interface FormErrors {
+  file: string;
+}
+
+interface Code {
+  statement_code: string;
+  statements: string;
+}
+
+interface SdsDetails {
+  id: string;
+  pdf_md5: string;
+  sds_pdf_product_name: string;
+  sds_pdf_manufacture_name: string;
+  sds_pdf_revision_date: string;
+  replaced_by_id: string | null;
+  newest_version_of_sds_id: string | null;
+  is_current_version: boolean;
+  extracted_data?: {
+    hazard_codes?: Code[];
+    precautionary_codes?: Code[];
+    ghs_pictograms?: string[];
+  };
+}
+
+const SDSUploadEndpointDetails: React.FC = () => {
+  const [formValues, setFormValues] = useState<FormValues>({
+    file: null,
+    sku: '',
+    upc_ean: '',
+    product_code: '',
   });
+  const [errors, setErrors] = useState<FormErrors>({ file: '' });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showRawJSON, setShowRawJSON] = useState<boolean>(false);
+  const [sdsDetails, setSdsDetails] = useState<SdsDetails | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormValues((prev) => ({ ...prev, file }));
+    if (!file) {
+      setErrors((prev) => ({ ...prev, file: 'File is required' }));
+    } else {
+      setErrors((prev) => ({ ...prev, file: '' }));
+    }
+  };
+
+  const validate = (): boolean => {
+    let isValid = true;
+    const newErrors: FormErrors = { file: '' };
+    if (!formValues.file) {
+      newErrors.file = 'File is required';
+      isValid = false;
+    }
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    const apiKey = localStorage.getItem('apiKey');
+    const headers: Record<string, string> = {
+      ...(apiKey ? { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey } : {}),
+    };
+
+    const data = new FormData();
+    if (formValues.file instanceof File) {
+      data.append('file', formValues.file);
+    } else {
+      console.error('Invalid file');
+      return;
+    }
+
+    data.append('sku', formValues.sku || '');
+    data.append('upc_ean', formValues.upc_ean || '');
+    data.append('product_code', formValues.product_code || '');
+
+    setLoading(true);
+    try {
+      const response = await axiosInstance.post<SdsDetails>('/sds/upload/', data, { headers });
+      setSdsDetails(response.data);
+    } catch (error: unknown) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Grid container spacing={5}>
       <Grid container item>
@@ -70,49 +123,83 @@ const SDSUploadEndpointDetails = () => {
           allowed without specified API Key.
         </Typography>
       </Grid>
-      <Grid
-        container
-        item
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="flex-start"
-        sx={{}}
-      >
+      <Grid container direction="row" justifyContent="flex-start" alignItems="flex-start">
         <FormControl
-          fullWidth
           component="form"
-          onSubmit={formik.handleSubmit}
-          autoComplete={'off'}
+          onSubmit={handleSubmit}
+          autoComplete="off"
+          sx={{ ml: 5, mt: 5 }}
         >
-          <Grid container item direction="row" rowSpacing={2}>
-            <Grid container item spacing={2}>
-              <Grid item xs={4}>
-                <FormControl fullWidth>
-                  <OutlinedInput
-                    fullWidth
-                    type="file"
-                    id="file"
-                    name="file"
-                    label="SDS File"
-                    onChange={(event: React.ChangeEvent) => {
-                      const target = event.target as HTMLInputElement;
-                      if (target.files) {
-                        formik.setFieldValue('file', target.files[0]);
-                      }
-                    }}
-                  />
-                </FormControl>
-              </Grid>
+          <Grid container direction="column" spacing={2}>
+            {/* File upload */}
+            <Grid item>
+              <FormControl sx={{ width: '600px' }}>
+                <OutlinedInput
+                  type="file"
+                  id="file"
+                  name="file"
+                  onChange={handleFileChange}
+                />
+                {errors.file && (
+                  <Typography color="error" variant="caption">
+                    {errors.file}
+                  </Typography>
+                )}
+              </FormControl>
             </Grid>
-          </Grid>
-          <Grid sx={{ marginTop: '20px' }} container item>
-            <Button
-              variant={'contained'}
-              disabled={formik.isSubmitting}
-              type={'submit'}
-            >
-              Upload
-            </Button>
+
+            {/* SKU */}
+            <Grid item>
+              <FormControl sx={{ width: '600px' }}>
+                <InputLabel htmlFor="sku">SKU</InputLabel>
+                <OutlinedInput
+                  id="sku"
+                  name="sku"
+                  label="SKU"
+                  value={formValues.sku}
+                  onChange={handleInputChange}
+                />
+              </FormControl>
+            </Grid>
+
+            {/* UPC/EAN */}
+            <Grid item>
+              <FormControl sx={{ width: '600px' }}>
+                <InputLabel htmlFor="upc_ean">UPC/EAN</InputLabel>
+                <OutlinedInput
+                  id="upc_ean"
+                  name="upc_ean"
+                  label="UPC/EAN"
+                  value={formValues.upc_ean}
+                  onChange={handleInputChange}
+                />
+              </FormControl>
+            </Grid>
+
+            {/* Product Code */}
+            <Grid item>
+              <FormControl sx={{ width: '600px' }}>
+                <InputLabel htmlFor="product_code">Product Code</InputLabel>
+                <OutlinedInput
+                  id="product_code"
+                  name="product_code"
+                  label="Product Code"
+                  value={formValues.product_code}
+                  onChange={handleInputChange}
+                />
+              </FormControl>
+            </Grid>
+
+            {/* Submit */}
+            <Grid item sx={{ marginTop: 2 }}>
+              <Button
+                variant="contained"
+                disabled={loading}
+                type="submit"
+              >
+                Upload
+              </Button>
+            </Grid>
           </Grid>
         </FormControl>
       </Grid>
@@ -189,26 +276,26 @@ const SDSUploadEndpointDetails = () => {
               Replaced by SDS ID
             </Grid>
             <Grid item xs={8}>
-              {sdsDetails.replaced_by_id}
+              {sdsDetails.replaced_by_id ?? 'N/A'}
             </Grid>
           </Grid>
           <Grid container item>
             <Grid item xs={4}>
-             Newest version of SDS ID
+              Newest version of SDS ID
             </Grid>
             <Grid item xs={8}>
-              {sdsDetails.newest_version_of_sds_id}
+              {sdsDetails.newest_version_of_sds_id ?? 'N/A'}
             </Grid>
           </Grid>
           <Grid container item>
             <Grid item xs={4}>
-            Newest version
+              Newest version
             </Grid>
             <Grid item xs={8}>
               {sdsDetails.is_current_version ? 'True' : 'False'}
             </Grid>
           </Grid>
-          {sdsDetails?.extracted_data?.hazard_codes && (
+          {sdsDetails.extracted_data?.hazard_codes && (
             <Grid container item direction="row" rowSpacing={2}>
               <Grid container item>
                 <Grid
@@ -225,8 +312,8 @@ const SDSUploadEndpointDetails = () => {
                   <Typography fontWeight="bold">Hazard codes</Typography>
                 </Grid>
               </Grid>
-              {sdsDetails?.extracted_data?.hazard_codes.map(
-                (el: any, index: number) => (
+              {sdsDetails.extracted_data.hazard_codes.map(
+                (el: Code, index: number) => (
                   <Grid key={index} container item>
                     <Grid item xs={4}>
                       {el.statement_code}
@@ -239,7 +326,7 @@ const SDSUploadEndpointDetails = () => {
               )}
             </Grid>
           )}
-          {sdsDetails?.extracted_data?.precautionary_codes && (
+          {sdsDetails.extracted_data?.precautionary_codes && (
             <Grid container item direction="row" rowSpacing={2}>
               <Grid container item>
                 <Grid
@@ -256,8 +343,8 @@ const SDSUploadEndpointDetails = () => {
                   <Typography fontWeight="bold">Precautionary codes</Typography>
                 </Grid>
               </Grid>
-              {sdsDetails?.extracted_data?.precautionary_codes.map(
-                (el: any, index: number) => (
+              {sdsDetails.extracted_data.precautionary_codes.map(
+                (el: Code, index: number) => (
                   <Grid key={index} container item>
                     <Grid item xs={4}>
                       {el.statement_code}
@@ -270,7 +357,7 @@ const SDSUploadEndpointDetails = () => {
               )}
             </Grid>
           )}
-          {sdsDetails?.extracted_data?.ghs_pictograms && (
+          {sdsDetails.extracted_data?.ghs_pictograms && (
             <Grid container item direction="row" rowSpacing={2}>
               <Grid container item>
                 <Grid
@@ -288,10 +375,10 @@ const SDSUploadEndpointDetails = () => {
                 </Grid>
               </Grid>
               <Grid container item spacing={1}>
-                {sdsDetails?.extracted_data?.ghs_pictograms.map(
+                {sdsDetails.extracted_data.ghs_pictograms.map(
                   (el: string, index: number) => (
                     <Grid key={index} item xs={1}>
-                      <img src={el} alt={'ghs'} />
+                      <img src={el} alt="ghs" />
                     </Grid>
                   )
                 )}

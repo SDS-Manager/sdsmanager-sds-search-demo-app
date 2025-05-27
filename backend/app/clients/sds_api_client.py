@@ -343,12 +343,18 @@ class SDSAPIClient:
 
         return response_jsons
 
-    async def upload_sds(self, file: UploadFile, fe: bool = False):
+    async def upload_sds(self, file: UploadFile, fe: bool = False, sku:str = '', upc_ean:str = '', product_code:str = ''):
         try:
+            form_data = {
+                "sku": sku,
+                "upc_ean": upc_ean,
+                "product_code": product_code,
+            }
             response = await self.session.post(
                 url="/sds/upload/",
                 timeout=600,
                 files={"file": (file.filename, await file.read())},
+                data=form_data
             )
         except HTTPError:
             raise SDSAPIInternalError

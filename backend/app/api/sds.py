@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Body, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Body, HTTPException, Query, Request, UploadFile, \
+    Form
 from starlette import status
 
 from app import schemas
@@ -228,9 +229,12 @@ async def upload_new_sds(
     file: UploadFile,
     sds_service: SDSService = sds_service_dependency,
     fe: bool = Query(False, description="Optional 'fe' parameter"),
+    sku: str = Form(default=''),
+    upc_ean: str = Form(default=''),
+    product_code: str = Form(default=''),
 ):
     try:
-        return await sds_service.upload_sds(file=file, fe=fe)
+        return await sds_service.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code)
     except SDSAPIRequestNotAuthorized as ex:
         detail = (
             ex.args[0]
