@@ -1,6 +1,7 @@
 import datetime
 import enum
 import re
+from typing import List
 from uuid import UUID
 import uuid
 
@@ -65,6 +66,7 @@ class ListSDSSchema(BaseSDSSchema):
 
 
 class SDSDetailsSchema(BaseSDSSchema):
+    sku: List[str] | None
     extracted_data: dict
     other_data: dict
     sds_pdf_manufacture_full_info: dict
@@ -100,6 +102,7 @@ class AdvancedSearchSchema(BaseModel):
     product_name: str | None
     cas_no: str | None
     product_code: str | None
+    sku: str | None
 
 
 class SearchTypeEnum(str, enum.Enum):
