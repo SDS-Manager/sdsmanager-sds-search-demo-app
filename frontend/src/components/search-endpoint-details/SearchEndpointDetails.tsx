@@ -44,6 +44,7 @@ const SearchEndpointDetails = ({
     advanced_search_supplier_name: yup.string(),
     advanced_search_cas_no: yup.string(),
     advanced_search_product_code: yup.string(),
+    advanced_search_sku: yup.string(),
   });
   const formik = useFormik({
     initialValues: {
@@ -56,6 +57,7 @@ const SearchEndpointDetails = ({
       advanced_search_supplier_name: '',
       advanced_search_cas_no: '',
       advanced_search_product_code: '',
+      advanced_search_sku: '',
       region_short_name: 'all',
       is_current_version: true,
     },
@@ -69,12 +71,14 @@ const SearchEndpointDetails = ({
       if (
         values.advanced_search_cas_no ||
         values.advanced_search_product_code ||
+        values.advanced_search_sku ||
         values.advanced_search_product_name ||
         values.advanced_search_supplier_name
       ) {
         data = {
           advanced_search: {
             cas_no: values.advanced_search_cas_no,
+            sku: values.advanced_search_sku,
             product_name: values.advanced_search_product_name,
             supplier_name: values.advanced_search_supplier_name,
             product_code: values.advanced_search_product_code,
@@ -372,6 +376,21 @@ const SearchEndpointDetails = ({
                     label="Product code"
                     onChange={formik.handleChange}
                     value={formik.values.advanced_search_product_code}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <FormControl fullWidth>
+                  <InputLabel htmlFor={'advanced_search_sku'}>
+                    SKU
+                  </InputLabel>
+                  <OutlinedInput
+                    fullWidth
+                    name="advanced_search_sku"
+                    id="advanced_search_sku"
+                    label="SKU"
+                    onChange={formik.handleChange}
+                    value={formik.values.advanced_search_sku}
                   />
                 </FormControl>
               </Grid>

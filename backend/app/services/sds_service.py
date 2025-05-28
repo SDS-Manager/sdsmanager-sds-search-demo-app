@@ -71,6 +71,6 @@ class SDSService:
         )
         return [schemas.MultipleNewRevisionInfoSchema(**el) for el in api_response]
 
-    async def upload_sds(self, file: UploadFile, fe: bool) -> schemas.SDSDetailsSchema:
-        api_response = await self.sds_api_client.upload_sds(file=file, fe=fe)
+    async def upload_sds(self, file: UploadFile, fe: bool, sku:str, upc_ean:str, product_code:str) -> schemas.SDSDetailsSchema:
+        api_response = await self.sds_api_client.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code)
         return schemas.SDSDetailsSchema(**api_response)
