@@ -27,6 +27,7 @@ class BaseSDSSchema(BaseModel):
     regulation_area: str | None
     product_code: str | None
     cas_no: str | None
+    sku: str | None
     permanent_link: str
     replaced_by_id: str | None
     newest_version_of_sds_id: str | None
@@ -66,7 +67,6 @@ class ListSDSSchema(BaseSDSSchema):
 
 
 class SDSDetailsSchema(BaseSDSSchema):
-    sku: List[str] | None
     extracted_data: dict
     other_data: dict
     sds_pdf_manufacture_full_info: dict
