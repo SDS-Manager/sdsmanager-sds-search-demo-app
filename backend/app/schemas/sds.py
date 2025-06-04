@@ -29,6 +29,7 @@ class BaseSDSSchema(BaseModel):
     cas_no: str | None
     sku: str | None
     permanent_link: str
+    sds_web_page: str | None
     replaced_by_id: str | None
     newest_version_of_sds_id: str | None
     is_current_version: bool | None
