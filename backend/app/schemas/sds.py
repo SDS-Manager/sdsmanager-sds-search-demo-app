@@ -1,6 +1,7 @@
 import datetime
 import enum
 import re
+from typing import List
 from uuid import UUID
 import uuid
 
@@ -26,7 +27,9 @@ class BaseSDSSchema(BaseModel):
     regulation_area: str | None
     product_code: str | None
     cas_no: str | None
+    sku: str | None
     permanent_link: str
+    sds_web_page: str | None
     replaced_by_id: str | None
     newest_version_of_sds_id: str | None
     is_current_version: bool | None
@@ -100,6 +103,7 @@ class AdvancedSearchSchema(BaseModel):
     product_name: str | None
     cas_no: str | None
     product_code: str | None
+    sku: str | None
 
 
 class SearchTypeEnum(str, enum.Enum):
