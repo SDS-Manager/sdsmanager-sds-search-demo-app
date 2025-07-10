@@ -67,7 +67,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
     if (!file) {
       setErrors((prev) => ({ ...prev, file: 'File is required' }));
     } else if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      errors.file = `File size exceeds ${MAX_FILE_SIZE_MB} MB.`;
+      setErrors((prev) => ({ ...prev, file: `File size exceeds ${MAX_FILE_SIZE_MB} MB.` }));
     }
     else {
       setErrors((prev) => ({ ...prev, file: '' }));
