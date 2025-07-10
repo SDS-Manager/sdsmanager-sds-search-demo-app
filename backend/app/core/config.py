@@ -21,5 +21,6 @@ class Settings(BaseSettings):
     REDIS_PORT: int | None = None
     REDIS_DB: int | None = None
     REDIS_PASSWORD: str | None = None
+    SDS_MAX_FILE_SIZE: int = 5242880  # Default to 5 MB
 
 settings = Settings()
