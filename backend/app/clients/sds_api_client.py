@@ -385,7 +385,7 @@ class SDSAPIClient:
         if response.status_code != status.HTTP_200_OK:
             if response.content:
                 raise SDSAPIInternalError(
-                    response.json().get("error_message", "Default internal error")
+                    response.json().get("error_message", "SDS upload failed")
                 )
             raise SDSAPIInternalError
 
