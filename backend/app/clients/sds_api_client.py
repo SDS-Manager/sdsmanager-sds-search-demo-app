@@ -345,6 +345,13 @@ class SDSAPIClient:
 
     async def upload_sds(self, file: UploadFile, fe: bool = False, sku:str = '', upc_ean:str = '', product_code:str = ''):
         try:
+            if file.content_type != "application/pdf":
+                raise SDSBadRequestException("Only PDF files are allowed")
+            file_contents = await file.read()
+            if len(file_contents) > settings.SDS_MAX_FILE_SIZE:
+                raise SDSBadRequestException(
+                    f"File size exceeds the limit of {settings.SDS_MAX_FILE_SIZE / (1024 * 1024)} MB"
+                )
             form_data = {
                 "sku": sku,
                 "upc_ean": upc_ean,
@@ -353,7 +360,7 @@ class SDSAPIClient:
             response = await self.session.post(
                 url="/sds/upload/",
                 timeout=600,
-                files={"file": (file.filename, await file.read())},
+                files={"file": (file.filename, file_contents)},
                 data=form_data
             )
         except HTTPError:
@@ -367,8 +374,19 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+        
+        if response.status_code == status.HTTP_400_BAD_REQUEST:
+            if response.content:
+                raise SDSBadRequestException(
+                    response.json().get("error_message", "Bad request, SDS upload failed")
+                )
+            raise SDSBadRequestException
 
         if response.status_code != status.HTTP_200_OK:
+            if response.content:
+                raise SDSAPIInternalError(
+                    response.json().get("error_message", "Default internal error")
+                )
             raise SDSAPIInternalError
 
         response_json: dict = response.json()
