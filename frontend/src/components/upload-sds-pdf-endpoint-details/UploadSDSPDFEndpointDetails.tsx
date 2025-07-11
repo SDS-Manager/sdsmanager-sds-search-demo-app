@@ -42,6 +42,8 @@ interface SdsDetails {
   };
 }
 
+const MAX_FILE_SIZE_MB = 5;
+
 const SDSUploadEndpointDetails: React.FC = () => {
   const [formValues, setFormValues] = useState<FormValues>({
     file: null,
@@ -64,7 +66,10 @@ const SDSUploadEndpointDetails: React.FC = () => {
     setFormValues((prev) => ({ ...prev, file }));
     if (!file) {
       setErrors((prev) => ({ ...prev, file: 'File is required' }));
-    } else {
+    } else if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, file: `File size exceeds ${MAX_FILE_SIZE_MB} MB.` }));
+    }
+    else {
       setErrors((prev) => ({ ...prev, file: '' }));
     }
   };
@@ -138,6 +143,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
                   type="file"
                   id="file"
                   name="file"
+                  inputProps={{ accept: 'application/pdf' }}
                   onChange={handleFileChange}
                 />
                 {errors.file && (

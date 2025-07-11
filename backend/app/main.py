@@ -11,6 +11,7 @@ from app.api.sds import router as sds_api_router
 from app.core.config import settings
 
 from app.throttling import limiter
+from app.exceptions.sds_api import SDSBadRequestException
 
 app = FastAPI(
     title="SDS Search Service",
@@ -38,6 +39,13 @@ async def internal_exception_handler(request: Request, exc: Exception):
         content=jsonable_encoder(
             {"detail": f"Internal Server Error: {str(exc)}"}
         ),
+    )
+
+@app.exception_handler(SDSBadRequestException)
+async def bad_request_exception_handler(request: Request, exc: SDSBadRequestException):
+    return JSONResponse(
+        status_code=400,
+        content=jsonable_encoder({"detail": str(exc)})
     )
 
 
