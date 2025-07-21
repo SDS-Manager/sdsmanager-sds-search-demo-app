@@ -1,4 +1,4 @@
-FROM python:3.10.13
+FROM netpowerasdockerhub/sds:api-demo-be.base.v1.0
 
 ENV PYTHONBUFFERED=1
 
