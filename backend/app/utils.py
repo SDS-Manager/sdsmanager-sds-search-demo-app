@@ -1,20 +1,29 @@
 from uuid import UUID
 from cryptography.fernet import Fernet
 from app.core.config import settings
+from app.exceptions.sds_api import SDSAPIInternalError
 
 
 # Encrypt number to a secret string
 def encrypt_number(number, key):
-    cipher_suite = Fernet(key)
-    encrypted_number = cipher_suite.encrypt(str(number).encode())
-    return encrypted_number
+    try:
+        cipher_suite = Fernet(key)
+        encrypted_number = cipher_suite.encrypt(str(number).encode())
+        return encrypted_number
+    except Exception as e:
+        print(f"Error encrypting number: {e}")
+        raise SDSAPIInternalError(f"Encryption failed: {e}")
 
 
 # Decrypt secret string back to the original number
 def decrypt_to_number(encrypted_number, key):
-    cipher_suite = Fernet(key)
-    decrypted_number = cipher_suite.decrypt(encrypted_number)
-    return int(decrypted_number.decode())
+    try:
+        cipher_suite = Fernet(key)
+        decrypted_number = cipher_suite.decrypt(encrypted_number)
+        return int(decrypted_number.decode())
+    except Exception as e:
+        print(f"Error decrypting number: {e}")
+        raise SDSAPIInternalError(f"Decryption failed: {e}")
 
 
 def update_search_id(response_json, sds_id, access_key_match, search_key="id", allow_none=False):
