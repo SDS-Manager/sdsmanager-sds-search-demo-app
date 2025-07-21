@@ -1,5 +1,5 @@
 # Install dependencies only when needed
-FROM node:16-alpine as builder
+FROM netpowerasdockerhub/sds:api-demo-fe.base.v1.0 as builder
 
 WORKDIR /app
 COPY package.json yarn.lock* ./
