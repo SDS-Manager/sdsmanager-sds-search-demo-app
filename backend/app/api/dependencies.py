@@ -15,9 +15,9 @@ def get_api_key(
     if api_key_from_header:
         return api_key_from_header
 
-    if (
-        settings.SDS_API_KEY
-        and request.headers.get("origin") in settings.CORS_ORIGINS
+    if settings.SDS_API_KEY and (
+        request.headers.get("origin") in settings.CORS_ORIGINS
+        or settings.CORS_ORIGINS[0] == "*"
     ):
         return settings.SDS_API_KEY
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
