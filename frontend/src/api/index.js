@@ -3,7 +3,7 @@ import { renderSnackbar } from 'utils/renderSnackbar';
 import { getEnv } from 'utils/getEnv';
 
 const SDS_DEMO_URL = 'https://api.sdsmanager.com';
-const SDS_DEMO_RC_URL = 'https://rc-demo.sdsmanager.com';
+const SDS_DEMO_RC_URL = 'https://rc-api.sdsmanager.com';
 const SDS_DEMO_STAGING_URL = 'https://staging-demo.sdsmanager.com';
 
 const workingEnv = getEnv();
