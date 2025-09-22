@@ -1,4 +1,4 @@
-FROM netpowerasdockerhub/sds:api-demo-be.base.v1.0
+FROM ghcr.io/sds-manager/sds:api-demo-be.base.v1.0
 
 ENV PYTHONBUFFERED=1
 

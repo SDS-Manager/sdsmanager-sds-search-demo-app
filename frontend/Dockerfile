@@ -1,5 +1,5 @@
 # Install dependencies only when needed
-FROM netpowerasdockerhub/sds:api-demo-fe.base.v1.0 as builder
+FROM ghcr.io/sds-manager/sds:api-demo-fe.base.v1.0 as builder
 
 WORKDIR /app
 COPY package.json yarn.lock* ./
