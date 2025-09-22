@@ -22,11 +22,11 @@ class BaseSDSSchema(BaseModel):
     sds_pdf_product_name: str
     sds_pdf_manufacture_name: str
     sds_pdf_revision_date: str | None
-    master_date: str | None
+    # master_date: str | None
     language: str
     regulation_area: str | None
     product_code: str | None
-    cas_no: str | None
+    # cas_no: str | None
     sku: str | None
     permanent_link: str
     sds_web_page: str | None
