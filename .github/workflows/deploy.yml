@@ -63,19 +63,19 @@ jobs:
           if [[ "${{ steps.set-env.outputs.environment }}" == "develop" || "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
             docker build -t $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest -f ./backend/Dockerfile ./backend
             docker build -t $DOCKER_REPO:frontend.${{ steps.set-env.outputs.environment }}.latest -f ./frontend/Dockerfile ./frontend
-            docker push $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest
-            docker push $DOCKER_REPO:frontend.${{ steps.set-env.outputs.environment }}.latest
+            timeout 300 docker push $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest
+            timeout 300 docker push $DOCKER_REPO:frontend.${{ steps.set-env.outputs.environment }}.latest
 
           elif [[ "${{ steps.set-env.outputs.environment }}" == "production" ]]; then
             docker build -t $DOCKER_REPO:backend.prod.latest -f ./backend/Dockerfile ./backend
             docker build -t $DOCKER_REPO:frontend.prod.latest -f ./frontend/Dockerfile ./frontend
-            docker push $DOCKER_REPO:backend.prod.latest
-            docker push $DOCKER_REPO:frontend.prod.latest
+            timeout 300 docker push $DOCKER_REPO:backend.prod.latest
+            timeout 300 docker push $DOCKER_REPO:frontend.prod.latest
 
             docker tag $DOCKER_REPO:backend.prod.latest $DOCKER_REPO:backend.prod.${{ steps.set-env.outputs.tag_name }}
             docker tag $DOCKER_REPO:frontend.prod.latest $DOCKER_REPO:frontend.prod.${{ steps.set-env.outputs.tag_name }}
-            docker push $DOCKER_REPO:backend.prod.${{ steps.set-env.outputs.tag_name }}
-            docker push $DOCKER_REPO:frontend.prod.${{ steps.set-env.outputs.tag_name }}
+            timeout 300 docker push $DOCKER_REPO:backend.prod.${{ steps.set-env.outputs.tag_name }}
+            timeout 300 docker push $DOCKER_REPO:frontend.prod.${{ steps.set-env.outputs.tag_name }}
           fi
       
       - name: Update secrets and run migrations
