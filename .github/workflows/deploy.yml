@@ -146,12 +146,12 @@ jobs:
             // match lines starting with "image:" for backend and frontend,
             // stop before quote/space so we don't eat the closing "
             const backendPattern = new RegExp(
-              `(^\\s*image:\\s*)${escapedRepoImage}:backend\\.[^"\\s']+`,
-              "gm"
+              `(image:\\s*)${escapedRepoImage}:backend\\.[^"\\s']+`,
+              "g"
             );
             const frontendPattern = new RegExp(
-              `(^\\s*image:\\s*)${escapedRepoImage}:frontend\\.[^"\\s']+`,
-              "gm"
+              `(image:\\s*)${escapedRepoImage}:frontend\\.[^"\\s']+`,
+              "g"
             );
 
             core.info(`Updating backend image tag to: ${repoImage}:${backendTag}`);
