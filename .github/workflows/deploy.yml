@@ -175,7 +175,7 @@ jobs:
 
             core.info(`Backend pattern matched? ${backendMatch}`);
             core.info(`Frontend pattern matched? ${frontendMatch}`);
-
+            core.info (`basetag is $1${baseTag}`)
             let updated = content.replace(
               backendPattern,
               `$1${baseTag}`
