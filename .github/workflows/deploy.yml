@@ -136,6 +136,7 @@ jobs:
 
             const repoImage = process.env.SDS_REPO; // ghcr.io/sds-manager/sdsmanager-sds-search-demo-app
             const escapedRepoImage = repoImage.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            core.info(`Using escapedRepoImage: ${escapedRepoImage}`);
 
             // we want tags like: backend.<env>.<sha> and frontend.<env>.<sha>
             const baseTag = `${process.env.ENVIRONMENT}.${process.env.SHA}`;
