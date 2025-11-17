@@ -60,13 +60,13 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          if [[ "${{ steps.set-env.outputs.environment }}" == "develop" || "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
+          if [[ "${{ steps.set-env.outputs.environment }}" == "staging" || "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
             docker build -t $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest -f ./backend/Dockerfile ./backend
             docker build -t $DOCKER_REPO:frontend.${{ steps.set-env.outputs.environment }}.latest -f ./frontend/Dockerfile ./frontend
             timeout 300 docker push $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest
             timeout 300 docker push $DOCKER_REPO:frontend.${{ steps.set-env.outputs.environment }}.latest
 
-          elif [[ "${{ steps.set-env.outputs.environment }}" == "production" ]]; then
+          elif [[ "${{ steps.set-env.outputs.environment }}" == "prod" ]]; then
             docker build -t $DOCKER_REPO:backend.prod.latest -f ./backend/Dockerfile ./backend
             docker build -t $DOCKER_REPO:frontend.prod.latest -f ./frontend/Dockerfile ./frontend
             timeout 300 docker push $DOCKER_REPO:backend.prod.latest
