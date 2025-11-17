@@ -198,7 +198,8 @@ jobs:
             });
 
             core.info("✓ Successfully committed changes to sds-kit repository");
-
+            
+            // Log commit details
             if (result?.createCommitOnBranch?.commit) {
               core.info(`Commit OID: ${result.createCommitOnBranch.commit.oid}`);
               core.info(`Commit URL: ${result.createCommitOnBranch.commit.url}`);
