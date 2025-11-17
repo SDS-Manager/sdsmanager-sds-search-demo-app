@@ -155,6 +155,8 @@ jobs:
 
             core.info(`Updating backend image tag to: ${repoImage}:${backendTag}`);
             core.info(`Updating frontend image tag to: ${repoImage}:${frontendTag}`);
+            core.info("The content before update: ");
+            core.info(content);
 
             let updated = content.replace(
               backendPattern,
