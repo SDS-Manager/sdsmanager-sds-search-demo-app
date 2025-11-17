@@ -58,27 +58,33 @@ jobs:
 
           echo "environment=$environment" >> $GITHUB_OUTPUT
 
-      - name: Build and Push Docker Image
-        run: |
-          if [[ "${{ steps.set-env.outputs.environment }}" == "staging" || "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
-            echo "Building and pushing $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest"
-            docker build -t $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest -f ./backend/Dockerfile ./backend
-            docker build -t $DOCKER_REPO:frontend.${{ steps.set-env.outputs.environment }}.latest -f ./frontend/Dockerfile ./frontend
-            timeout 300 docker push $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest
-            timeout 300 docker push $DOCKER_REPO:frontend.${{ steps.set-env.outputs.environment }}.latest
-
-          elif [[ "${{ steps.set-env.outputs.environment }}" == "prod" ]]; then
-            docker build -t $DOCKER_REPO:backend.prod.latest -f ./backend/Dockerfile ./backend
-            docker build -t $DOCKER_REPO:frontend.prod.latest -f ./frontend/Dockerfile ./frontend
-            timeout 300 docker push $DOCKER_REPO:backend.prod.latest
-            timeout 300 docker push $DOCKER_REPO:frontend.prod.latest
-
-            docker tag $DOCKER_REPO:backend.prod.latest $DOCKER_REPO:backend.prod.${{ steps.set-env.outputs.tag_name }}
-            docker tag $DOCKER_REPO:frontend.prod.latest $DOCKER_REPO:frontend.prod.${{ steps.set-env.outputs.tag_name }}
-            timeout 300 docker push $DOCKER_REPO:backend.prod.${{ steps.set-env.outputs.tag_name }}
-            timeout 300 docker push $DOCKER_REPO:frontend.prod.${{ steps.set-env.outputs.tag_name }}
-          fi
       
+      - name: Build and push backend staging/rc
+        if: (steps.set-env.outputs.environment == 'staging' || steps.set-env.outputs.environment == 'rc') && github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.latest
+            ${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.${{ github.sha }}
+          context: ./backend
+          file: ./backend/Dockerfile
+          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.latest-buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.latest-buildcache,mode=max
+      
+      - name: Build and push frontend staging/rc
+        if: (steps.set-env.outputs.environment == 'staging' || steps.set-env.outputs.environment == 'rc') && github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.latest
+            ${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.${{ github.sha }}
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.latest-buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.latest-buildcache,mode=max
+
       - name: Update secrets and run migrations
         if: github.event_name != 'pull_request'
         uses: appleboy/ssh-action@v1.2.1
