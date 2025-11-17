@@ -61,6 +61,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           if [[ "${{ steps.set-env.outputs.environment }}" == "staging" || "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
+            echo "Building and pushing $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest"
             docker build -t $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest -f ./backend/Dockerfile ./backend
             docker build -t $DOCKER_REPO:frontend.${{ steps.set-env.outputs.environment }}.latest -f ./frontend/Dockerfile ./frontend
             timeout 300 docker push $DOCKER_REPO:backend.${{ steps.set-env.outputs.environment }}.latest
