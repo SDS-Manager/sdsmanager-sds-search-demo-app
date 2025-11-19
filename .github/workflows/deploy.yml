@@ -181,7 +181,7 @@ jobs:
             const expectedHeadOid = branchRef.data.commit.sha;
             core.info(`✓ Current HEAD OID: ${expectedHeadOid}`);
 
-            // 3) Create a commit on branch with fileChanges
+            // 3) Create a commit on branch with fileChanges.
             core.info("Creating commit with updated deployment file...");
             const mutation = `
             mutation($branch: String!, $message: String!, $path: String!, $content: Base64String!, $expectedHeadOid: GitObjectID!) {
