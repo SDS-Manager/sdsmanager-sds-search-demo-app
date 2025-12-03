@@ -9,7 +9,7 @@ on:
       - "prod-v*"
 
 env:
-  DOCKER_REPO: "ghcr.io/sds-manager/sds"
+  DOCKER_REPO: "ghcr.io/sds-manager/sdsmanager-sds-search-demo-app"
   SSH_HOST: ${{ secrets.SSH_HOST }}
   SSH_USER: ${{ secrets.SSH_USER }}
   SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -27,6 +27,12 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          buildkitd-flags: --debug
+          driver-opts: |
+            network=host
+            env.GODEBUG=http2client=0
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -38,41 +44,76 @@ jobs:
       - name: Determine Environment
         id: set-env
         run: |
+          TAG_NAME="latest"
           if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
-            echo "environment=develop" >> $GITHUB_OUTPUT
+            export environment=staging
           elif [[ "${GITHUB_REF}" == "refs/heads/rc" ]]; then
-            echo "environment=rc" >> $GITHUB_OUTPUT
+            export environment=rc
           elif [[ "${GITHUB_REF}" == refs/tags/prod-v* ]]; then
             TAG_NAME=${GITHUB_REF#refs/tags/}
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+            export environment=prod
+          else
+            export environment=test
           fi
 
-      - name: Build and Push Docker Image
-        run: |
-          if [[ "${{ steps.set-env.outputs.environment }}" == "develop" || "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
-            docker build -t $DOCKER_REPO:sds_demo_be.${{ steps.set-env.outputs.environment }}.latest -f ./backend/Dockerfile ./backend
-            docker build -t $DOCKER_REPO:sds_demo_fe.${{ steps.set-env.outputs.environment }}.latest -f ./frontend/Dockerfile ./frontend
-            timeout 300 docker push $DOCKER_REPO:sds_demo_be.${{ steps.set-env.outputs.environment }}.latest
-            timeout 300 docker push $DOCKER_REPO:sds_demo_fe.${{ steps.set-env.outputs.environment }}.latest
+          echo "environment=$environment" >> $GITHUB_OUTPUT
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
 
-          elif [[ "${{ steps.set-env.outputs.environment }}" == "production" ]]; then
-            docker build -t $DOCKER_REPO:sds_demo_be.prod.latest -f ./backend/Dockerfile ./backend
-            docker build -t $DOCKER_REPO:sds_demo_fe.prod.latest -f ./frontend/Dockerfile ./frontend
-            timeout 300 docker push $DOCKER_REPO:sds_demo_be.prod.latest
-            timeout 300 docker push $DOCKER_REPO:sds_demo_fe.prod.latest
+      
+      - name: Build and push backend staging/rc
+        if: (steps.set-env.outputs.environment == 'staging' || steps.set-env.outputs.environment == 'rc') && github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.latest
+            ${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.${{ github.sha }}
+          context: ./backend
+          file: ./backend/Dockerfile
+          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.latest-buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.latest-buildcache,mode=max
+      
+      - name: Build and push backend prod
+        if: steps.set-env.outputs.environment == 'prod' && github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}:backend.latest
+            ${{ env.DOCKER_REPO }}:backend.${{ steps.set-env.outputs.tag_name }}
+          context: ./backend
+          file: ./backend/Dockerfile
+          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:backend.latest-buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:backend.latest-buildcache,mode=max
+      
+      - name: Build and push frontend staging/rc
+        if: (steps.set-env.outputs.environment == 'staging' || steps.set-env.outputs.environment == 'rc') && github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.latest
+            ${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.${{ github.sha }}
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.latest-buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.latest-buildcache,mode=max
+      
+      - name: Build and push frontend prod
+        if: steps.set-env.outputs.environment == 'prod' && github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}:frontend.latest
+            ${{ env.DOCKER_REPO }}:frontend.${{ steps.set-env.outputs.tag_name }}
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.latest-buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.latest-buildcache,mode=max
 
-            docker build -t $DOCKER_REPO:sds_demo_be.${{ steps.set-env.outputs.tag_name }} -f ./backend/Dockerfile ./backend
-            docker build -t $DOCKER_REPO:sds_demo_fe.${{ steps.set-env.outputs.tag_name }} -f ./frontend/Dockerfile ./frontend
-            timeout 300 docker push $DOCKER_REPO:sds_demo_be.${{ steps.set-env.outputs.tag_name }}
-            timeout 300 docker push $DOCKER_REPO:sds_demo_fe.${{ steps.set-env.outputs.tag_name }}
-          fi
-
-  release_new_version:
-    needs: build_and_push
-    runs-on: sds-runners
-    steps:
-      - name: Release new version to Correct Environment via SSH
+      - name: Update secrets and run migrations
+        if: github.event_name != 'pull_request'
         uses: appleboy/ssh-action@v1.2.1
         with:
           host: ${{ env.SSH_HOST }}
@@ -80,9 +121,132 @@ jobs:
           key: ${{ env.SSH_KEY }}
           envs: SUDO_PWD
           script: |
-            echo "Releasing to ${{ needs.build_and_push.outputs.environment }}..."
-            if [[ "${{ needs.build_and_push.outputs.environment }}" == "develop" ]]; then
+            echo "Releasing to ${{ steps.set-env.outputs.environment }}..."
+            if [[ "${{ steps.set-env.outputs.environment }}" == "develop" ]]; then
               echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_staging/sds_demo/sds_demo.sh develop $SUDO_PWD
-            elif [[ "${{ needs.build_and_push.outputs.environment }}" == "rc" ]]; then
-              echo $SUDO_PWD | sudo -S sh /sds/toolkit/sds/k8s/sds_rc/sds_demo/sds_demo.sh rc $SUDO_PWD
+            elif [[ "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
+              echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_rc/sds_demo/sds_demo.sh rc $SUDO_PWD
+            elif [[ "${{ steps.set-env.outputs.environment }}" == "prod" ]]; then
+              echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_prod/sds_demo/sds_demo.sh prod $SUDO_PWD
             fi
+        
+      - name: Update SDS Kit repository
+        uses: actions/github-script@v7
+        env:
+          ENVIRONMENT: ${{ steps.set-env.outputs.environment }}
+          TAG_NAME: ${{ steps.set-env.outputs.tag_name }}
+          SHA: ${{ github.sha }}
+          SDS_REPO: ${{ env.DOCKER_REPO }}
+        with:
+          github-token: ${{ secrets.GHCR_PASSWORD }}
+          script: |
+            const owner = "sds-manager";
+            const repo = "sds-kit";
+            const ownerRepo = `${owner}/${repo}`;
+            const branch = "main";
+            const sds_service = "sds_demo";
+            const path = `sds/k8s/sds_${process.env.ENVIRONMENT}/${sds_service}/deploy.yaml`;
+
+            core.info(`Starting update for ${sds_service} in ${process.env.ENVIRONMENT} environment`);
+            core.info(`Target repository: ${ownerRepo}`);
+            core.info(`Target file: ${path}`);
+
+            // 1) Read current file (to modify its contents)
+            core.info(`Reading current deployment file from ${branch} branch...`);
+            const res = await github.request("GET /repos/{owner}/{repo}/contents/{path}", {
+              owner, repo, path, ref: branch,
+              headers: { accept: "application/vnd.github.raw+json" }
+            });
+            core.info("✓ Successfully retrieved deployment file");
+
+            const content = Buffer.from(
+              res.data.content
+                ? Buffer.from(res.data.content, "base64").toString("utf8")
+                : res.data,
+              "utf8"
+            ).toString();
+
+            const repoImage = process.env.SDS_REPO; // ghcr.io/sds-manager/sdsmanager-sds-search-demo-app
+            const escapedRepoImage = repoImage.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            // we want tags like: backend.<env>.<sha> and frontend.<env>.<sha>
+            const baseTag = process.env.ENVIRONMENT === 'prod' 
+              ? process.env.TAG_NAME 
+              : `${process.env.ENVIRONMENT}.${process.env.SHA}`;
+            const backendTag = `backend.${baseTag}`;
+            const frontendTag = `frontend.${baseTag}`;
+
+            // match lines starting with "image:" for backend and frontend,
+            // stop before quote/space so we don't eat the closing "
+            const backendPattern = new RegExp(
+              `(image:\\s*)${escapedRepoImage}:backend\\.[^"\\s']+`,
+              "g"
+            );
+            const frontendPattern = new RegExp(
+              `(image:\\s*)${escapedRepoImage}:frontend\\.[^"\\s']+`,
+              "g"
+            );
+
+            core.info(`Updating backend image tag to: ${repoImage}:${backendTag}`);
+            core.info(`Updating frontend image tag to: ${repoImage}:${frontendTag}`);
+          
+            let updated = content.replace(
+              backendPattern,
+              `$1${repoImage}:${backendTag}`
+            );
+            updated = updated.replace(
+              frontendPattern,
+              `$1${repoImage}:${frontendTag}`
+            );
+
+            if (updated === content) {
+              core.info("⚠ No changes detected in deployment file - image tags already up to date?");
+              return;
+            }
+            core.info("✓ Backend and frontend image tags updated in deployment file");
+
+            // 2) Get the current branch HEAD OID
+            core.info(`Fetching current HEAD OID for ${branch} branch...`);
+            const branchRef = await github.rest.repos.getBranch({
+              owner,
+              repo,
+              branch,
+            });
+            const expectedHeadOid = branchRef.data.commit.sha;
+            core.info(`✓ Current HEAD OID: ${expectedHeadOid}`);
+
+            // 3) Create a commit on branch with fileChanges
+            core.info("Creating commit with updated deployment file...");
+            const mutation = `
+            mutation($branch: String!, $message: String!, $path: String!, $content: Base64String!, $expectedHeadOid: GitObjectID!) {
+              createCommitOnBranch(input:{
+                branch: { repositoryNameWithOwner: "${ownerRepo}", branchName: $branch },
+                message: { headline: $message },
+                expectedHeadOid: $expectedHeadOid,
+                fileChanges: { additions: [{ path: $path, contents: $content }] }
+              }) { commit { oid, url } }
+            }`;
+
+            const commitMessage = `${sds_service}: update backend/frontend images to ${baseTag}`;
+            core.info(`Commit message: "${commitMessage}"`);
+
+            const result = await github.graphql(mutation, {
+              branch,
+              message: commitMessage,
+              path,
+              content: Buffer.from(updated, "utf8").toString("base64"),
+              expectedHeadOid,
+            });
+
+            core.info("✓ Successfully committed changes to sds-kit repository");
+            
+            // Log commit details
+            if (result?.createCommitOnBranch?.commit) {
+              core.info(`Commit OID: ${result.createCommitOnBranch.commit.oid}`);
+              core.info(`Commit URL: ${result.createCommitOnBranch.commit.url}`);
+            } else {
+              core.info("Commit created successfully (response structure unexpected)");
+              core.info(`Response: ${JSON.stringify(result, null, 2)}`);
+            }
+
+            core.info("🚀 Deployment file update completed successfully!");
