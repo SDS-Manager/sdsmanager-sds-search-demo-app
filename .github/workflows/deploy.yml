@@ -44,6 +44,7 @@ jobs:
       - name: Determine Environment
         id: set-env
         run: |
+          TAG_NAME="latest"
           if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
             export environment=staging
           elif [[ "${GITHUB_REF}" == "refs/heads/rc" ]]; then
@@ -51,12 +52,12 @@ jobs:
           elif [[ "${GITHUB_REF}" == refs/tags/prod-v* ]]; then
             TAG_NAME=${GITHUB_REF#refs/tags/}
             export environment=prod
-            echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
           else
             export environment=test
           fi
 
           echo "environment=$environment" >> $GITHUB_OUTPUT
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
 
       
       - name: Build and push backend staging/rc
@@ -72,6 +73,19 @@ jobs:
           cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.latest-buildcache
           cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:backend.${{steps.set-env.outputs.environment}}.latest-buildcache,mode=max
       
+      - name: Build and push backend prod
+        if: steps.set-env.outputs.environment == 'prod' && github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}:backend.latest
+            ${{ env.DOCKER_REPO }}:backend.${{ steps.set-env.outputs.tag_name }}
+          context: ./backend
+          file: ./backend/Dockerfile
+          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:backend.latest-buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:backend.latest-buildcache,mode=max
+      
       - name: Build and push frontend staging/rc
         if: (steps.set-env.outputs.environment == 'staging' || steps.set-env.outputs.environment == 'rc') && github.event_name == 'push'
         uses: docker/build-push-action@v6
@@ -84,6 +98,19 @@ jobs:
           file: ./frontend/Dockerfile
           cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.latest-buildcache
           cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.${{steps.set-env.outputs.environment}}.latest-buildcache,mode=max
+      
+      - name: Build and push frontend prod
+        if: steps.set-env.outputs.environment == 'prod' && github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}:frontend.latest
+            ${{ env.DOCKER_REPO }}:frontend.${{ steps.set-env.outputs.tag_name }}
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.latest-buildcache
+          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.latest-buildcache,mode=max
 
       - name: Update secrets and run migrations
         if: github.event_name != 'pull_request'
@@ -97,12 +124,17 @@ jobs:
             echo "Releasing to ${{ steps.set-env.outputs.environment }}..."
             if [[ "${{ steps.set-env.outputs.environment }}" == "develop" ]]; then
               echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_staging/sds_demo/sds_demo.sh develop $SUDO_PWD
+            elif [[ "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
+              echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_rc/sds_demo/sds_demo.sh rc $SUDO_PWD
+            elif [[ "${{ steps.set-env.outputs.environment }}" == "prod" ]]; then
+              echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_prod/sds_demo/sds_demo.sh prod $SUDO_PWD
             fi
         
       - name: Update SDS Kit repository
         uses: actions/github-script@v7
         env:
           ENVIRONMENT: ${{ steps.set-env.outputs.environment }}
+          TAG_NAME: ${{ steps.set-env.outputs.tag_name }}
           SHA: ${{ github.sha }}
           SDS_REPO: ${{ env.DOCKER_REPO }}
         with:
@@ -138,7 +170,9 @@ jobs:
             const escapedRepoImage = repoImage.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
             // we want tags like: backend.<env>.<sha> and frontend.<env>.<sha>
-            const baseTag = `${process.env.ENVIRONMENT}.${process.env.SHA}`;
+            const baseTag = process.env.ENVIRONMENT === 'prod' 
+              ? process.env.TAG_NAME 
+              : `${process.env.ENVIRONMENT}.${process.env.SHA}`;
             const backendTag = `backend.${baseTag}`;
             const frontendTag = `frontend.${baseTag}`;
 
