@@ -732,7 +732,10 @@ export default function SdsSearchDoc() {
                 send form data in the request body. Here's what the data looks
                 like:
                 <pre>
-                  <code style={styleCodeTag}>{`--form 'file="<string>"'`}</code>
+                  <code style={styleCodeTag}>{`--form 'file="<string>"' \\
+                  --form 'sku="<string>"' \\
+                  --form 'product_code="<string>"' \\
+                  --form 'private_import="<true|false>"'`}</code>
                 </pre>
               </p>
             </li>
@@ -749,17 +752,29 @@ export default function SdsSearchDoc() {
               <code style={styleCodeTag}>"&lt;string&gt;"</code> with the path
               to the file.
             </li>
+            <li>
+              <strong>sku</strong>: Stock Keeping Unit (SKU) — typically used for internal customer management.
+              Replace <code style={styleCodeTag}>"&lt;string&gt;"</code> with the SKU.
+            </li>
+            <li>
+              <strong>product_code</strong>: Some products may have a unique code assigned by the manufacturer or supplier. Users can input this code to find SDS for a specific product variant or formulation.
+              Replace <code style={styleCodeTag}>"&lt;string&gt;"</code> with the product code.
+            </li>
+            <li>
+              <strong>private_import</strong>: Imported SDS files will be marked as private for your organization's account and will not be included in our global selection of SDSs.
+              Replace <code style={styleCodeTag}>"&lt;true|false&gt;"</code> with either true or false.
+            </li>
           </ul>
           <strong>Example Usage</strong>
           <p>Here's an example of how to use the cURL command:</p>
           <pre>
-            <code
-              style={styleCodeTag}
-            >{`curl --location 'http://api.sdsmanager.com/sds/upload/' \\
---header 'Content-Type: multipart/form-data' \\
---header 'Accept: application/json' \\
---header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
---form 'file="/path/to/file"'`}</code>
+            <code style={styleCodeTag}>{`curl --location 'http://api.sdsmanager.com/sds/upload/' \\
+            --header 'Accept: application/json' \\
+            --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+            --form 'file=@"/path/to/file.pdf"' \\
+            --form 'sku=12345' \\
+            --form 'product_code=ABC-123"' \\
+            --form 'private_import=true'`}</code>
           </pre>
         </div>
       </div>

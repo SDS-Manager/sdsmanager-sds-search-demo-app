@@ -6,6 +6,8 @@ import {
   Button,
   Typography,
   InputLabel,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import axiosInstance from 'api';
 import CustomLoader from 'components/loader/CustomLoader';
@@ -15,6 +17,7 @@ interface FormValues {
   sku: string;
   upc_ean: string;
   product_code: string;
+  private_import: boolean;
 }
 
 interface FormErrors {
@@ -50,6 +53,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
     sku: '',
     upc_ean: '',
     product_code: '',
+    private_import: false,
   });
   const [errors, setErrors] = useState<FormErrors>({ file: '' });
   const [loading, setLoading] = useState<boolean>(false);
@@ -57,8 +61,11 @@ const SDSUploadEndpointDetails: React.FC = () => {
   const [sdsDetails, setSdsDetails] = useState<SdsDetails | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +112,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
     data.append('sku', formValues.sku || '');
     data.append('upc_ean', formValues.upc_ean || '');
     data.append('product_code', formValues.product_code || '');
+    data.append('private_import', formValues.private_import ? 'true' : 'false');
 
     setLoading(true);
     try {
@@ -194,6 +202,20 @@ const SDSUploadEndpointDetails: React.FC = () => {
                   onChange={handleInputChange}
                 />
               </FormControl>
+            </Grid>
+
+            {/* Check box Private import */}
+            <Grid item>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formValues.private_import}
+                    onChange={handleInputChange}
+                    name="private_import"
+                  />
+                }
+                label="Private import"
+              />
             </Grid>
 
             {/* Submit */}
