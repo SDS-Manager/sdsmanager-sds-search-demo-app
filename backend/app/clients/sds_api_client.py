@@ -343,7 +343,7 @@ class SDSAPIClient:
 
         return response_jsons
 
-    async def upload_sds(self, file: UploadFile, fe: bool = False, sku:str = '', upc_ean:str = '', product_code:str = ''):
+    async def upload_sds(self, file: UploadFile, fe: bool = False, sku:str = '', upc_ean:str = '', product_code:str = '', private_import: bool = False):
         try:
             if file.content_type != "application/pdf":
                 raise SDSBadRequestException("Only PDF files are allowed")
@@ -356,6 +356,7 @@ class SDSAPIClient:
                 "sku": sku,
                 "upc_ean": upc_ean,
                 "product_code": product_code,
+                "private_import": private_import,
             }
             response = await self.session.post(
                 url="/sds/upload/",
