@@ -24,6 +24,7 @@ class SDSService:
             minimum_revision_date=search.minimum_revision_date,
             region_short_name=search.region_short_name,
             is_current_version=search.is_current_version,
+            is_not_public=search.is_not_public,
             page=page,
             page_size=page_size,
             fe=fe,

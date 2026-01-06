@@ -45,6 +45,7 @@ class SDSAPIClient:
         minimum_revision_date: datetime | None = None,
         region_short_name: str | None = None,
         is_current_version: bool | None = None,
+        is_not_public: bool | None = None,
         page: int = 1,
         page_size: int = 20,
         fe: bool = False,
@@ -68,6 +69,8 @@ class SDSAPIClient:
             search_data["is_current_version"] = is_current_version
         elif is_current_version is None:
             search_data["is_current_version"] = "all"
+        if is_not_public and isinstance(is_not_public, bool):
+            search_data["is_not_public"] = is_not_public
 
         try:
             response = await self.session.post(
