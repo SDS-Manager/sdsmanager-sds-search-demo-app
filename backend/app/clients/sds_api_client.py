@@ -86,6 +86,15 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+        
+        if response.status_code == status.HTTP_403_FORBIDDEN:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get(
+                        "error_message", "You do not have permission to access this resource"
+                    )
+                )
+            raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException(
@@ -371,6 +380,15 @@ class SDSAPIClient:
                 raise SDSAPIRequestNotAuthorized(
                     response.json().get(
                         "error_message", "You are not authorized"
+                    )
+                )
+            raise SDSAPIRequestNotAuthorized
+        
+        if response.status_code == status.HTTP_403_FORBIDDEN:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get(
+                        "error_message", "You do not have permission to access this resource"
                     )
                 )
             raise SDSAPIRequestNotAuthorized

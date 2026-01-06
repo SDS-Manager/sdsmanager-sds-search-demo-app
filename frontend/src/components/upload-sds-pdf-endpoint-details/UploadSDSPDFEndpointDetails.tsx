@@ -89,6 +89,9 @@ const SDSUploadEndpointDetails: React.FC = () => {
     e.preventDefault();
     if (!validate()) return;
 
+    // Clear previous SDS details
+    setSdsDetails(null);
+
     const apiKey = localStorage.getItem('apiKey');
     const headers: Record<string, string> = {
       ...(apiKey ? { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey } : {}),

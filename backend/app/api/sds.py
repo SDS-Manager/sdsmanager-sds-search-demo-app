@@ -126,7 +126,7 @@ async def search_for_sds(
         detail = (
             ex.args[0]
             if len(ex.args) > 0 and ex.args[0]
-            else "Invalid API key"
+            else "Unauthorized access: The provided API key is invalid or does not exist. Please verify your API key and try again."
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
