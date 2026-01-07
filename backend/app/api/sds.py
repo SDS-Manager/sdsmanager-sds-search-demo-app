@@ -232,9 +232,10 @@ async def upload_new_sds(
     sku: str = Form(default=''),
     upc_ean: str = Form(default=''),
     product_code: str = Form(default=''),
+    private_import: bool = Form(default=False),
 ):
     try:
-        return await sds_service.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code)
+        return await sds_service.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code, private_import=private_import)
     except SDSAPIRequestNotAuthorized as ex:
         detail = (
             ex.args[0]

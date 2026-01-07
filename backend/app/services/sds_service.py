@@ -24,6 +24,7 @@ class SDSService:
             minimum_revision_date=search.minimum_revision_date,
             region_short_name=search.region_short_name,
             is_current_version=search.is_current_version,
+            is_not_public=search.is_not_public,
             page=page,
             page_size=page_size,
             fe=fe,
@@ -71,6 +72,6 @@ class SDSService:
         )
         return [schemas.MultipleNewRevisionInfoSchema(**el) for el in api_response]
 
-    async def upload_sds(self, file: UploadFile, fe: bool, sku:str, upc_ean:str, product_code:str) -> schemas.SDSDetailsSchema:
-        api_response = await self.sds_api_client.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code)
+    async def upload_sds(self, file: UploadFile, fe: bool, sku:str, upc_ean:str, product_code:str, private_import: bool) -> schemas.SDSDetailsSchema:
+        api_response = await self.sds_api_client.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code, private_import=private_import)
         return schemas.SDSDetailsSchema(**api_response)
