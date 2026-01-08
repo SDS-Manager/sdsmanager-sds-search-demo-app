@@ -6,6 +6,8 @@ import {
   Button,
   Typography,
   InputLabel,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import axiosInstance from 'api';
 import { SDSUploadProgress } from 'components/custom-progress/CustomProgress';
@@ -16,6 +18,7 @@ interface FormValues {
   sku: string;
   upc_ean: string;
   product_code: string;
+  private_import: boolean;
   email: string;
 }
 
@@ -71,6 +74,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
     sku: '',
     upc_ean: '',
     product_code: '',
+    private_import: false,
     email: '',
   });
   const [errors, setErrors] = useState<FormErrors>({ file: '' });
@@ -83,8 +87,11 @@ const SDSUploadEndpointDetails: React.FC = () => {
   const [showProgressDialog, setShowProgressDialog] = useState<boolean>(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,6 +144,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
     data.append('sku', formValues.sku || '');
     data.append('upc_ean', formValues.upc_ean || '');
     data.append('product_code', formValues.product_code || '');
+    data.append('private_import', formValues.private_import ? 'true' : 'false');
     const requestId = `${Date.now()}`;
     setRequestId(requestId);
     data.append('request_id', requestId);
@@ -275,6 +283,20 @@ const SDSUploadEndpointDetails: React.FC = () => {
                   onChange={handleInputChange}
                 />
               </FormControl>
+            </Grid>
+
+            {/* Check box Private import */}
+            <Grid item>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formValues.private_import}
+                    onChange={handleInputChange}
+                    name="private_import"
+                  />
+                }
+                label="Private import"
+              />
             </Grid>
 
             {/* Submit */}

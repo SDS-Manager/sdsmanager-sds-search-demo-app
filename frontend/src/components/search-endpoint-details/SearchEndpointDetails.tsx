@@ -60,6 +60,7 @@ const SearchEndpointDetails = ({
       advanced_search_sku: '',
       region_short_name: 'all',
       is_current_version: true,
+      is_not_public: false,
     },
     onSubmit: (values, { setSubmitting }) => {
       let data = {};
@@ -90,6 +91,7 @@ const SearchEndpointDetails = ({
           order_by: values.order_by,
           minimum_revision_date: values.minimum_revision_date || null,
           is_current_version: values.is_current_version ? "true" : null,
+          is_not_public: values.is_not_public ? "true" : null,
         };
       } else {
         data = {
@@ -102,6 +104,7 @@ const SearchEndpointDetails = ({
             : null,
           region_short_name: values.region_short_name,
           is_current_version: values.is_current_version ? "true" : null,
+          is_not_public: values.is_not_public ? "true" : null,
         };
       }
       setLoading(true);
@@ -394,7 +397,7 @@ const SearchEndpointDetails = ({
                   />
                 </FormControl>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={6} container alignItems="center">
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -405,6 +408,17 @@ const SearchEndpointDetails = ({
                     />
                   }
                   label="Newest Version Only"
+                />
+                <FormControlLabel 
+                  control={
+                    <Checkbox
+                      id="is_not_public"
+                      name="is_not_public"
+                      checked={formik.values.is_not_public ? true : false}
+                      onChange={formik.handleChange}
+                    />
+                  }
+                  label="Private SDS Search"
                 />
               </Grid>
             </Grid>
