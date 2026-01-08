@@ -65,6 +65,22 @@ const MainPage = () => {
     event.preventDefault();
   };
 
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sds_id = params.get('sds_id');
+    if (sds_id) {
+      setSelectedSDSId(sds_id);
+    }
+    const detail = params.get('detail');
+    if (detail === 'true') {
+      setTabValue(1);
+    }
+    const upload = params.get('upload');
+    if (upload === 'true') {
+      setTabValue(3);
+    }
+  }, []);
+
   return (
     <Box sx={{ flexGrow: 1, padding: '20px' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

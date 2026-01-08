@@ -252,3 +252,18 @@ class MultipleSDSNewRevisionsBodySchema(BaseModel):
                     )
 
         return value
+
+class SDSExtractionStatusSchema(BaseModel):
+    request_id: str
+    progress: int
+    step: str
+    email: str
+    replace: bool | None
+    show_for: bool | None
+    signup_with_uploading: bool | None
+    error_message: str | None
+    error_code: str | None
+    compression_file_info: dict | None
+    file_info: dict | None
+    booklet_info: dict | None
+    log: dict | None

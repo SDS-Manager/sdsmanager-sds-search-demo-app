@@ -232,9 +232,40 @@ async def upload_new_sds(
     sku: str = Form(default=''),
     upc_ean: str = Form(default=''),
     product_code: str = Form(default=''),
+    request_id: str = Form(default=''),
+    email: str | None = Form(default=None),
 ):
     try:
-        return await sds_service.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code)
+        return await sds_service.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code, request_id=request_id, email=email)
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
+        )
+    except SDSAPIInternalError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="SDS API request failed",
+        )
+    
+@router.get(
+    "/getExtractionStatus/",
+    description="Get SDS extraction status by request ID",
+    response_model=schemas.SDSExtractionStatusSchema,
+)
+async def get_sds_extraction_status(
+    request: Request,
+    request_id: str = Query(..., description="Request ID"),
+    email: str | None = Query(None, description="Email associated with the request"),
+    sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
+):
+    try:
+        return await sds_service.get_extraction_status(request_id=request_id, email=email, fe=fe)
     except SDSAPIRequestNotAuthorized as ex:
         detail = (
             ex.args[0]
