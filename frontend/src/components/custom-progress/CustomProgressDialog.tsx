@@ -79,7 +79,7 @@ export const STEP_UI_MAP: Record<string, StepUI> = {
         icon: <CheckCircleOutlineIcon color="error" />,
     },
     SDS_EXIST: {
-        label: 'SDS already exists',
+        label: 'SDS ready',
         icon: <CheckCircleOutlineIcon color="error" />,
     },
 };

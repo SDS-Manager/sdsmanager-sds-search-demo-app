@@ -312,7 +312,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
           </Grid>
         </FormControl>
       </Grid>
-      {loading && !sdsDetails && <SDSUploadProgress progress={progress} step={step} />}
+      {!showProgressDialog && loading && !sdsDetails && <SDSUploadProgress progress={progress} step={step} />}
       {sdsDetails && (
         <Grid container item direction="row" rowSpacing={4}>
           <Grid container item>
