@@ -45,6 +45,7 @@ class SDSAPIClient:
         minimum_revision_date: datetime | None = None,
         region_short_name: str | None = None,
         is_current_version: bool | None = None,
+        is_not_public: bool | None = None,
         page: int = 1,
         page_size: int = 20,
         fe: bool = False,
@@ -68,6 +69,8 @@ class SDSAPIClient:
             search_data["is_current_version"] = is_current_version
         elif is_current_version is None:
             search_data["is_current_version"] = "all"
+        if is_not_public and isinstance(is_not_public, bool):
+            search_data["is_not_public"] = is_not_public
 
         try:
             response = await self.session.post(
@@ -83,6 +86,15 @@ class SDSAPIClient:
                 raise SDSAPIRequestNotAuthorized(
                     response.json().get(
                         "error_message", "You are not authorized"
+                    )
+                )
+            raise SDSAPIRequestNotAuthorized
+        
+        if response.status_code == status.HTTP_403_FORBIDDEN:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get(
+                        "error_message", "You do not have permission to access this resource"
                     )
                 )
             raise SDSAPIRequestNotAuthorized
@@ -343,7 +355,7 @@ class SDSAPIClient:
 
         return response_jsons
 
-    async def upload_sds(self, file: UploadFile, fe: bool = False, sku:str = '', upc_ean:str = '', product_code:str = '', private_import: bool = False):
+    async def upload_sds(self, file: UploadFile, fe: bool = False, sku:str = '', upc_ean:str = '', product_code:str = '', private_import: bool = False, request_id: str = '', email: str | None = None):
         try:
             if file.content_type != "application/pdf":
                 raise SDSBadRequestException("Only PDF files are allowed")
@@ -357,6 +369,8 @@ class SDSAPIClient:
                 "upc_ean": upc_ean,
                 "product_code": product_code,
                 "private_import": private_import,
+                "id": request_id,
+                "email": email,
             }
             response = await self.session.post(
                 url="/sds/upload/",
@@ -372,6 +386,15 @@ class SDSAPIClient:
                 raise SDSAPIRequestNotAuthorized(
                     response.json().get(
                         "error_message", "You are not authorized"
+                    )
+                )
+            raise SDSAPIRequestNotAuthorized
+        
+        if response.status_code == status.HTTP_403_FORBIDDEN:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get(
+                        "error_message", "You do not have permission to access this resource"
                     )
                 )
             raise SDSAPIRequestNotAuthorized
@@ -401,4 +424,37 @@ class SDSAPIClient:
                 else:
                     response_json["search_id"] = response_json.get("id")
 
+        return response_json
+    
+    async def get_extraction_status(self, request_id: str, email: str | None = None, fe: bool = False):
+        urlParams = {}
+        if email: 
+            urlParams['email'] = email
+        urlParams['id'] = request_id
+        try:
+            response = await self.session.get(
+                url="/sds/getExtractionStatus/",
+                params=urlParams
+            )
+        except HTTPError:
+            raise SDSAPIInternalError
+
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
+                )
+            raise SDSAPIRequestNotAuthorized
+
+        if response.status_code == status.HTTP_400_BAD_REQUEST:
+            raise SDSBadRequestException(
+                response.json().get("error_message", "Default bad request")
+            )
+
+        if response.status_code != status.HTTP_200_OK:
+            raise SDSAPIInternalError
+
+        response_json: dict = response.json()
         return response_json
