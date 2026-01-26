@@ -24,6 +24,7 @@ class SDSService:
             minimum_revision_date=search.minimum_revision_date,
             region_short_name=search.region_short_name,
             is_current_version=search.is_current_version,
+            is_not_public=search.is_not_public,
             page=page,
             page_size=page_size,
             fe=fe,
@@ -74,3 +75,7 @@ class SDSService:
     async def upload_sds(self, file: UploadFile, fe: bool, sku:str, upc_ean:str, product_code:str, private_import: bool) -> schemas.SDSDetailsSchema:
         api_response = await self.sds_api_client.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code, private_import=private_import)
         return schemas.SDSDetailsSchema(**api_response)
+
+    async def get_extraction_status(self, request_id: str, email: str | None, fe: bool) -> schemas.SDSExtractionStatusSchema:
+        api_response = await self.sds_api_client.get_extraction_status(request_id=request_id, email=email, fe=fe)
+        return schemas.SDSExtractionStatusSchema(**api_response)

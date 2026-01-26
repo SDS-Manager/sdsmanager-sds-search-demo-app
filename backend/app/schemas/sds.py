@@ -122,6 +122,7 @@ class SearchSDSFilesBodySchema(BaseModel):
     order_by: str | None
     minimum_revision_date: datetime.datetime | None
     is_current_version: bool | None
+    is_not_public: bool | None
 
 
 class SDSDetailsBodySchema(BaseModel):
@@ -252,3 +253,18 @@ class MultipleSDSNewRevisionsBodySchema(BaseModel):
                     )
 
         return value
+
+class SDSExtractionStatusSchema(BaseModel):
+    request_id: str | None = None
+    progress: int | None = None
+    step: str | None = None
+    email: str | None = None
+    replace: bool | None = None
+    show_for: bool | None = None
+    signup_with_uploading: bool | None = None
+    error_message: str | None = None
+    error_code: str | None = None
+    compression_file_info: dict | None = None
+    file_info: dict | None = None
+    booklet_info: dict | None = None
+    log: dict | None = None

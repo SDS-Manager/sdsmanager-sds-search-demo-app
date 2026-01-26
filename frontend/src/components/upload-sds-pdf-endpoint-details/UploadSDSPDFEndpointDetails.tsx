@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FormControl,
   OutlinedInput,
@@ -10,7 +10,8 @@ import {
   Checkbox,
 } from '@mui/material';
 import axiosInstance from 'api';
-import CustomLoader from 'components/loader/CustomLoader';
+import { SDSUploadProgress } from 'components/custom-progress/CustomProgress';
+import { SDSUploadProgressDialog, TERMINAL_STEPS } from 'components/custom-progress/CustomProgressDialog';
 
 interface FormValues {
   file: File | null;
@@ -47,6 +48,25 @@ interface SdsDetails {
 
 const MAX_FILE_SIZE_MB = 5;
 
+export const getExtractionStatusV2 = (requestID: string, email: string | null) => {
+  const urlParams = new URLSearchParams();
+  if (email) urlParams.append('email', email);
+  urlParams.append('request_id', requestID);
+  const apiKey = localStorage.getItem('apiKey');
+  const headers: Record<string, string> = {
+    ...(apiKey ? { 'X-SDS-SEARCH-ACCESS-API-KEY': apiKey } : {}),
+  };
+  return axiosInstance
+    .get(`/sds/getExtractionStatus/`, { params: urlParams, headers })
+    .then(function (response) {
+      console.log('Get extraction status response:', response);
+      return response;
+    })
+    .catch(function (error) {
+      return error.response;
+    });
+};
+
 const SDSUploadEndpointDetails: React.FC = () => {
   const [formValues, setFormValues] = useState<FormValues>({
     file: null,
@@ -59,6 +79,10 @@ const SDSUploadEndpointDetails: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showRawJSON, setShowRawJSON] = useState<boolean>(false);
   const [sdsDetails, setSdsDetails] = useState<SdsDetails | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number>(0);
+  const [step, setStep] = useState<string>('');
+  const [showProgressDialog, setShowProgressDialog] = useState<boolean>(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -82,6 +106,9 @@ const SDSUploadEndpointDetails: React.FC = () => {
   };
 
   const validate = (): boolean => {
+    setProgress(0);
+    setStep('');
+
     let isValid = true;
     const newErrors: FormErrors = { file: '' };
     if (!formValues.file) {
@@ -95,6 +122,9 @@ const SDSUploadEndpointDetails: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
+
+    // Clear previous SDS details
+    setSdsDetails(null);
 
     const apiKey = localStorage.getItem('apiKey');
     const headers: Record<string, string> = {
@@ -116,6 +146,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
 
     setLoading(true);
     try {
+      setShowProgressDialog(true);
       const response = await axiosInstance.post<SdsDetails>('/sds/upload/', data, { headers });
       setSdsDetails(response.data);
     } catch (error: unknown) {
@@ -124,6 +155,33 @@ const SDSUploadEndpointDetails: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!requestId) return;
+
+    const getExtractStatusInterval = setInterval(() => {
+      const getExtractionStatusRequest = getExtractionStatusV2(
+        requestId,
+        formValues.email || null,
+      );
+      getExtractionStatusRequest.then(
+        (response) => {
+          if (response.status === 200) {
+            const data = response.data;
+            setProgress(data.progress || 0);
+            setStep(data.step || '');
+            if (data.progress >= 100 || TERMINAL_STEPS.has(data.step)) {
+              clearInterval(getExtractStatusInterval);
+            }
+          }
+        }
+      );
+    }, 2000);
+
+    return () => {
+      clearInterval(getExtractStatusInterval);
+    };
+  }, [requestId]);
 
   return (
     <Grid container spacing={5}>
@@ -231,7 +289,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
           </Grid>
         </FormControl>
       </Grid>
-      {loading && !sdsDetails && <CustomLoader />}
+      {!showProgressDialog && loading && !sdsDetails && <SDSUploadProgress progress={progress} step={step} />}
       {sdsDetails && (
         <Grid container item direction="row" rowSpacing={4}>
           <Grid container item>
@@ -415,6 +473,12 @@ const SDSUploadEndpointDetails: React.FC = () => {
           )}
         </Grid>
       )}
+      <SDSUploadProgressDialog
+        open={showProgressDialog}
+        progress={progress}
+        step={step}
+        onClose={() => setShowProgressDialog(false)}
+      />
     </Grid>
   );
 };
