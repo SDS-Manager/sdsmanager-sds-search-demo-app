@@ -177,9 +177,12 @@ const SDSUploadEndpointDetails: React.FC = () => {
               clearInterval(getExtractStatusInterval);
               setLoading(false);
               if (data.file_info) {
-                const fileInfoKey = Object.keys(data.file_info)[0];
-                const fileInfo = data.file_info[fileInfoKey];
-                setSdsDetails(fileInfo);
+                const fileInfoKeys = Object.keys(data.file_info);
+                if (fileInfoKeys.length > 0) {
+                  const fileInfoKey = fileInfoKeys[0];
+                  const fileInfo = data.file_info[fileInfoKey];
+                  setSdsDetails(fileInfo);
+                }
               }
             }
           }
