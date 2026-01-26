@@ -73,6 +73,9 @@ class SDSDetailsSchema(BaseSDSSchema):
     other_data: dict
     sds_pdf_manufacture_full_info: dict
 
+class SDSUploadResponseSchema(BaseModel):
+    id: str
+
 
 class NewerSDSInfoSchema(BaseModel):
     sds_id: str
