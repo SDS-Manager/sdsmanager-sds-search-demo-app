@@ -154,11 +154,8 @@ const SDSUploadEndpointDetails: React.FC = () => {
       setShowProgressDialog(true);
       const response = await axiosInstance.post('/sds/upload/', data, { headers });
       setRequestId(response.data.id);
-      // setSdsDetails(response.data);
     } catch (error: unknown) {
       console.error('Error uploading file:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -178,6 +175,12 @@ const SDSUploadEndpointDetails: React.FC = () => {
             setStep(data.step || '');
             if (data.progress >= 100 || TERMINAL_STEPS.has(data.step)) {
               clearInterval(getExtractStatusInterval);
+              setLoading(false);
+              if (data.file_info) {
+                const fileInfoKey = Object.keys(data.file_info)[0];
+                const fileInfo = data.file_info[fileInfoKey];
+                setSdsDetails(fileInfo);
+              }
             }
           }
         }

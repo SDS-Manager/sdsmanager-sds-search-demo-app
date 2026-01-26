@@ -271,3 +271,21 @@ class SDSExtractionStatusSchema(BaseModel):
     file_info: dict | None = None
     booklet_info: dict | None = None
     log: dict | None = None
+
+    @validator("file_info", pre=True)
+    def encrypt_file_info_ids(cls, value):
+        def encrypt_ids(data):
+            if isinstance(data, dict):
+                for key, val in data.items():
+                    if key == "id" and isinstance(val, int):
+                        data[key] = encrypt_number(val, settings.SECRET_KEY)
+                    elif isinstance(val, (dict, list)):
+                        encrypt_ids(val)
+            elif isinstance(data, list):
+                for item in data:
+                    encrypt_ids(item)
+            return data
+
+        if value and isinstance(value, (dict, list)):
+            value = encrypt_ids(value)
+        return value
