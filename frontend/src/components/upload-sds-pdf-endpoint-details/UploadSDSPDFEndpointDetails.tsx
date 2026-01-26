@@ -19,7 +19,6 @@ interface FormValues {
   upc_ean: string;
   product_code: string;
   private_import: boolean;
-  email: string;
 }
 
 interface FormErrors {
@@ -75,7 +74,6 @@ const SDSUploadEndpointDetails: React.FC = () => {
     upc_ean: '',
     product_code: '',
     private_import: false,
-    email: '',
   });
   const [errors, setErrors] = useState<FormErrors>({ file: '' });
   const [loading, setLoading] = useState<boolean>(false);
@@ -145,12 +143,6 @@ const SDSUploadEndpointDetails: React.FC = () => {
     data.append('upc_ean', formValues.upc_ean || '');
     data.append('product_code', formValues.product_code || '');
     data.append('private_import', formValues.private_import ? 'true' : 'false');
-    const requestId = `${Date.now()}`;
-    setRequestId(requestId);
-    data.append('request_id', requestId);
-    if (formValues.email) {
-      data.append('email', formValues.email);
-    }
 
     setLoading(true);
     try {
@@ -265,21 +257,6 @@ const SDSUploadEndpointDetails: React.FC = () => {
                   name="product_code"
                   label="Product Code"
                   value={formValues.product_code}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-            </Grid>
-
-            {/* Email */}
-            <Grid item>
-              <FormControl sx={{ width: '600px' }}>
-                <InputLabel htmlFor="email">Email me about status</InputLabel>
-                <OutlinedInput
-                  id="email"
-                  name="email"
-                  label="Email me about status"
-                  type="email"
-                  value={formValues.email}
                   onChange={handleInputChange}
                 />
               </FormControl>
