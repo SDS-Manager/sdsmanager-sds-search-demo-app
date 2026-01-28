@@ -1,5 +1,4 @@
 import React from 'react';
-import { Grid, Typography } from '@mui/material';
 
 export default function SdsSearchDoc() {
   const styleCodeTag = {
@@ -734,7 +733,7 @@ export default function SdsSearchDoc() {
               </li>
               <li>
                 <strong>Upload limit:</strong>
-                <p>The maximum PDF file size is <strong>25MB</strong>.</p>
+                <p>The maximum PDF file size is <strong>5MB</strong>.</p>
               </li>
             </ul>
 
