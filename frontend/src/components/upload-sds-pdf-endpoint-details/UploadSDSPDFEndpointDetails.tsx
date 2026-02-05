@@ -188,7 +188,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
           }
         }
       );
-    }, 2000);
+    }, 3000);
 
     return () => {
       clearInterval(getExtractStatusInterval);
