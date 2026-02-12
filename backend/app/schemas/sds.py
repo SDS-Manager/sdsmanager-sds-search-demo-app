@@ -20,7 +20,7 @@ class BaseSDSSchema(BaseModel):
     uuid: UUID
     pdf_md5: str
     sds_pdf_product_name: str
-    sds_pdf_manufacture_name: str
+    sds_pdf_manufacture_name: str | None
     sds_pdf_revision_date: str | None
     # master_date: str | None
     language: str
