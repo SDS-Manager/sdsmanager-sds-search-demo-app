@@ -13,6 +13,7 @@ from app.exceptions import (
     SDSAPIRequestNotAuthorized,
     SDSBadRequestException,
     SDSNotFoundException,
+    SDSNotFoundError,
 )
 from app.utils import encrypt_number, update_search_id
 
@@ -98,6 +99,16 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+
+        if response.status_code == status.HTTP_404_NOT_FOUND:
+            if response.content:
+                response_json = response.json()
+                error_message = response_json.get("error_message", None)
+                if not error_message:
+                    error_message = response_json.get("detail", "Not found")
+
+                raise SDSNotFoundError(error_message)
+            raise SDSNotFoundError
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException(

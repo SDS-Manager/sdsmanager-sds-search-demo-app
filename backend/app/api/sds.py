@@ -10,6 +10,7 @@ from app.exceptions import (
     SDSAPIRequestNotAuthorized,
     SDSBadRequestException,
     SDSNotFoundException,
+    SDSNotFoundError,
 )
 from app.services.sds_service import SDSService
 from app.throttling import limiter
@@ -131,6 +132,11 @@ async def search_for_sds(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
+        )
+    except SDSNotFoundError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Not found",
         )
     except SDSAPIInternalError:
         raise HTTPException(
