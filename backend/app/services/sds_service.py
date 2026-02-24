@@ -65,17 +65,42 @@ class SDSService:
     async def get_multiple_newer_sds_info(
         self, search: schemas.MultipleSDSNewRevisionsBodySchema, fe: bool
     ) -> list[schemas.MultipleNewRevisionInfoSchema]:
-        api_response = await self.sds_api_client.get_multiple_new_revision_sds_info(
-            sds_id=search.sds_id,
-            pdf_md5=search.pdf_md5,
-            fe=fe,
+        api_response = (
+            await self.sds_api_client.get_multiple_new_revision_sds_info(
+                sds_id=search.sds_id,
+                pdf_md5=search.pdf_md5,
+                fe=fe,
+            )
         )
-        return [schemas.MultipleNewRevisionInfoSchema(**el) for el in api_response]
+        return [
+            schemas.MultipleNewRevisionInfoSchema(**el) for el in api_response
+        ]
 
-    async def upload_sds(self, file: UploadFile, fe: bool, sku:str, upc_ean:str, product_code:str, private_import: bool, email: str | None = None) -> schemas.SDSUploadResponseSchema:
-        api_response = await self.sds_api_client.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code, private_import=private_import, email=email)
+    async def upload_sds(
+        self,
+        file: UploadFile,
+        fe: bool,
+        sku: str,
+        upc_ean: str,
+        product_code: str,
+        private_import: bool,
+        email: str | None = None,
+    ) -> schemas.SDSUploadResponseSchema:
+        api_response = await self.sds_api_client.upload_sds(
+            file=file,
+            fe=fe,
+            sku=sku,
+            upc_ean=upc_ean,
+            product_code=product_code,
+            private_import=private_import,
+            email=email,
+        )
         return schemas.SDSUploadResponseSchema(**api_response)
 
-    async def get_extraction_status(self, request_id: str, email: str | None, fe: bool) -> schemas.SDSExtractionStatusSchema:
-        api_response = await self.sds_api_client.get_extraction_status(request_id=request_id, email=email, fe=fe)
+    async def get_extraction_status(
+        self, request_id: str, email: str | None, fe: bool
+    ) -> schemas.SDSExtractionStatusSchema:
+        api_response = await self.sds_api_client.get_extraction_status(
+            request_id=request_id, email=email, fe=fe
+        )
         return schemas.SDSExtractionStatusSchema(**api_response)

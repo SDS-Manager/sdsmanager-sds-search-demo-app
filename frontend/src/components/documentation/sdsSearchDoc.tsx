@@ -682,7 +682,33 @@ export default function SdsSearchDoc() {
           <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
             SDS Upload
           </h3>
+          <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '4px', borderLeft: '5px solid #1976d2' }}>
+            <h4 style={{ margin: '0 0 10px 0', color: '#1976d2' }}>Processing Modes</h4>
+            <p style={{ margin: 0 }}>
+              This API supports <strong>two processing modes</strong> controlled by the <code>is_fe</code> parameter:
+            </p>
+            <ol style={{ marginTop: '10px' }}>
+              <li>
+                <strong>Asynchronous Mode (is_fe = true)</strong><br />
+                Returns a <code>request_id</code>. You must poll the status endpoint to retrieve results.
+              </li>
+              <li>
+                <strong>Synchronous Mode (is_fe = false)</strong><br />
+                Returns the extracted SDS data immediately in the response.
+              </li>
+            </ol>
+          </div>
           <div>
+            <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '4px', borderLeft: '5px solid #1976d2' }}>
+              <h4 style={{ margin: '0 0 10px 0', color: '#1976d2' }}>⚠️ Synchronous Process</h4>
+              <p style={{ margin: 0 }}>
+                You only need to call the Upload API once, and the API will return the extracted SDS data in the response.
+                <ol style={{ margin: '10px 0 0 20px', padding: 0 }}>
+                  <li><strong>Step 1:</strong> Call the Upload API to submit your file. The API will process the file and return the extracted SDS data in the response.</li>
+                </ol>
+              </p>
+            </div>
+
             <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '4px', borderLeft: '5px solid #1976d2' }}>
               <h4 style={{ margin: '0 0 10px 0', color: '#1976d2' }}>⚠️ Asynchronous Process</h4>
               <p style={{ margin: 0 }}>
@@ -745,6 +771,10 @@ export default function SdsSearchDoc() {
                 The PDF file to upload. Replace <code style={styleCodeTag}>"&lt;string&gt;"</code> with the actual path to your file.
               </li>
               <li style={{ marginBottom: '10px' }}>
+                <strong>is_fe</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
+                Set to <code style={styleCodeTag}>true</code> to use asynchronous processing (recommended for most cases). Set to <code style={styleCodeTag}>false</code> for synchronous processing, which will return results immediately but may time out for larger files.
+              </li>
+              <li style={{ marginBottom: '10px' }}>
                 <strong>sku</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
                 Stock Keeping Unit (SKU). This is typically used for your internal customer management or inventory tracking.
               </li>
@@ -774,12 +804,15 @@ export default function SdsSearchDoc() {
             </pre>
 
             <strong>Success Response</strong>
-            <p>The server acknowledges the upload and returns the tracking ID.</p>
+            <h4>Asynchronous Mode</h4>
+            <p>When <code>is_fe=true</code>, the server returns a <code>request_id</code> for tracking the upload process:</p>
             <pre>
               <code style={styleCodeTag}>{`{
-  "id": "1e29803d-7d68-4347-ba4d-075a7464b620"
-}`}</code>
+        "id": "1e29803d-7d68-4347-ba4d-075a7464b620"
+  }`}</code>
             </pre>
+            <h4>Synchronous Mode</h4>
+            <p>When <code>is_fe=false</code>, the server returns the extracted SDS data immediately.</p>
 
             {/* ================= STEP 2 ================= */}
             <h3 style={{ textTransform: 'uppercase', color: '#1976d2', marginTop: '40px', borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>
