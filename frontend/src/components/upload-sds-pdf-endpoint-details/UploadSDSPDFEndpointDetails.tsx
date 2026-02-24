@@ -19,6 +19,7 @@ interface FormValues {
   upc_ean: string;
   product_code: string;
   private_import: boolean;
+  email: string;
 }
 
 interface FormErrors {
@@ -74,6 +75,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
     upc_ean: '',
     product_code: '',
     private_import: false,
+    email: '',
   });
   const [errors, setErrors] = useState<FormErrors>({ file: '' });
   const [loading, setLoading] = useState<boolean>(false);
@@ -143,16 +145,17 @@ const SDSUploadEndpointDetails: React.FC = () => {
     data.append('upc_ean', formValues.upc_ean || '');
     data.append('product_code', formValues.product_code || '');
     data.append('private_import', formValues.private_import ? 'true' : 'false');
+    if (formValues.email) {
+      data.append('email', formValues.email);
+    }
 
     setLoading(true);
     try {
       setShowProgressDialog(true);
-      const response = await axiosInstance.post<SdsDetails>('/sds/upload/', data, { headers });
-      setSdsDetails(response.data);
+      const response = await axiosInstance.post('/sds/upload/', data, { headers });
+      setRequestId(response.data.id);
     } catch (error: unknown) {
       console.error('Error uploading file:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -172,11 +175,20 @@ const SDSUploadEndpointDetails: React.FC = () => {
             setStep(data.step || '');
             if (data.progress >= 100 || TERMINAL_STEPS.has(data.step)) {
               clearInterval(getExtractStatusInterval);
+              setLoading(false);
+              if (data.file_info) {
+                const fileInfoKeys = Object.keys(data.file_info);
+                if (fileInfoKeys.length > 0) {
+                  const fileInfoKey = fileInfoKeys[0];
+                  const fileInfo = data.file_info[fileInfoKey];
+                  setSdsDetails(fileInfo);
+                }
+              }
             }
           }
         }
       );
-    }, 2000);
+    }, 3000);
 
     return () => {
       clearInterval(getExtractStatusInterval);
@@ -257,6 +269,21 @@ const SDSUploadEndpointDetails: React.FC = () => {
                   name="product_code"
                   label="Product Code"
                   value={formValues.product_code}
+                  onChange={handleInputChange}
+                />
+              </FormControl>
+            </Grid>
+
+            {/* Email */}
+            <Grid item>
+              <FormControl sx={{ width: '600px' }}>
+                <InputLabel htmlFor="email">Email me about status</InputLabel>
+                <OutlinedInput
+                  id="email"
+                  name="email"
+                  label="Email me about status"
+                  type="email"
+                  value={formValues.email}
                   onChange={handleInputChange}
                 />
               </FormControl>

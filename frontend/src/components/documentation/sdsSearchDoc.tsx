@@ -1,5 +1,4 @@
 import React from 'react';
-import { Grid, Typography } from '@mui/material';
 
 export default function SdsSearchDoc() {
   const styleCodeTag = {
@@ -683,99 +682,191 @@ export default function SdsSearchDoc() {
           <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
             SDS Upload
           </h3>
-          <ul>
-            <li>
-              <strong>URL:</strong>
-              <p>
-                <code style={styleCodeTag}>
-                  http://api.sdsmanager.com/sds/upload/
-                </code>
-                : This is the endpoint where the API request is being sent.
+          <div>
+            <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '4px', borderLeft: '5px solid #1976d2' }}>
+              <h4 style={{ margin: '0 0 10px 0', color: '#1976d2' }}>⚠️ Asynchronous Process</h4>
+              <p style={{ margin: 0 }}>
+                This API uses an <strong>asynchronous workflow</strong> to handle large files and complex extractions efficiently.
+                <ol style={{ margin: '10px 0 0 20px', padding: 0 }}>
+                  <li><strong>Step 1:</strong> Call the Upload API to submit your file. You will receive a <code>request_id</code> immediately.</li>
+                  <li><strong>Step 2:</strong> Use that <code>request_id</code> to call the Status API. Poll this endpoint until the process is complete.</li>
+                </ol>
               </p>
-            </li>
-            <li>
-              <strong>HTTP Method:</strong>
-              <p>
-                <code style={styleCodeTag}>POST</code>: This is implied by the
-                use of <code style={styleCodeTag}>--form</code> (sending form
-                data in the request body). It indicates that you're sending data
-                to the server.
-              </p>
-            </li>
-            <li>
-              <strong>Headers:</strong>
-              <ul>
-                <li>
+            </div>
+
+            {/* ================= STEP 1 ================= */}
+            <h3 style={{ textTransform: 'uppercase', color: '#1976d2', borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>
+              Step 1: SDS Upload
+            </h3>
+            <ul>
+              <li>
+                <strong>URL:</strong>
+                <p>
                   <code style={styleCodeTag}>
-                    Content-Type: multipart/form-data
+                    http://api.sdsmanager.com/sds/upload/
                   </code>
-                  : Indicates that the body of the request contains multipart
-                  form data.
-                </li>
-                <li>
-                  <code style={styleCodeTag}>Accept: application/json</code>:
-                  Specifies that the client expects a JSON response.
-                </li>
-                <li>
+                </p>
+              </li>
+              <li>
+                <strong>HTTP Method:</strong>
+                <p>
+                  <code style={styleCodeTag}>POST</code>
+                </p>
+              </li>
+              <li>
+                <strong>Headers:</strong>
+                <ul>
+                  <li>
+                    <code style={styleCodeTag}>
+                      Content-Type: multipart/form-data
+                    </code>
+                  </li>
+                  <li>
+                    <code style={styleCodeTag}>Accept: application/json</code>
+                  </li>
+                  <li>
+                    <code style={styleCodeTag}>
+                      X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]
+                    </code>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <strong>Upload limit:</strong>
+                <p>The maximum PDF file size is <strong>5MB</strong>.</p>
+              </li>
+            </ul>
+
+            <h4 style={{ marginTop: '20px', color: '#555' }}>Explanation of Form Data Parameters</h4>
+            <p>The body must be sent as <code>multipart/form-data</code>. Below are the available fields:</p>
+            <ul>
+              <li style={{ marginBottom: '10px' }}>
+                <strong>file</strong> <span style={{ color: 'red' }}>*Required</span><br />
+                The PDF file to upload. Replace <code style={styleCodeTag}>"&lt;string&gt;"</code> with the actual path to your file.
+              </li>
+              <li style={{ marginBottom: '10px' }}>
+                <strong>sku</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
+                Stock Keeping Unit (SKU). This is typically used for your internal customer management or inventory tracking.
+              </li>
+              <li style={{ marginBottom: '10px' }}>
+                <strong>upc_ean</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
+                Allows input of a UPC or EAN code if it does not appear explicitly in the file text.
+              </li>
+              <li style={{ marginBottom: '10px' }}>
+                <strong>product_code</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
+                Some products may have a unique code assigned by the manufacturer or supplier. Users can input this code to help find the SDS for a specific product variant or formulation.
+              </li>
+              <li style={{ marginBottom: '10px' }}>
+                <strong>private_import</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
+                When set to <code style={styleCodeTag}>true</code>, the uploaded SDS will be marked as private for your organization's account and will <strong>not</strong> be included in our global public selection of SDSs.
+                <br /><em>Default: false</em>
+              </li>
+            </ul>
+
+            <strong>Example Usage (cURL)</strong>
+            <pre>
+              <code style={styleCodeTag}>{`curl --location 'http://api.sdsmanager.com/sds/upload/' \\
+--header 'Accept: application/json' \\
+--header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+--form 'file=@"/path/to/my_sds_file.pdf"' \\
+--form 'sku="MY-SKU-123"' \\
+--form 'private_import="true"'`}</code>
+            </pre>
+
+            <strong>Success Response</strong>
+            <p>The server acknowledges the upload and returns the tracking ID.</p>
+            <pre>
+              <code style={styleCodeTag}>{`{
+  "id": "1e29803d-7d68-4347-ba4d-075a7464b620"
+}`}</code>
+            </pre>
+
+            {/* ================= STEP 2 ================= */}
+            <h3 style={{ textTransform: 'uppercase', color: '#1976d2', marginTop: '40px', borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>
+              Step 2: Get Extraction Status
+            </h3>
+            <p>
+              Use this endpoint to check if the extraction is finished and to retrieve the extracted data.
+            </p>
+            <ul>
+              <li>
+                <strong>URL:</strong>
+                <p>
                   <code style={styleCodeTag}>
-                    X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]
+                    http://api.sdsmanager.com/sds/getExtractionStatus/
                   </code>
-                  : An API key used for authentication, allowing access to the
-                  API.
-                </li>
-              </ul>
-            </li>
-            <li>
-              <strong>Data:</strong>
-              <p>
-                The <code style={styleCodeTag}>--form</code> flag is used to
-                send form data in the request body. Here's what the data looks
-                like:
-                <pre>
-                  <code style={styleCodeTag}>{`--form 'file="<string>"' \\
-                  --form 'sku="<string>"' \\
-                  --form 'product_code="<string>"' \\
-                  --form 'private_import="<true|false>"'`}</code>
-                </pre>
-              </p>
-            </li>
-            <li>
-              <strong>Upload limit:</strong>
-              <p>The maximum of a pdf file size: 25MB</p>
-            </li>
-          </ul>
-          <strong>Explanation of Form Data</strong>
-          <p>The form data consists of a single field:</p>
-          <ul>
-            <li>
-              <strong>file</strong>: The file to upload. Replace{' '}
-              <code style={styleCodeTag}>"&lt;string&gt;"</code> with the path
-              to the file.
-            </li>
-            <li>
-              <strong>sku</strong>: Stock Keeping Unit (SKU) — typically used for internal customer management.
-              Replace <code style={styleCodeTag}>"&lt;string&gt;"</code> with the SKU.
-            </li>
-            <li>
-              <strong>product_code</strong>: Some products may have a unique code assigned by the manufacturer or supplier. Users can input this code to find SDS for a specific product variant or formulation.
-              Replace <code style={styleCodeTag}>"&lt;string&gt;"</code> with the product code.
-            </li>
-            <li>
-              <strong>private_import</strong>: Imported SDS files will be marked as private for your organization's account and will not be included in our global selection of SDSs.
-              Replace <code style={styleCodeTag}>"&lt;true|false&gt;"</code> with either true or false.
-            </li>
-          </ul>
-          <strong>Example Usage</strong>
-          <p>Here's an example of how to use the cURL command:</p>
-          <pre>
-            <code style={styleCodeTag}>{`curl --location 'http://api.sdsmanager.com/sds/upload/' \\
-            --header 'Accept: application/json' \\
-            --header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
-            --form 'file=@"/path/to/file.pdf"' \\
-            --form 'sku=12345' \\
-            --form 'product_code=ABC-123"' \\
-            --form 'private_import=true'`}</code>
-          </pre>
+                </p>
+              </li>
+              <li>
+                <strong>HTTP Method:</strong>
+                <p>
+                  <code style={styleCodeTag}>GET</code>
+                </p>
+              </li>
+              <li>
+                <strong>Query Parameters:</strong>
+                <ul>
+                  <li>
+                    <strong>request_id</strong> <span style={{ color: 'red' }}>*Required</span>: The ID returned from the Step 1 response.
+                  </li>
+                </ul>
+              </li>
+            </ul>
+
+            <strong>Example Usage</strong>
+            <pre>
+              <code style={styleCodeTag}>{`curl --location 'http://api.sdsmanager.com/sds/getExtractionStatus/?request_id=1e29803d-7d68-4347-ba4d-075a7464b620' \\
+--header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]'`}</code>
+            </pre>
+
+            <strong>Response Explanation</strong>
+            <p>The response contains the current status of the job. Key fields include:</p>
+            <ul>
+              <li><strong>progress</strong>: An integer from 0 to 100. The job is complete when this is <strong>100</strong>.</li>
+              <li><strong>step</strong>: The current internal step (e.g., <code>SDS_EXIST</code>, <code>SUCCESS</code>, <code>FAILED</code>).</li>
+              <li>
+                <strong>file_info</strong>: A dictionary containing the final results.
+                <ul>
+                  <li>The <strong>Key</strong> is the original filename.</li>
+                  <li>The <strong>Value</strong> is the full extracted SDS object (containing <code>extracted_data</code>, <code>hazard_codes</code>, <code>sds_components</code>, etc.).</li>
+                </ul>
+              </li>
+            </ul>
+
+            <strong>Example Response (Completed)</strong>
+            <pre>
+              <code style={styleCodeTag}>{`{
+    "request_id": "1e29803d-7d68-4347-ba4d-075a7464b620",
+    "progress": 100,
+    "step": "SDS_EXIST",
+    "error_message": "",
+    "file_info": {
+        "Titanium(IV) isopropoxide.pdf": {
+            "id": "gAAAAABpdzwp...",
+            "uuid": "805f113c-7c9d-4831-9baf-81f19a031d41",
+            "sds_pdf_product_name": "Titanium(IV) isopropoxide",
+            "sds_pdf_manufacture_name": "Sigma-Aldrich",
+            "extracted_data": {
+                "hazard_codes": [
+                    {
+                        "statement_code": "H303",
+                        "statements": "May be harmful if swallowed"
+                    }
+                ],
+                "sds_components": [
+                    {
+                        "chemical_name": "Tetraisopropyl orthotitanate",
+                        "cas_no": "546-68-9",
+                        "concentration": "Titanium tetraisopropanolate"
+                    }
+                ]
+            },
+            "progress": 100
+        }
+    }
+}`}</code>
+            </pre>
+          </div>
         </div>
       </div>
     </>
