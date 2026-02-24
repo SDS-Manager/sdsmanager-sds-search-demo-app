@@ -16,3 +16,7 @@ class SDSAPIParamsRequired(Exception):
 
 class SDSAPIRequestNotAuthorized(Exception):
     """Raised when invalid API key was provided"""
+
+
+class SDSNotFoundError(Exception):
+    """Raised when API not found"""
