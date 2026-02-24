@@ -381,6 +381,7 @@ class SDSAPIClient:
                 "product_code": product_code,
                 "private_import": private_import,
                 "email": email,
+                "is_fe": fe,              
             }
             response = await self.session.post(
                 url="/sds/upload/",

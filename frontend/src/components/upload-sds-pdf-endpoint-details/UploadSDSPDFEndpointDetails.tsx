@@ -152,7 +152,7 @@ const SDSUploadEndpointDetails: React.FC = () => {
     setLoading(true);
     try {
       setShowProgressDialog(true);
-      const response = await axiosInstance.post('/sds/upload/', data, { headers });
+      const response = await axiosInstance.post('/sds/upload/?fe=true', data, { headers });
       setRequestId(response.data.id);
     } catch (error: unknown) {
       console.error('Error uploading file:', error);
