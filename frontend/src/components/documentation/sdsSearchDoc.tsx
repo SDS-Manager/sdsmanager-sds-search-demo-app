@@ -774,10 +774,6 @@ export default function SdsSearchDoc() {
                 The PDF file to upload. Replace <code style={styleCodeTag}>"&lt;string&gt;"</code> with the actual path to your file.
               </li>
               <li style={{ marginBottom: '10px' }}>
-                <strong>is_fe</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
-                Set to <code style={styleCodeTag}>true</code> to use asynchronous processing (recommended for most cases). Set to <code style={styleCodeTag}>false</code> for synchronous processing, which will return results immediately but may time out for larger files.
-              </li>
-              <li style={{ marginBottom: '10px' }}>
                 <strong>sku</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
                 Stock Keeping Unit (SKU). This is typically used for your internal customer management or inventory tracking.
               </li>
