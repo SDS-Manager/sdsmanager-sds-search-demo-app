@@ -104,3 +104,14 @@ class SDSService:
             request_id=request_id, email=email, fe=fe
         )
         return schemas.SDSExtractionStatusSchema(**api_response)
+
+    async def get_sds_safety_information_summary(
+        self, search: schemas.SDSSafetyInformationSummaryBodySchema, fe: bool
+    ) -> bytes:
+        api_response = await self.sds_api_client.get_sds_safety_information_summary(
+            sds_id=search.sds_id,
+            pdf_md5=search.pdf_md5,
+            section_display=search.section_display,
+            fe=fe
+        )
+        return bytes(api_response)

@@ -19,6 +19,8 @@ import SDSUploadEndpointDetails from 'components/upload-sds-pdf-endpoint-details
 import Documentation from 'components/documentation/documentation';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import InfoPanel from '../../components/info-panel/InfoPanel';
+import SdsSafetyInformationSummary from 'components/sds-safety-information-summary';
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -94,7 +96,8 @@ const MainPage = () => {
           <Tab label="SDS Details" {...a11yProps(1)} />
           <Tab label="SDS Newer revision" {...a11yProps(2)} />
           <Tab label="SDS Upload" {...a11yProps(3)} />
-          <Tab label="Documentation" {...a11yProps(4)} />
+          <Tab label="SDS Safety Information Summary" {...a11yProps(4)} />
+          <Tab label="Documentation" {...a11yProps(5)} />
         </Tabs>
       </Box>
       <Grid sx={{ marginTop: '20px' }} container justifyContent="flex-end">
@@ -154,7 +157,10 @@ const MainPage = () => {
       <TabPanel value={tabValue} index={3}>
         <SDSUploadEndpointDetails />
       </TabPanel>
-      <TabPanel value={tabValue} index={4}>
+      <TabPanel value={tabValue} index={4}> 
+        <SdsSafetyInformationSummary />
+      </TabPanel>
+      <TabPanel value={tabValue} index={5}>
         <Documentation />
       </TabPanel>
     </Box>
