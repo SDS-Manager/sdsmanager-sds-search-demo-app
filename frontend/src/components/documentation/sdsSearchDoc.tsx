@@ -901,6 +901,120 @@ export default function SdsSearchDoc() {
             </pre>
           </div>
         </div>
+        <div className="">
+          <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>SDS Safety Information Summary</h3>
+          <p>
+            Use this endpoint to get the safety information summary of an SDS.
+          </p>
+          <ul>
+            <li>
+              <strong>URL: </strong>
+              <p>
+                <code style={styleCodeTag}>
+                  http://api.sdsmanager.com/sds/safetyInformationSummary/
+                </code>
+              </p>
+            </li>
+            <li>
+              <strong>HTTP Method:</strong>
+              <p>
+                <code style={styleCodeTag}>POST</code>: This is implied by the use
+                of <code style={styleCodeTag}>--data</code> (sending data in the
+                request body). It indicates that you're sending data to the
+                server.
+              </p>
+            </li>
+            <li>
+              <strong>Headers:</strong>
+              <ul>
+                <li>
+                  <code style={styleCodeTag}>Content-Type: application/json</code>
+                </li>
+                <li>
+                  <code style={styleCodeTag}>Accept: application/pdf</code>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <strong>Data:</strong>
+              <p>
+                The <code style={styleCodeTag}>--data</code> flag is used to send
+                JSON data in the request body. Here's what the JSON data looks
+                like:
+                <pre>
+                  <code style={styleCodeTag}>{`{
+                    "sds_id": "<string>",
+                    "pdf_md5": "<string>",
+                    "section_display": "<string>"
+                  }`}</code>
+                </pre>
+              </p>
+              <p>
+                The JSON payload consists of the following fields:
+                <ul>
+                  <li>
+                    <strong>sds_id:</strong> The ID of the SDS (Safety Data Sheet).
+                  </li>
+                  <li>
+                    <strong>pdf_md5:</strong> The MD5 hash of the PDF file associated
+                    with the SDS.
+                  </li>
+                  <li>
+                    <strong>section_display:</strong> The sections displays for the safety information summary.
+                    <ul>
+                      <li>
+                        <strong>general_information:</strong> General Information
+                      </li>
+                      <li>
+                        <strong>ghs_information:</strong> GHS Information
+                      </li>
+                    </ul>
+                    <ul>
+                      <li>
+                        <strong>hazard_statements:</strong> Hazard Statements
+                      </li>
+                      <li>
+                        <strong>precautionary_statements:</strong> Precautionary Statements
+                      </li>
+                    </ul>
+                    <ul>
+                      <li>
+                        <strong>euh_statements:</strong> EUH Statements
+                      </li>
+                      <li>
+                        <strong>2:</strong> Section 2
+                      </li>
+                    </ul>
+                    <ul>
+                      <li>
+                        <strong>4:</strong> Section 4
+                      </li>
+                      <li>
+                        <strong>8:</strong> Section 8
+                      </li>
+                    </ul>
+                    <ul>
+                      <li>
+                        <strong>7:</strong> Section 7
+                      </li>
+                      <li>
+                        <strong>5:</strong> Section 5
+                      </li>
+                    </ul>
+                    <ul>
+                      <li>
+                        <strong>6:</strong> Section 6
+                      </li>
+                      <li>
+                        <strong>company_information:</strong> Company Information
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </p>
+            </li>
+          </ul>
+        </div>
       </div>
     </>
   );
