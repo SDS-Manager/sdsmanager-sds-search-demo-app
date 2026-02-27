@@ -30,20 +30,34 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    if (!error.response) {
+      return Promise.reject(error);
+    }
     if (error.response.status === 403) {
       return Promise.reject(error);
     }
-
-    if (error.response?.data?.detail !== undefined) {
-      if (typeof error.response?.data?.detail == 'string') {
-        renderSnackbar([error.response.data.detail]);
+    let data = error.response.data;
+    try {
+      //if data is a Blob, parse it to JSON
+      if (data instanceof Blob) {
+        const text = await data.text();
+        data = JSON.parse(text);
       }
-      return Promise.reject(error);
-    }
 
+      if (data?.detail) {
+        if (typeof data.detail === 'string') {
+          renderSnackbar([data.detail]);
+        } else if (Array.isArray(data.detail)) {
+          renderSnackbar(data.detail);
+        }
+      }
+    } catch (e) {
+      console.log('Could not parse error blob', e);
+    }
     return Promise.reject(error);
   }
+
 );
 
 export default axiosInstance;
