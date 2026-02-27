@@ -110,7 +110,9 @@ const SdsSafetyInformationSummary = ({ }) => {
         initialValues: {
             sds_id: '',
             pdf_md5: '',
-            section_display: [],
+            section_display: DEFAULT_OPTIONS.map(
+                (option: { value: SAFETY_SUMMARY_SECTION_DISPLAY; label: string }) => option.value
+            ),
         } as { sds_id: string; pdf_md5: string; section_display: Array<SAFETY_SUMMARY_SECTION_DISPLAY> },
         onSubmit: (values, { setSubmitting }) => {
             setLoading(true);
