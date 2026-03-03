@@ -932,7 +932,10 @@ export default function SdsSearchDoc() {
                 </li>
                 <li>
                   <code style={styleCodeTag}>Accept: application/pdf</code>
-                </li>
+                  </li>
+                  <li>
+                  <code style={styleCodeTag}>X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]</code> : An API key used for authentication, allowing access to the API.
+                  </li>
               </ul>
             </li>
             <li>
@@ -1014,6 +1017,18 @@ export default function SdsSearchDoc() {
               </p>
             </li>
           </ul>
+          <strong>Example Usage</strong>
+          <pre>
+            <code style={styleCodeTag}>{`curl --location 'http://api.sdsmanager.com/sds/safetyInformationSummary/' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/pdf' \\
+--header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+--data '{
+  "sds_id": "<string>",
+  "pdf_md5": "<string>",
+  "section_display": "general_information,ghs_information,hazard_statements,precautionary_statements,euh_statements,2,4,8,7,5,6,company_information"
+}'`}</code>
+          </pre>
         </div>
       </div>
     </>
