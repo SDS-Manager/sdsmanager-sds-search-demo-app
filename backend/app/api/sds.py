@@ -228,7 +228,7 @@ async def search_for_multiple_new_sds_revision_info(
 @router.post(
     "/upload/",
     description="If SDS will be successfully extracted, all information will be returned in response",
-    response_model=schemas.SDSUploadResponseSchema,
+    response_model=schemas.SDSDetailsSchema,
 )
 @limiter.limit("5/minute")
 async def upload_new_sds(

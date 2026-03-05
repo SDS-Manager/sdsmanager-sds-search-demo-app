@@ -85,7 +85,7 @@ class SDSService:
         product_code: str,
         private_import: bool,
         email: str | None = None,
-    ) -> schemas.SDSUploadResponseSchema:
+    ) -> schemas.SDSDetailsSchema:
         api_response = await self.sds_api_client.upload_sds(
             file=file,
             fe=fe,
@@ -95,7 +95,7 @@ class SDSService:
             private_import=private_import,
             email=email,
         )
-        return schemas.SDSUploadResponseSchema(**api_response)
+        return schemas.SDSDetailsSchema(**api_response)
 
     async def get_extraction_status(
         self, request_id: str, email: str | None, fe: bool

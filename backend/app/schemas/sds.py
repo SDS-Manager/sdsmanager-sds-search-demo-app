@@ -16,19 +16,19 @@ from app.utils import decrypt_to_number, encrypt_number, is_valid_uuid
 
 class BaseSDSSchema(BaseModel):
     search_id: str | None
-    id: str
-    uuid: UUID
-    pdf_md5: str
-    sds_pdf_product_name: str
+    id: str | None
+    uuid: UUID | None
+    pdf_md5: str | None
+    sds_pdf_product_name: str | None
     sds_pdf_manufacture_name: str | None
     sds_pdf_revision_date: str | None
     # master_date: str | None
-    language: str
+    language: str | None
     regulation_area: str | None
     product_code: str | None
     # cas_no: str | None
     sku: str | None
-    permanent_link: str
+    permanent_link: str | None
     sds_web_page: str | None
     replaced_by_id: str | None
     newest_version_of_sds_id: str | None
@@ -69,12 +69,9 @@ class ListSDSSchema(BaseSDSSchema):
 
 
 class SDSDetailsSchema(BaseSDSSchema):
-    extracted_data: dict
-    other_data: dict
-    sds_pdf_manufacture_full_info: dict
-
-class SDSUploadResponseSchema(BaseModel):
-    id: str
+    extracted_data: dict | None
+    other_data: dict | None
+    sds_pdf_manufacture_full_info: dict | None
 
 
 class NewerSDSInfoSchema(BaseModel):
