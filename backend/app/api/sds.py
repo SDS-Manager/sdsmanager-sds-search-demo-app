@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Body, HTTPException, Query, Request, UploadFile, \
     Form
+from fastapi.responses import Response
 from starlette import status
 
 from app import schemas
@@ -286,6 +287,45 @@ async def get_sds_extraction_status(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
     except SDSAPIInternalError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="SDS API request failed",
+        )
+
+
+@router.post(
+    "/safetyInformationSummary/",
+    description="SDS safety information summary PDF",
+)
+@limiter.limit("5/minute")
+async def get_sds_safety_information_summary(
+    request: Request,
+    search_body: schemas.SDSSafetyInformationSummaryBodySchema = Body(...),
+    sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
+):
+    try:
+        pdf_content = await sds_service.get_sds_safety_information_summary(search=search_body, fe=fe)
+        return Response(pdf_content, media_type="application/pdf")
+    except (SDSAPIParamsRequired, SDSBadRequestException):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one param is required SDS Id or PDF MD5",
+        )
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
+        )
+    except SDSNotFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="SDS not found"
+        )
+    except SDSAPIInternalError as ex:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="SDS API request failed",
