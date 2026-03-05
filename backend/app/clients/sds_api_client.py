@@ -458,3 +458,49 @@ class SDSAPIClient:
 
         response_json: dict = response.json()
         return response_json
+
+
+    async def get_sds_safety_information_summary(self, 
+        sds_id: dict | None = None,
+        pdf_md5: str | None = None,
+        section_display: str | None = None,
+        fe: bool = False,
+    ):
+        payload = {}
+        if sds_id:
+            payload["sds_id"] = sds_id.get("id")
+        if pdf_md5:
+            payload["pdf_md5"] = pdf_md5
+        if section_display:
+            payload["section_display"] = section_display
+        if not payload:
+            raise SDSAPIParamsRequired
+
+        try:
+            response = await self.session.post(
+                url="/sds/safetyInformationSummary/",
+                json=payload
+            )
+        except HTTPError:
+            raise SDSAPIInternalError
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
+                )
+            raise SDSAPIRequestNotAuthorized
+
+        if response.status_code == status.HTTP_400_BAD_REQUEST:
+            if response.content:
+                raise SDSBadRequestException(
+                    response.json().get("error_message", "Default bad request")
+                )
+            raise SDSBadRequestException
+
+        if response.status_code != status.HTTP_200_OK:
+            raise SDSAPIInternalError
+
+        response_content: bytes = response.content
+        return bytes(response_content)
