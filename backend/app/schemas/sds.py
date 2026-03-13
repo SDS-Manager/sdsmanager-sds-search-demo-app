@@ -34,6 +34,7 @@ class BaseSDSSchema(BaseModel):
     newest_version_of_sds_id: str | None
     is_current_version: bool | None
     label_generator: str | None
+    safety_information_summary: str | None
     # sds_pdf_chemical_components: list[dict] | None
 
     @validator("id", pre=True)
