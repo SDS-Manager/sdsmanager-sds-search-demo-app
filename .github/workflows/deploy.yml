@@ -17,7 +17,7 @@ env:
 
 jobs:
   build_and_push:
-    runs-on: sds-runners
+    runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
       tag_name: ${{ steps.set-env.outputs.tag_name }}
@@ -111,7 +111,11 @@ jobs:
           file: ./frontend/Dockerfile
           cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.latest-buildcache
           cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:frontend.latest-buildcache,mode=max
-
+  
+  rollout_restart:
+    needs: build_and_push
+    runs-on: sds-runners
+    steps:
       - name: Update secrets and run migrations
         if: github.event_name != 'pull_request'
         uses: appleboy/ssh-action@v1.2.1
@@ -121,20 +125,20 @@ jobs:
           key: ${{ env.SSH_KEY }}
           envs: SUDO_PWD
           script: |
-            echo "Releasing to ${{ steps.set-env.outputs.environment }}..."
-            if [[ "${{ steps.set-env.outputs.environment }}" == "develop" ]]; then
+            echo "Releasing to ${{ needs.build_and_push.outputs.environment }}..."
+            if [[ "${{ needs.build_and_push.outputs.environment }}" == "develop" ]]; then
               echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_staging/sds_demo/sds_demo.sh develop $SUDO_PWD
-            elif [[ "${{ steps.set-env.outputs.environment }}" == "rc" ]]; then
+            elif [[ "${{ needs.build_and_push.outputs.environment }}" == "rc" ]]; then
               echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_rc/sds_demo/sds_demo.sh rc $SUDO_PWD
-            elif [[ "${{ steps.set-env.outputs.environment }}" == "prod" ]]; then
+            elif [[ "${{ needs.build_and_push.outputs.environment }}" == "prod" ]]; then
               echo "$SUDO_PWD" | sudo -S sh /sds/toolkit/sds/k8s/sds_prod/sds_demo/sds_demo.sh prod $SUDO_PWD
             fi
         
       - name: Update SDS Kit repository
         uses: actions/github-script@v7
         env:
-          ENVIRONMENT: ${{ steps.set-env.outputs.environment }}
-          TAG_NAME: ${{ steps.set-env.outputs.tag_name }}
+          ENVIRONMENT: ${{ needs.build_and_push.outputs.environment }}
+          TAG_NAME: ${{ needs.build_and_push.outputs.tag_name }}
           SHA: ${{ github.sha }}
           SDS_REPO: ${{ env.DOCKER_REPO }}
         with:
