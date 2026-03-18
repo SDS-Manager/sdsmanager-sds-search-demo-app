@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.exceptions import (
     SDSAPIInternalError,
     SDSAPIParamsRequired,
+    SDSAPIRateLimitError,
     SDSAPIRequestNotAuthorized,
     SDSBadRequestException,
     SDSNotFoundException,
@@ -90,7 +91,7 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
-        
+
         if response.status_code == status.HTTP_403_FORBIDDEN:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
@@ -99,6 +100,13 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
 
         if response.status_code == status.HTTP_404_NOT_FOUND:
             if response.content:
@@ -165,6 +173,12 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -220,6 +234,12 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
                 raise SDSBadRequestException(
@@ -273,6 +293,12 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -332,6 +358,12 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
                 raise SDSBadRequestException(
@@ -400,7 +432,7 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
-        
+
         if response.status_code == status.HTTP_403_FORBIDDEN:
             if response.content:
                 raise SDSAPIRequestNotAuthorized(
@@ -409,7 +441,14 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
-        
+
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
+
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
                 raise SDSBadRequestException(
@@ -459,6 +498,13 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
 
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
+
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException(
                 response.json().get("error_message", "Default bad request")
@@ -502,6 +548,13 @@ class SDSAPIClient:
                     )
                 )
             raise SDSAPIRequestNotAuthorized
+
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
