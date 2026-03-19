@@ -20,3 +20,7 @@ class SDSAPIRequestNotAuthorized(Exception):
 
 class SDSNotFoundError(Exception):
     """Raised when API not found"""
+
+
+class SDSAPIRateLimitError(Exception):
+    """Raised when SDS API rate limit is exceeded"""

@@ -7,6 +7,7 @@ from app import schemas
 from app.exceptions import (
     SDSAPIInternalError,
     SDSAPIParamsRequired,
+    SDSAPIRateLimitError,
     SDSAPIRequestNotAuthorized,
     SDSBadRequestException,
     SDSNotFoundException,
@@ -52,6 +53,11 @@ async def sds_details(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="SDS not found"
         )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
+        )
     except SDSAPIInternalError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -92,6 +98,11 @@ async def multiple_sds_details(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
+        )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
         )
     except SDSAPIInternalError:
         raise HTTPException(
@@ -138,6 +149,11 @@ async def search_for_sds(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Not found",
         )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
+        )
     except SDSAPIInternalError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -176,6 +192,11 @@ async def search_for_new_sds_revision_info(
     except SDSNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="SDS not found"
+        )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
         )
     except SDSAPIInternalError:
         raise HTTPException(
@@ -218,6 +239,11 @@ async def search_for_multiple_new_sds_revision_info(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
+        )
     except SDSAPIInternalError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -253,12 +279,17 @@ async def upload_new_sds(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
         )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
+        )
     except SDSAPIInternalError as ex:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=(
-                ex.args[0] 
-                if len(ex.args) > 0 and ex.args[0] 
+                ex.args[0]
+                if len(ex.args) > 0 and ex.args[0]
                 else "SDS API request failed",
             ),
         )
@@ -285,6 +316,11 @@ async def get_sds_extraction_status(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
+        )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
         )
     except SDSAPIInternalError:
         raise HTTPException(
@@ -324,6 +360,11 @@ async def get_sds_safety_information_summary(
     except SDSNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="SDS not found"
+        )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
         )
     except SDSAPIInternalError as ex:
         raise HTTPException(
