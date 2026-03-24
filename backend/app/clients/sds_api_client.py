@@ -121,11 +121,9 @@ class SDSAPIClient:
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
 
         if response.status_code == status.HTTP_404_NOT_FOUND:
             if response.content:
@@ -193,11 +191,9 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -254,11 +250,9 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
                 raise SDSBadRequestException(
@@ -313,11 +307,9 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -378,11 +370,9 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
                 raise SDSBadRequestException(
@@ -462,11 +452,9 @@ class SDSAPIClient:
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
@@ -518,11 +506,9 @@ class SDSAPIClient:
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException(
@@ -569,11 +555,9 @@ class SDSAPIClient:
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
