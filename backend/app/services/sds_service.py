@@ -25,6 +25,7 @@ class SDSService:
             region_short_name=search.region_short_name,
             is_current_version=search.is_current_version,
             is_not_public=search.is_not_public,
+            is_manually_added_sds=search.is_manually_added_sds,
             page=page,
             page_size=page_size,
             fe=fe,
