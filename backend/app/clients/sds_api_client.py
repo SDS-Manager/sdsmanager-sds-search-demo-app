@@ -67,6 +67,7 @@ class SDSAPIClient:
         region_short_name: str | None = None,
         is_current_version: bool | None = None,
         is_not_public: bool | None = None,
+        is_manually_added_sds: bool | None = None,
         page: int = 1,
         page_size: int = 20,
         fe: bool = False,
@@ -92,6 +93,8 @@ class SDSAPIClient:
             search_data["is_current_version"] = "all"
         if is_not_public and isinstance(is_not_public, bool):
             search_data["is_not_public"] = is_not_public
+        if is_manually_added_sds and isinstance(is_manually_added_sds, bool):
+            search_data["is_manually_added_sds"] = is_manually_added_sds
 
         try:
             response = await self.session.post(
