@@ -20,3 +20,11 @@ class SDSAPIRequestNotAuthorized(Exception):
 
 class SDSNotFoundError(Exception):
     """Raised when API not found"""
+
+
+class SDSAPIRateLimitError(Exception):
+    """Raised when SDS API rate limit is exceeded"""
+
+    def __init__(self, *args, retry_after: str | None = None):
+        super().__init__(*args)
+        self.retry_after = retry_after
