@@ -66,6 +66,54 @@ async def sds_details(
 
 
 @router.post(
+    "/get-dif-language-versions/",
+    description="Returns list of SDS versions in different languages for a given SDS",
+    response_model=list[schemas.ListSDSSchema],
+)
+@limiter.limit("5/minute")
+async def get_dif_language_versions(
+    request: Request,
+    search_body: schemas.SDSDifLanguageVersionsBodySchema = Body(...),
+    sds_service: SDSService = sds_service_dependency,
+    fe: bool = Query(False, description="Optional 'fe' parameter"),
+):
+    try:
+        return await sds_service.get_dif_language_versions(search=search_body, fe=fe)
+    except (SDSAPIParamsRequired, SDSBadRequestException) as ex:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                ex.args[0]
+                if len(ex.args) > 0 and ex.args[0]
+                else "At least one param is required"
+            ),
+        )
+    except SDSAPIRequestNotAuthorized as ex:
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid API key"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=detail
+        )
+    except SDSNotFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="SDS not found"
+        )
+    except SDSAPIRateLimitError as ex:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=ex.args[0] if len(ex.args) > 0 and ex.args[0] else "Rate limit exceeded",
+        )
+    except SDSAPIInternalError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="SDS API request failed",
+        )
+
+
+@router.post(
     "/multipleDetails/",
     description="return list of SDS extracted data",
     response_model=list[schemas.SDSDetailsSchema],

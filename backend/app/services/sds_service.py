@@ -42,6 +42,17 @@ class SDSService:
         )
         return schemas.SDSDetailsSchema(**api_response)
 
+    async def get_dif_language_versions(
+        self, search: schemas.SDSDifLanguageVersionsBodySchema, fe: bool
+    ) -> list[schemas.ListSDSSchema]:
+        api_response = await self.sds_api_client.get_dif_language_versions(
+            sds_id=search.sds_id,
+            pdf_md5=search.pdf_md5,
+            language_code=search.language_code,
+            fe=fe,
+        )
+        return [schemas.ListSDSSchema(**el) for el in api_response if isinstance(el, dict)]
+
     async def get_multiple_sds_details(
         self, search: schemas.MultipleSDSDetailsBodySchema, fe: bool
     ) -> list[schemas.SDSDetailsSchema]:

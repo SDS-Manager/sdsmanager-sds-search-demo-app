@@ -40,6 +40,7 @@ interface SdsDetails {
   replaced_by_id: string | null;
   newest_version_of_sds_id: string | null;
   is_current_version: boolean;
+  english_sdspdf_id: string | null;
   extracted_data?: {
     hazard_codes?: Code[];
     precautionary_codes?: Code[];
@@ -406,6 +407,14 @@ const SDSUploadEndpointDetails: React.FC = () => {
             </Grid>
             <Grid item xs={8}>
               {sdsDetails.is_current_version ? 'True' : 'False'}
+            </Grid>
+          </Grid>
+          <Grid container item>
+            <Grid item xs={4}>
+              English SDS PDF
+            </Grid>
+            <Grid item xs={8}>
+              {sdsDetails.english_sdspdf_id ?? 'N/A'}
             </Grid>
           </Grid>
           {sdsDetails.extracted_data?.hazard_codes && (
