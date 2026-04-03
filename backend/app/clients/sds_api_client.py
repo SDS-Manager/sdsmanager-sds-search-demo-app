@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from fastapi import UploadFile
@@ -20,22 +21,40 @@ from app.utils import encrypt_number, update_search_id
 
 
 class SDSAPIClient:
-    def __init__(self, api_key: str):
-        self._session = AsyncClient(
-            base_url=settings.SDS_API_URL,
-            timeout=settings.SDS_API_TIMEOUT,
-            headers={"SDS-SEARCH-ACCESS-API-KEY": api_key},
-        )
+    _client_registry: dict[str, AsyncClient] = {}
+    MAX_CACHED_CLIENTS: int = 256
 
-    @property
-    def session(self):
-        if self._session.is_closed:
-            self._session = AsyncClient(
+    def __init__(self, api_key: str):
+        self._api_key = api_key
+
+    @classmethod
+    def get_or_create_client(cls, api_key: str) -> AsyncClient:
+        client = cls._client_registry.get(api_key)
+        if client is None or client.is_closed:
+            if len(cls._client_registry) >= cls.MAX_CACHED_CLIENTS and api_key not in cls._client_registry:
+                oldest_key = next(iter(cls._client_registry))
+                evicted = cls._client_registry.pop(oldest_key)
+                try:
+                    asyncio.create_task(evicted.aclose())
+                except RuntimeError:
+                    pass  # no running event loop, GC will handle it
+            client = AsyncClient(
                 base_url=settings.SDS_API_URL,
                 timeout=settings.SDS_API_TIMEOUT,
-                headers={"SDS-SEARCH-ACCESS-API-KEY": settings.SDS_API_KEY},
+                headers={"SDS-SEARCH-ACCESS-API-KEY": api_key},
             )
-        return self._session
+            cls._client_registry[api_key] = client
+        return client
+
+    @classmethod
+    async def close_all_clients(cls) -> None:
+        for client in cls._client_registry.values():
+            await client.aclose()
+        cls._client_registry.clear()
+
+    @property
+    def session(self) -> AsyncClient:
+        return self.get_or_create_client(self._api_key)
 
     async def search_sds(
         self,
@@ -48,6 +67,7 @@ class SDSAPIClient:
         region_short_name: str | None = None,
         is_current_version: bool | None = None,
         is_not_public: bool | None = None,
+        is_manually_added_sds: bool | None = None,
         page: int = 1,
         page_size: int = 20,
         fe: bool = False,
@@ -73,6 +93,8 @@ class SDSAPIClient:
             search_data["is_current_version"] = "all"
         if is_not_public and isinstance(is_not_public, bool):
             search_data["is_not_public"] = is_not_public
+        if is_manually_added_sds and isinstance(is_manually_added_sds, bool):
+            search_data["is_manually_added_sds"] = is_manually_added_sds
 
         try:
             response = await self.session.post(
@@ -102,11 +124,9 @@ class SDSAPIClient:
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
 
         if response.status_code == status.HTTP_404_NOT_FOUND:
             if response.content:
@@ -174,11 +194,9 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -235,11 +253,9 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
                 raise SDSBadRequestException(
@@ -294,11 +310,9 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
         if response.status_code == status.HTTP_404_NOT_FOUND:
             raise SDSNotFoundException
         if response.status_code == status.HTTP_400_BAD_REQUEST:
@@ -359,11 +373,9 @@ class SDSAPIClient:
                 )
             raise SDSAPIRequestNotAuthorized
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
                 raise SDSBadRequestException(
@@ -443,11 +455,9 @@ class SDSAPIClient:
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:
@@ -499,11 +509,9 @@ class SDSAPIClient:
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             raise SDSBadRequestException(
@@ -550,11 +558,9 @@ class SDSAPIClient:
             raise SDSAPIRequestNotAuthorized
 
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            if response.content:
-                raise SDSAPIRateLimitError(
-                    response.json().get("error_message", "Rate limit exceeded")
-                )
-            raise SDSAPIRateLimitError
+            retry_after = response.headers.get("Retry-After")
+            msg = response.json().get("error_message", "Rate limit exceeded") if response.content else "Rate limit exceeded"
+            raise SDSAPIRateLimitError(msg, retry_after=retry_after)
 
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             if response.content:

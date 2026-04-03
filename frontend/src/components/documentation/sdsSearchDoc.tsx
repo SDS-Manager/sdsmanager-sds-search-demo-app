@@ -138,112 +138,165 @@ export default function SdsSearchDoc() {
         <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
           SDS Search
         </h3>
-        <ol>
+
+        <strong>URL</strong>
+        <p>
+          <code style={styleCodeTag}>
+            http://api.sdsmanager.com/sds/search/?page_size=10&amp;page=1
+          </code>
+          : This is the endpoint where the API request is being sent.
+        </p>
+        <ul>
           <li>
-            <strong>URL:</strong>
-            <p>
-              <code style={styleCodeTag}>
-                http://api.sdsmanager.com/sds/search/?page_size=10&amp;page=1
-              </code>
-              : This is the endpoint where the API request is being sent.
-            </p>
-            <ul>
-              <li>
-                <code style={styleCodeTag}>page_size=10</code>: Specifies the
-                number of results to return per page.
-              </li>
-              <li>
-                <code style={styleCodeTag}>page=1</code>: Specifies the page
-                number of the results to return.
-              </li>
-            </ul>
+            <code style={styleCodeTag}>page_size=10</code>: Specifies the
+            number of results to return per page.
           </li>
           <li>
-            <strong>HTTP Method:</strong>
-            <p>
-              <code style={styleCodeTag}>POST</code>: This is implied by the use
-              of <code style={styleCodeTag}>--data</code> (sending data in the
-              request body). It indicates that you're sending data to the
-              server.
-            </p>
+            <code style={styleCodeTag}>page=1</code>: Specifies the page
+            number of the results to return.
+          </li>
+        </ul>
+
+        <strong>HTTP Method</strong>
+        <p>
+          <code style={styleCodeTag}>POST</code>: This is implied by the use
+          of <code style={styleCodeTag}>--data</code> (sending data in the
+          request body). It indicates that you're sending data to the
+          server.
+        </p>
+
+        <strong>Headers</strong>
+        <ul>
+          <li>
+            <code style={styleCodeTag}>Content-Type: application/json</code>
+            : Indicates that the body of the request is in JSON format.
           </li>
           <li>
-            <strong>Headers:</strong>
-            <ul>
-              <li>
-                <code style={styleCodeTag}>Content-Type: application/json</code>
-                : Indicates that the body of the request is in JSON format.
-              </li>
-              <li>
-                <code style={styleCodeTag}>Accept: application/json</code>:
-                Specifies that the client expects a JSON response.
-              </li>
-              <li>
-                <code style={styleCodeTag}>
-                  X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]
-                </code>
-                : An API key used for authentication, allowing access to the
-                API.
-              </li>
-            </ul>
+            <code style={styleCodeTag}>Accept: application/json</code>:
+            Specifies that the client expects a JSON response.
           </li>
           <li>
-            <strong>Data:</strong>
-            <p>
-              The <code style={styleCodeTag}>--data</code> flag is used to send
-              JSON data in the request body. Here's what the JSON data looks
-              like:
-              <pre>
-                <code style={styleCodeTag}>{`{
-  "advanced_search": {
-    "product_name": "<string>",
-    "supplier_name": "<string>",
-    "cas_no": "<string>",
-    "product_code": "<string>"
-  },
-  "search": "<string>",
-  "language_code": "<string>",
-  "search_type": "<string>",
-  "order_by": "<string>",
-  "minimum_revision_date": "<string>"
-}`}</code>
-              </pre>
-            </p>
+            <code style={styleCodeTag}>
+              X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]
+            </code>
+            : An API key used for authentication, allowing access to the
+            API.
           </li>
-        </ol>
+        </ul>
+
+        <strong>Data</strong>
+        <p>
+          The <code style={styleCodeTag}>--data</code> flag is used to send
+          JSON data in the request body. Here's what the JSON data looks
+          like:
+          <pre>
+            <code style={styleCodeTag}>{`{
+    "advanced_search": {
+      "product_name": "<string>",
+      "supplier_name": "<string>",
+      "cas_no": "<string>",
+      "product_code": "<string>"
+    },
+    "search": "<string>",
+    "language_code": "<string>",
+    "search_type": "<string>",
+    "order_by": "<string>",
+    "minimum_revision_date": "<string>",
+    "is_manually_added_sds": "<boolean>",
+    "is_not_public": "<boolean>"
+  }`}</code>
+          </pre>
+        </p>
+
         <strong>Explanation of JSON Payload</strong>
         <ul>
           <li>
             <strong>advanced_search</strong>: An object containing several
             optional fields to refine the search.
+            <ul>
+              <li><strong>product_name</strong>: Search by product name.</li>
+              <li><strong>supplier_name</strong>: Search by supplier name.</li>
+              <li><strong>cas_no</strong>: Search by CAS number.</li>
+              <li><strong>product_code</strong>: Search by product code.</li>
+            </ul>
           </li>
           <li>
             <strong>search</strong>: A general search string to filter results.
           </li>
           <li>
             <strong>language_code</strong>: The language code for the search
-            results (e.g., "en" for English).
+            results (e.g., <code style={styleCodeTag}>"en"</code> for English).
+            When searching with{' '}
+            <code style={styleCodeTag}>is_manually_added_sds=true</code>,{' '}
+            <code style={styleCodeTag}>language_code</code> should be set to{' '}
+            <code style={styleCodeTag}>"any"</code> so the search includes all
+            languages.
           </li>
           <li>
-            <strong>search_type</strong>: Specifies the type of search (e.g.
-            "simple_query_string" or "match" or "match_phrase", or
-            "close_search"). Default of search type is simple_query_string when
-            filling empty string or removing this field.
+            <strong>search_type</strong>: Specifies the type of search.
+            Supported values:
+            <ul>
+              <li><code style={styleCodeTag}>"simple_query_string"</code></li>
+              <li><code style={styleCodeTag}>"match"</code></li>
+              <li><code style={styleCodeTag}>"match_phrase"</code></li>
+              <li><code style={styleCodeTag}>"close_search"</code></li>
+            </ul>
+            Default: if <code style={styleCodeTag}>search_type</code> is an
+            empty string or this field is removed, the default is{' '}
+            <code style={styleCodeTag}>"simple_query_string"</code>.
           </li>
           <li>
             <strong>order_by</strong>: Specifies the order of the search
-            results. Use any field from JSON can be used (e.g.,
-            "sds_pdf_revision_date" or "-sds_pdf_revision_date" for descending
-            order).
+            results. Any field from the JSON response can be used, for example:
+            <ul>
+              <li>
+                <code style={styleCodeTag}>"sds_pdf_revision_date"</code> for
+                ascending order
+              </li>
+              <li>
+                <code style={styleCodeTag}>"-sds_pdf_revision_date"</code> for
+                descending order
+              </li>
+            </ul>
           </li>
           <li>
             <strong>minimum_revision_date</strong>: Filters results to only
             include those revised after the specified date.
           </li>
+          <li>
+            <strong>is_manually_added_sds</strong>: Use this field to search
+            for SDSs that have been force-inserted (manually added).
+            <ul>
+              <li>
+                Expected value: <code style={styleCodeTag}>true</code> or{' '}
+                <code style={styleCodeTag}>false</code>
+              </li>
+              <li>
+                When using{' '}
+                <code style={styleCodeTag}>is_manually_added_sds=true</code>,{' '}
+                <code style={styleCodeTag}>language_code</code> should be set
+                to <code style={styleCodeTag}>"any"</code>.
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>is_not_public</strong>: Use this field to search for
+            private SDSs (not public SDSs).
+            <ul>
+              <li>
+                Expected value: <code style={styleCodeTag}>true</code> or{' '}
+                <code style={styleCodeTag}>false</code>
+              </li>
+            </ul>
+          </li>
         </ul>
+
         <strong>Example Usage</strong>
         <p>
-          The simple query to search for products with the name "Acetone", your{' '}
+          <strong>Simple query</strong>
+        </p>
+        <p>
+          To search for products with the name "Acetone", your{' '}
           <code style={styleCodeTag}>curl</code> command would look like this:
         </p>
         <pre>
@@ -258,12 +311,17 @@ export default function SdsSearchDoc() {
   "language_code": "en",
   "search_type": "match",
   "order_by": null,
-  "minimum_revision_date": null
+  "minimum_revision_date": null,
+  "is_manually_added_sds": false,
+  "is_not_public": false
 }'`}</code>
         </pre>
         <p>
-          The simple query to search for products with the name "Acetone" and
-          sort by revision date for descending order, your{' '}
+          <strong>Simple query sorted by revision date descending</strong>
+        </p>
+        <p>
+          To search for products with the name "Acetone" and sort by revision
+          date in descending order, your{' '}
           <code style={styleCodeTag}>curl</code> command would look like this:
         </p>
         <pre>
@@ -278,12 +336,17 @@ export default function SdsSearchDoc() {
   "language_code": "en",
   "search_type": "match",
   "order_by": "-sds_pdf_revision_date",
-  "minimum_revision_date": null
+  "minimum_revision_date": null,
+  "is_manually_added_sds": false,
+  "is_not_public": false
 }'`}</code>
         </pre>
         <p>
-          The advanced query to search for products with the name "Acetone" and
-          ssupplier with the name "Sigma-Aldrich", your{' '}
+          <strong>Advanced query</strong>
+        </p>
+        <p>
+          To search for products with the name "Acetone" and supplier with the
+          name "Sigma-Aldrich", your{' '}
           <code style={styleCodeTag}>curl</code> command would look like this:
         </p>
         <pre>
@@ -304,7 +367,82 @@ export default function SdsSearchDoc() {
   "language_code": "en",
   "search_type": "match",
   "order_by": null,
-  "minimum_revision_date": null
+  "minimum_revision_date": null,
+  "is_manually_added_sds": false,
+  "is_not_public": false
+}'`}</code>
+        </pre>
+        <p>
+          <strong>Search for manually added SDS</strong>
+        </p>
+        <p>
+          To search for SDSs that have been force-inserted (manually added),
+          your <code style={styleCodeTag}>curl</code> command would look like
+          this:
+        </p>
+        <pre>
+          <code
+            style={styleCodeTag}
+          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/json' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
+--data '{
+  "search": "Acetone",
+  "language_code": "any",
+  "search_type": "match",
+  "order_by": null,
+  "minimum_revision_date": null,
+  "is_manually_added_sds": true,
+  "is_not_public": false
+}'`}</code>
+        </pre>
+        <p>
+          <strong>Search for private SDS</strong>
+        </p>
+        <p>
+          To search for private SDSs (not public SDSs), your{' '}
+          <code style={styleCodeTag}>curl</code> command would look like this:
+        </p>
+        <pre>
+          <code
+            style={styleCodeTag}
+          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/json' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
+--data '{
+  "search": "Acetone",
+  "language_code": "en",
+  "search_type": "match",
+  "order_by": null,
+  "minimum_revision_date": null,
+  "is_manually_added_sds": false,
+  "is_not_public": true
+}'`}</code>
+        </pre>
+        <p>
+          <strong>Search for manually added and private SDS</strong>
+        </p>
+        <p>
+          To search for SDSs that are both manually added and private, your{' '}
+          <code style={styleCodeTag}>curl</code> command would look like this:
+        </p>
+        <pre>
+          <code
+            style={styleCodeTag}
+          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/json' \\
+--header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
+--data '{
+  "search": "Acetone",
+  "language_code": "any",
+  "search_type": "match",
+  "order_by": null,
+  "minimum_revision_date": null,
+  "is_manually_added_sds": true,
+  "is_not_public": true
 }'`}</code>
         </pre>
       </div>
