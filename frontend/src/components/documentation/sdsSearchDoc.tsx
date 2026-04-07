@@ -1167,6 +1167,99 @@ export default function SdsSearchDoc() {
 }'`}</code>
           </pre>
         </div>
+        <div>
+          <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
+            SDS Different Language Versions
+          </h3>
+          <p>
+            Use this endpoint to find SDS versions in different languages for a given SDS.
+            Provide an SDS ID or PDF MD5 to retrieve matching versions. Optionally specify
+            a language code to filter results to a specific language.
+          </p>
+          <ul>
+            <li>
+              <strong>URL:</strong>
+              <p>
+                <code style={styleCodeTag}>
+                  http://api.sdsmanager.com/sds/get-dif-language-versions/
+                </code>
+              </p>
+            </li>
+            <li>
+              <strong>HTTP Method:</strong>
+              <p>
+                <code style={styleCodeTag}>POST</code>
+              </p>
+            </li>
+            <li>
+              <strong>Headers:</strong>
+              <ul>
+                <li>
+                  <code style={styleCodeTag}>Content-Type: application/json</code>
+                  : Indicates that the body of the request is in JSON format.
+                </li>
+                <li>
+                  <code style={styleCodeTag}>Accept: application/json</code>:
+                  Specifies that the client expects a JSON response.
+                </li>
+                <li>
+                  <code style={styleCodeTag}>
+                    X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]
+                  </code>
+                  : An API key used for authentication, allowing access to the API.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <strong>Data:</strong>
+              <p>
+                The <code style={styleCodeTag}>--data</code> flag is used to send
+                JSON data in the request body. Here's what the JSON data looks like:
+                <pre>
+                  <code style={styleCodeTag}>{`{
+  "sds_id": "<string>",
+  "pdf_md5": "<string>",
+  "language_code": "<string>"
+}`}</code>
+                </pre>
+              </p>
+            </li>
+          </ul>
+          <strong>Explanation of JSON Payload</strong>
+          <ul>
+            <li>
+              <strong>sds_id</strong>: The ID of the SDS (Safety Data Sheet).
+            </li>
+            <li>
+              <strong>pdf_md5</strong>: The MD5 hash of the PDF file associated
+              with the SDS.
+            </li>
+            <li>
+              <strong>language_code</strong>: (Optional) The target language code to filter results (e.g., <code style={styleCodeTag}>"en"</code> for English, <code style={styleCodeTag}>"de"</code> for German). If omitted, all available language versions are returned.
+            </li>
+          </ul>
+          <strong>Example Usage</strong>
+          <pre>
+            <code style={styleCodeTag}>{`curl --location 'https://api.sdsmanager.com/sds/get-dif-language-versions/' \\
+--header 'Content-Type: application/json' \\
+--header 'Accept: application/json' \\
+--header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+--data '{
+  "sds_id": "gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ==",
+  "pdf_md5": null,
+  "language_code": "de"
+}'`}</code>
+          </pre>
+          <strong>Response</strong>
+          <p>
+            Returns a list of SDS objects matching the given SDS in the specified language.
+            Each item in the list contains the same fields as the SDS Search response,
+            including <code style={styleCodeTag}>id</code>, <code style={styleCodeTag}>sds_pdf_product_name</code>,{' '}
+            <code style={styleCodeTag}>sds_pdf_manufacture_name</code>, <code style={styleCodeTag}>language</code>,{' '}
+            <code style={styleCodeTag}>sds_pdf_revision_date</code>, <code style={styleCodeTag}>permanent_link</code>, and{' '}
+            <code style={styleCodeTag}>is_current_version</code>.
+          </p>
+        </div>
       </div>
     </>
   );

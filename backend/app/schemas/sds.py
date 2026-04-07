@@ -35,6 +35,7 @@ class BaseSDSSchema(BaseModel):
     is_current_version: bool | None
     label_generator: str | None
     safety_information_summary: str | None
+    english_sdspdf_id: str | None
     # sds_pdf_chemical_components: list[dict] | None
 
     @validator("id", pre=True)
@@ -59,6 +60,13 @@ class BaseSDSSchema(BaseModel):
     def validate_newest_version_of_sds_id(cls, value, values):
         if isinstance(value, int):
             value =  encrypt_number(value, settings.SECRET_KEY)
+            return value
+        return value
+
+    @validator("english_sdspdf_id", pre=True)
+    def validate_english_sdspdf_id(cls, value):
+        if isinstance(value, int):
+            value = encrypt_number(value, settings.SECRET_KEY)
             return value
         return value
     
@@ -125,6 +133,44 @@ class SearchSDSFilesBodySchema(BaseModel):
     is_current_version: bool | None
     is_not_public: bool | None
     is_manually_added_sds: bool | None
+
+
+class SDSDifLanguageVersionsBodySchema(BaseModel):
+    sds_id: str | None
+    pdf_md5: str | None
+    language_code: str | None
+
+    @validator("sds_id")
+    def validate_sds_id(cls, value):
+        if value:
+            if is_valid_uuid(value):
+                return {
+                    "id": value,
+                }
+
+            try:
+                return {
+                    "id": decrypt_to_number(value, settings.SECRET_KEY),
+                    "encrypt": f"{value}",
+                }
+            except InvalidToken:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Unknown SDS ID",
+                )
+
+        return value
+
+    @validator("pdf_md5")
+    def validate_pdf_md5(cls, value):
+        if value:
+            if not re.findall(r"^([a-fA-F\d]{32})$", value):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Unknown PDF MD5",
+                )
+
+        return value
 
 
 class SDSDetailsBodySchema(BaseModel):
