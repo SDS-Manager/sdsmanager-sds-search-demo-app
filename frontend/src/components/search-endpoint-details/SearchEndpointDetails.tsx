@@ -60,8 +60,6 @@ const SearchEndpointDetails = ({
       advanced_search_sku: '',
       region_short_name: 'all',
       is_current_version: true,
-      is_not_public: false,
-      is_manually_added_sds: false,
     },
     onSubmit: (values, { setSubmitting }) => {
       let data = {};
@@ -92,8 +90,6 @@ const SearchEndpointDetails = ({
           order_by: values.order_by,
           minimum_revision_date: values.minimum_revision_date || null,
           is_current_version: values.is_current_version ? "true" : null,
-          is_not_public: values.is_not_public ? "true" : null,
-          is_manually_added_sds: values.is_manually_added_sds ? "true" : null,
         };
       } else {
         data = {
@@ -106,8 +102,6 @@ const SearchEndpointDetails = ({
             : null,
           region_short_name: values.region_short_name,
           is_current_version: values.is_current_version ? "true" : null,
-          is_not_public: values.is_not_public ? "true" : null,
-          is_manually_added_sds: values.is_manually_added_sds ? "true" : null,
         };
       }
       setLoading(true);
@@ -208,11 +202,8 @@ const SearchEndpointDetails = ({
                     label="Language"
                     onChange={formik.handleChange}
                     value={formik.values.language_code}
-                    disabled={formik.values.is_manually_added_sds}
                   >
-                    {formik.values.is_manually_added_sds && (
-                      <MenuItem value="any">Any</MenuItem>
-                    )}
+                    <MenuItem value="any">Any</MenuItem>
                     {[
                       { code: 'sq', name: 'Albanian' },
                       { code: 'ar', name: 'Arabic' },
@@ -415,35 +406,6 @@ const SearchEndpointDetails = ({
                     />
                   }
                   label="Newest Version Only"
-                />
-                <FormControlLabel 
-                  control={
-                    <Checkbox
-                      id="is_not_public"
-                      name="is_not_public"
-                      checked={formik.values.is_not_public ? true : false}
-                      onChange={formik.handleChange}
-                    />
-                  }
-                  label="Private SDS Search"
-                />
-                <FormControlLabel 
-                  control={
-                    <Checkbox
-                      id="is_manually_added_sds"
-                      name="is_manually_added_sds"
-                      checked={formik.values.is_manually_added_sds ? true : false}
-                      onChange={(e) => {
-                        formik.handleChange(e);
-                        if (e.target.checked) {
-                          formik.setFieldValue('language_code', 'any');
-                        } else {
-                          formik.setFieldValue('language_code', 'en');
-                        }
-                      }}
-                    />
-                  }
-                  label="Manually Added SDS Search"
                 />
               </Grid>
             </Grid>

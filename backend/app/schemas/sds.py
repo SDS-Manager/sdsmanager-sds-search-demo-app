@@ -123,8 +123,6 @@ class SearchSDSFilesBodySchema(BaseModel):
     order_by: str | None
     minimum_revision_date: datetime.datetime | None
     is_current_version: bool | None
-    is_not_public: bool | None
-    is_manually_added_sds: bool | None
 
 
 class SDSDetailsBodySchema(BaseModel):

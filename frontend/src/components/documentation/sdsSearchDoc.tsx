@@ -201,9 +201,7 @@ export default function SdsSearchDoc() {
     "language_code": "<string>",
     "search_type": "<string>",
     "order_by": "<string>",
-    "minimum_revision_date": "<string>",
-    "is_manually_added_sds": "<boolean>",
-    "is_not_public": "<boolean>"
+    "minimum_revision_date": "<string>"
   }`}</code>
           </pre>
         </p>
@@ -226,10 +224,7 @@ export default function SdsSearchDoc() {
           <li>
             <strong>language_code</strong>: The language code for the search
             results (e.g., <code style={styleCodeTag}>"en"</code> for English).
-            When searching with{' '}
-            <code style={styleCodeTag}>is_manually_added_sds=true</code>,{' '}
-            <code style={styleCodeTag}>language_code</code> should be set to{' '}
-            <code style={styleCodeTag}>"any"</code> so the search includes all
+            Use <code style={styleCodeTag}>"any"</code> to search across all
             languages.
           </li>
           <li>
@@ -263,32 +258,6 @@ export default function SdsSearchDoc() {
             <strong>minimum_revision_date</strong>: Filters results to only
             include those revised after the specified date.
           </li>
-          <li>
-            <strong>is_manually_added_sds</strong>: Use this field to search
-            for SDSs that have been force-inserted (manually added).
-            <ul>
-              <li>
-                Expected value: <code style={styleCodeTag}>true</code> or{' '}
-                <code style={styleCodeTag}>false</code>
-              </li>
-              <li>
-                When using{' '}
-                <code style={styleCodeTag}>is_manually_added_sds=true</code>,{' '}
-                <code style={styleCodeTag}>language_code</code> should be set
-                to <code style={styleCodeTag}>"any"</code>.
-              </li>
-            </ul>
-          </li>
-          <li>
-            <strong>is_not_public</strong>: Use this field to search for
-            private SDSs (not public SDSs).
-            <ul>
-              <li>
-                Expected value: <code style={styleCodeTag}>true</code> or{' '}
-                <code style={styleCodeTag}>false</code>
-              </li>
-            </ul>
-          </li>
         </ul>
 
         <strong>Example Usage</strong>
@@ -311,9 +280,7 @@ export default function SdsSearchDoc() {
   "language_code": "en",
   "search_type": "match",
   "order_by": null,
-  "minimum_revision_date": null,
-  "is_manually_added_sds": false,
-  "is_not_public": false
+  "minimum_revision_date": null
 }'`}</code>
         </pre>
         <p>
@@ -336,9 +303,7 @@ export default function SdsSearchDoc() {
   "language_code": "en",
   "search_type": "match",
   "order_by": "-sds_pdf_revision_date",
-  "minimum_revision_date": null,
-  "is_manually_added_sds": false,
-  "is_not_public": false
+  "minimum_revision_date": null
 }'`}</code>
         </pre>
         <p>
@@ -367,82 +332,7 @@ export default function SdsSearchDoc() {
   "language_code": "en",
   "search_type": "match",
   "order_by": null,
-  "minimum_revision_date": null,
-  "is_manually_added_sds": false,
-  "is_not_public": false
-}'`}</code>
-        </pre>
-        <p>
-          <strong>Search for manually added SDS</strong>
-        </p>
-        <p>
-          To search for SDSs that have been force-inserted (manually added),
-          your <code style={styleCodeTag}>curl</code> command would look like
-          this:
-        </p>
-        <pre>
-          <code
-            style={styleCodeTag}
-          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
---header 'Content-Type: application/json' \\
---header 'Accept: application/json' \\
---header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
---data '{
-  "search": "Acetone",
-  "language_code": "any",
-  "search_type": "match",
-  "order_by": null,
-  "minimum_revision_date": null,
-  "is_manually_added_sds": true,
-  "is_not_public": false
-}'`}</code>
-        </pre>
-        <p>
-          <strong>Search for private SDS</strong>
-        </p>
-        <p>
-          To search for private SDSs (not public SDSs), your{' '}
-          <code style={styleCodeTag}>curl</code> command would look like this:
-        </p>
-        <pre>
-          <code
-            style={styleCodeTag}
-          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
---header 'Content-Type: application/json' \\
---header 'Accept: application/json' \\
---header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
---data '{
-  "search": "Acetone",
-  "language_code": "en",
-  "search_type": "match",
-  "order_by": null,
-  "minimum_revision_date": null,
-  "is_manually_added_sds": false,
-  "is_not_public": true
-}'`}</code>
-        </pre>
-        <p>
-          <strong>Search for manually added and private SDS</strong>
-        </p>
-        <p>
-          To search for SDSs that are both manually added and private, your{' '}
-          <code style={styleCodeTag}>curl</code> command would look like this:
-        </p>
-        <pre>
-          <code
-            style={styleCodeTag}
-          >{`curl --location 'https://api.sdsmanager.com/sds/search/?page_size=10&page=1' \\
---header 'Content-Type: application/json' \\
---header 'Accept: application/json' \\
---header 'X-Sds-Search-Access-Api-Key: [Your API Key]' \\
---data '{
-  "search": "Acetone",
-  "language_code": "any",
-  "search_type": "match",
-  "order_by": null,
-  "minimum_revision_date": null,
-  "is_manually_added_sds": true,
-  "is_not_public": true
+  "minimum_revision_date": null
 }'`}</code>
         </pre>
       </div>
