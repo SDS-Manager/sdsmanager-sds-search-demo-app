@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime
 
 from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -63,7 +62,7 @@ class SDSAPIClient:
         language_code: str | None = None,
         search_type: str | None = None,
         order_by: str | None = "-id",
-        minimum_revision_date: datetime | None = None,
+        minimum_revision_date: str | None = None,
         region_short_name: str | None = None,
         is_current_version: bool | None = None,
         page: int = 1,

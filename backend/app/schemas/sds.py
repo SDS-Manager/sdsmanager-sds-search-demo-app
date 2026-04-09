@@ -121,8 +121,23 @@ class SearchSDSFilesBodySchema(BaseModel):
     region_short_name: str | None
     search_type: str | None
     order_by: str | None
-    minimum_revision_date: datetime.datetime | None
+    minimum_revision_date: str | None
     is_current_version: bool | None
+
+    @validator("minimum_revision_date", pre=True)
+    def validate_minimum_revision_date(cls, value):
+        if value is None:
+            return value
+        for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S%z"):
+            try:
+                dt = datetime.datetime.strptime(value, fmt)
+                return dt.strftime("%Y-%m-%d")
+            except (ValueError, TypeError):
+                continue
+        raise ValueError(
+            "invalid datetime format, expected YYYY-MM-DD"
+            " or YYYY-MM-DDTHH:MM:SS"
+        )
 
 
 class SDSDetailsBodySchema(BaseModel):
