@@ -49,7 +49,10 @@ axiosInstance.interceptors.response.use(
         if (typeof data.detail === 'string') {
           renderSnackbar([data.detail]);
         } else if (Array.isArray(data.detail)) {
-          renderSnackbar(data.detail);
+          const messages = data.detail.map((item) =>
+            typeof item === 'string' ? item : item.msg
+          );
+          renderSnackbar(messages);
         }
       }
     } catch (e) {
