@@ -220,6 +220,7 @@ class SDSAPIClient:
         sds_id: dict | None = None,
         pdf_md5: str | None = None,
         language_code: str | None = None,
+        is_current_version: bool | None = None,
         fe: bool = False,
     ):
         search_data = {}
@@ -229,6 +230,8 @@ class SDSAPIClient:
             search_data["pdf_md5"] = pdf_md5
         if language_code:
             search_data["language_code"] = language_code
+        if is_current_version is not None:
+            search_data["is_current_version"] = is_current_version
         if not search_data:
             raise SDSAPIParamsRequired
 

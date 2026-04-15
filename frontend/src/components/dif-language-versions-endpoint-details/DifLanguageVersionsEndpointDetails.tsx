@@ -1,6 +1,8 @@
 import React from 'react';
 import {
   FormControl,
+  FormControlLabel,
+  Checkbox,
   InputLabel,
   OutlinedInput,
   Select,
@@ -81,6 +83,7 @@ const DifLanguageVersionsEndpointDetails = () => {
       sds_id: '',
       pdf_md5: '',
       language_code: '',
+      is_current_version: true,
     },
     onSubmit: (values, { setSubmitting }) => {
       const apiKey = localStorage.getItem('apiKey');
@@ -98,6 +101,7 @@ const DifLanguageVersionsEndpointDetails = () => {
             sds_id: values.sds_id || undefined,
             pdf_md5: values.pdf_md5 || undefined,
             language_code: values.language_code || undefined,
+            is_current_version: values.is_current_version ? true : null,
           },
           { headers }
         )
@@ -193,6 +197,19 @@ const DifLanguageVersionsEndpointDetails = () => {
                   </Select>
                 </FormControl>
               </Grid>
+            </Grid>
+            <Grid container item>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    id="is_current_version"
+                    name="is_current_version"
+                    checked={formik.values.is_current_version ? true : false}
+                    onChange={formik.handleChange}
+                  />
+                }
+                label="Current Version Only"
+              />
             </Grid>
           </Grid>
           <Grid sx={{ marginTop: '20px' }} container item>

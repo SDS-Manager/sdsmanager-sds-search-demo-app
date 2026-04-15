@@ -48,6 +48,7 @@ class SDSService:
             sds_id=search.sds_id,
             pdf_md5=search.pdf_md5,
             language_code=search.language_code,
+            is_current_version=search.is_current_version,
             fe=fe,
         )
         return [schemas.ListSDSSchema(**el) for el in api_response if isinstance(el, dict)]
