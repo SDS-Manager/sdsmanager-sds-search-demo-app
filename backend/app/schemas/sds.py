@@ -35,7 +35,6 @@ class BaseSDSSchema(BaseModel):
     is_current_version: bool | None
     label_generator: str | None
     safety_information_summary: str | None
-    english_sdspdf_id: str | None
     # sds_pdf_chemical_components: list[dict] | None
 
     @validator("id", pre=True)
@@ -63,14 +62,7 @@ class BaseSDSSchema(BaseModel):
             return value
         return value
 
-    @validator("english_sdspdf_id", pre=True)
-    def validate_english_sdspdf_id(cls, value):
-        if isinstance(value, int):
-            value = encrypt_number(value, settings.SECRET_KEY)
-            return value
-        return value
-    
-    
+
 
 
 class ListSDSSchema(BaseSDSSchema):
@@ -78,9 +70,17 @@ class ListSDSSchema(BaseSDSSchema):
 
 
 class SDSDetailsSchema(BaseSDSSchema):
+    english_sdspdf_id: str | None
     extracted_data: dict | None
     other_data: dict | None
     sds_pdf_manufacture_full_info: dict | None
+
+    @validator("english_sdspdf_id", pre=True)
+    def validate_english_sdspdf_id(cls, value):
+        if isinstance(value, int):
+            value = encrypt_number(value, settings.SECRET_KEY)
+            return value
+        return value
 
 
 class NewerSDSInfoSchema(BaseModel):
@@ -152,6 +152,7 @@ class SDSDifLanguageVersionsBodySchema(BaseModel):
     sds_id: str | None
     pdf_md5: str | None
     language_code: str | None
+    is_current_version: bool | None
 
     @validator("sds_id")
     def validate_sds_id(cls, value):

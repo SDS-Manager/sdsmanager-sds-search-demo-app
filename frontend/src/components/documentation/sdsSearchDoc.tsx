@@ -1109,7 +1109,8 @@ export default function SdsSearchDoc() {
                   <code style={styleCodeTag}>{`{
   "sds_id": "<string>",
   "pdf_md5": "<string>",
-  "language_code": "<string>"
+  "language_code": "<string>",
+  "is_current_version": <boolean>
 }`}</code>
                 </pre>
               </p>
@@ -1127,6 +1128,9 @@ export default function SdsSearchDoc() {
             <li>
               <strong>language_code</strong>: (Optional) The target language code to filter results (e.g., <code style={styleCodeTag}>"en"</code> for English, <code style={styleCodeTag}>"de"</code> for German). If omitted, all available language versions are returned.
             </li>
+            <li>
+              <strong>is_current_version</strong>: (Optional) When set to <code style={styleCodeTag}>true</code> (default), only the current/latest versions are returned. Set to <code style={styleCodeTag}>false</code> or <code style={styleCodeTag}>null</code> to include all versions, including older revisions.
+            </li>
           </ul>
           <strong>Example Usage</strong>
           <pre>
@@ -1137,7 +1141,8 @@ export default function SdsSearchDoc() {
 --data '{
   "sds_id": "gAAAAABmWC9apP5PHJ3JeHii_cjrmCJqLdRKd-ql7cgoHqx-1OCjRwdh8sk3tyKiCiUKYZ8k0dNRgKgV_jrJ3xcpnTs7oYvExQ==",
   "pdf_md5": null,
-  "language_code": "de"
+  "language_code": "de",
+  "is_current_version": true
 }'`}</code>
           </pre>
           <strong>Response</strong>
