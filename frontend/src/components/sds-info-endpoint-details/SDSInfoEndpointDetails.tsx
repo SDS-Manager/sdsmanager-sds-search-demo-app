@@ -274,6 +274,14 @@ const SDSInfoEndpointDetails = ({
               {sdsDetails.is_current_version ? 'True' : 'False'}
             </Grid>
           </Grid>
+          <Grid container item>
+            <Grid item xs={4}>
+              English SDS PDF
+            </Grid>
+            <Grid item xs={8}>
+              {sdsDetails.english_sdspdf_id ?? 'N/A'}
+            </Grid>
+          </Grid>
 
 
           <Grid container item>

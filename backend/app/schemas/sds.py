@@ -61,8 +61,8 @@ class BaseSDSSchema(BaseModel):
             value =  encrypt_number(value, settings.SECRET_KEY)
             return value
         return value
-    
-    
+
+
 
 
 class ListSDSSchema(BaseSDSSchema):
@@ -70,9 +70,17 @@ class ListSDSSchema(BaseSDSSchema):
 
 
 class SDSDetailsSchema(BaseSDSSchema):
+    english_sdspdf_id: str | None
     extracted_data: dict | None
     other_data: dict | None
     sds_pdf_manufacture_full_info: dict | None
+
+    @validator("english_sdspdf_id", pre=True)
+    def validate_english_sdspdf_id(cls, value):
+        if isinstance(value, int):
+            value = encrypt_number(value, settings.SECRET_KEY)
+            return value
+        return value
 
 
 class NewerSDSInfoSchema(BaseModel):
