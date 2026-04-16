@@ -148,45 +148,6 @@ class SearchSDSFilesBodySchema(BaseModel):
         )
 
 
-class SDSDifLanguageVersionsBodySchema(BaseModel):
-    sds_id: str | None
-    pdf_md5: str | None
-    language_code: str | None
-    is_current_version: bool | None
-
-    @validator("sds_id")
-    def validate_sds_id(cls, value):
-        if value:
-            if is_valid_uuid(value):
-                return {
-                    "id": value,
-                }
-
-            try:
-                return {
-                    "id": decrypt_to_number(value, settings.SECRET_KEY),
-                    "encrypt": f"{value}",
-                }
-            except InvalidToken:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Unknown SDS ID",
-                )
-
-        return value
-
-    @validator("pdf_md5")
-    def validate_pdf_md5(cls, value):
-        if value:
-            if not re.findall(r"^([a-fA-F\d]{32})$", value):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Unknown PDF MD5",
-                )
-
-        return value
-
-
 class SDSDetailsBodySchema(BaseModel):
     sds_id: str | None
     pdf_md5: str | None
