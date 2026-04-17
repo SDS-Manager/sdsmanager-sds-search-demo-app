@@ -61,8 +61,8 @@ class BaseSDSSchema(BaseModel):
             value =  encrypt_number(value, settings.SECRET_KEY)
             return value
         return value
-    
-    
+
+
 
 
 class ListSDSSchema(BaseSDSSchema):
@@ -70,9 +70,17 @@ class ListSDSSchema(BaseSDSSchema):
 
 
 class SDSDetailsSchema(BaseSDSSchema):
+    english_sdspdf_id: str | None
     extracted_data: dict | None
     other_data: dict | None
     sds_pdf_manufacture_full_info: dict | None
+
+    @validator("english_sdspdf_id", pre=True)
+    def validate_english_sdspdf_id(cls, value):
+        if isinstance(value, int):
+            value = encrypt_number(value, settings.SECRET_KEY)
+            return value
+        return value
 
 
 class NewerSDSInfoSchema(BaseModel):
@@ -138,6 +146,45 @@ class SearchSDSFilesBodySchema(BaseModel):
             "invalid datetime format, expected YYYY-MM-DD"
             " or YYYY-MM-DDTHH:MM:SS"
         )
+
+
+class SDSDifLanguageVersionsBodySchema(BaseModel):
+    sds_id: str | None
+    pdf_md5: str | None
+    language_code: str | None
+    is_current_version: bool | None
+
+    @validator("sds_id")
+    def validate_sds_id(cls, value):
+        if value:
+            if is_valid_uuid(value):
+                return {
+                    "id": value,
+                }
+
+            try:
+                return {
+                    "id": decrypt_to_number(value, settings.SECRET_KEY),
+                    "encrypt": f"{value}",
+                }
+            except InvalidToken:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Unknown SDS ID",
+                )
+
+        return value
+
+    @validator("pdf_md5")
+    def validate_pdf_md5(cls, value):
+        if value:
+            if not re.findall(r"^([a-fA-F\d]{32})$", value):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Unknown PDF MD5",
+                )
+
+        return value
 
 
 class SDSDetailsBodySchema(BaseModel):

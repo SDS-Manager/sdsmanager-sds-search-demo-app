@@ -215,6 +215,71 @@ class SDSAPIClient:
 
         return response_json
 
+    async def get_dif_language_versions(
+        self,
+        sds_id: dict | None = None,
+        pdf_md5: str | None = None,
+        language_code: str | None = None,
+        is_current_version: bool | None = None,
+        fe: bool = False,
+    ):
+        search_data = {}
+        if sds_id:
+            search_data["sds_id"] = sds_id.get("id")
+        if pdf_md5:
+            search_data["pdf_md5"] = pdf_md5
+        if language_code:
+            search_data["language_code"] = language_code
+        if is_current_version is not None:
+            search_data["is_current_version"] = is_current_version
+        if not search_data:
+            raise SDSAPIParamsRequired
+
+        try:
+            response = await self.session.post(
+                url="/sds/getDifLanguageVersions/",
+                json=search_data,
+            )
+        except HTTPError:
+            raise SDSAPIInternalError
+
+        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+            if response.content:
+                raise SDSAPIRequestNotAuthorized(
+                    response.json().get(
+                        "error_message", "You are not authorized"
+                    )
+                )
+            raise SDSAPIRequestNotAuthorized
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+            if response.content:
+                raise SDSAPIRateLimitError(
+                    response.json().get("error_message", "Rate limit exceeded")
+                )
+            raise SDSAPIRateLimitError
+        if response.status_code == status.HTTP_404_NOT_FOUND:
+            raise SDSNotFoundException
+        if response.status_code == status.HTTP_400_BAD_REQUEST:
+            if response.content:
+                raise SDSBadRequestException(
+                    response.json().get("error_message", "Bad request")
+                )
+            raise SDSBadRequestException
+
+        response_jsons: list = response.json()
+        if response.status_code == status.HTTP_200_OK:
+            for response_json in response_jsons:
+                if response_json and isinstance(response_json, dict) and response_json.get("id"):
+                    if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
+                        response_json["search_id"] = encrypt_number(
+                            response_json.get("id"),
+                            settings.SECRET_KEY,
+                        )
+                    else:
+                        response_json["search_id"] = response_json.get("id")
+
+        return response_jsons
+
     async def get_multiple_sds_details(
         self,
         sds_id: list[int] = None,
