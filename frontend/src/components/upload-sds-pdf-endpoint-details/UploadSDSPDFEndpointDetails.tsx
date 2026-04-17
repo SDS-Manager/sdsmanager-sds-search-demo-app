@@ -172,18 +172,23 @@ const SDSUploadEndpointDetails: React.FC = () => {
         (response) => {
           if (response.status === 200) {
             const data = response.data;
-            setProgress(data.progress || 0);
-            setStep(data.step || '');
-            if (data.progress >= 100 || TERMINAL_STEPS.has(data.step)) {
+            const fileInfoKeys = data.file_info
+              ? Object.keys(data.file_info)
+              : [];
+            const firstFileInfo =
+              fileInfoKeys.length > 0
+                ? data.file_info[fileInfoKeys[0]]
+                : null;
+            const currentProgress =
+              firstFileInfo?.progress ?? data.progress ?? 0;
+            const currentStep = firstFileInfo?.step ?? data.step ?? '';
+            setProgress(currentProgress);
+            setStep(currentStep);
+            if (currentProgress >= 100 || TERMINAL_STEPS.has(currentStep)) {
               clearInterval(getExtractStatusInterval);
               setLoading(false);
-              if (data.file_info) {
-                const fileInfoKeys = Object.keys(data.file_info);
-                if (fileInfoKeys.length > 0) {
-                  const fileInfoKey = fileInfoKeys[0];
-                  const fileInfo = data.file_info[fileInfoKey];
-                  setSdsDetails(fileInfo);
-                }
+              if (firstFileInfo) {
+                setSdsDetails(firstFileInfo);
               }
             }
           }

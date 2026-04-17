@@ -89,16 +89,18 @@ class SDSService:
 
     async def upload_sds(
         self,
-        file: UploadFile,
+        files: list[UploadFile],
         fe: bool,
         sku: str,
         upc_ean: str,
         product_code: str,
         private_import: bool,
         email: str | None = None,
-    ) -> schemas.SDSDetailsSchema:
+    ) -> (
+        schemas.SDSUploadRequestIdSchema | list[schemas.SDSDetailsSchema]
+    ):
         api_response = await self.sds_api_client.upload_sds(
-            file=file,
+            files=files,
             fe=fe,
             sku=sku,
             upc_ean=upc_ean,
@@ -106,7 +108,9 @@ class SDSService:
             private_import=private_import,
             email=email,
         )
-        return schemas.SDSDetailsSchema(**api_response)
+        if fe or len(files) > 1:
+            return schemas.SDSUploadRequestIdSchema(id=api_response["id"])
+        return [schemas.SDSDetailsSchema(**el) for el in api_response]
 
     async def get_extraction_status(
         self, request_id: str, email: str | None, fe: bool

@@ -238,7 +238,7 @@ const SearchEndpointDetails = ({
                       { code: 'sk', name: 'Slovak' },
                       { code: 'sl', name: 'Slovenian' },
                       { code: 'es', name: 'Spanish' },
-                      { code: 'se', name: 'Swedish' },
+                      { code: 'sv', name: 'Swedish' },
                       { code: 'th', name: 'Thai' },
                       { code: 'tr', name: 'Turkish' },
                       { code: 'uk', name: 'Ukrainian' },
