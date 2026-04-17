@@ -184,6 +184,9 @@ class SDSDifLanguageVersionsBodySchema(BaseModel):
                     detail="Unknown PDF MD5",
                 )
 
+        return value
+
+
 class SDSDetailsBodySchema(BaseModel):
     sds_id: str | None
     pdf_md5: str | None
