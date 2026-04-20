@@ -20,7 +20,8 @@ import Documentation from 'components/documentation/documentation';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import InfoPanel from '../../components/info-panel/InfoPanel';
 import SdsSafetyInformationSummary from 'components/sds-safety-information-summary';
-import DifLanguageVersionsEndpointDetails from 'components/dif-language-versions-endpoint-details/DifLanguageVersionsEndpointDetails';
+// Temporarily hidden
+// import DifLanguageVersionsEndpointDetails from 'components/dif-language-versions-endpoint-details/DifLanguageVersionsEndpointDetails';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -98,8 +99,10 @@ const MainPage = () => {
           <Tab label="SDS Newer revision" {...a11yProps(2)} />
           <Tab label="SDS Upload" {...a11yProps(3)} />
           <Tab label="SDS Safety Information Summary" {...a11yProps(4)} />
+          {/* Temporarily hidden
           <Tab label="SDS Different Language Versions" {...a11yProps(5)} />
-          <Tab label="Documentation" {...a11yProps(6)} />
+          */}
+          <Tab label="Documentation" {...a11yProps(5)} />
         </Tabs>
       </Box>
       <Grid sx={{ marginTop: '20px' }} container justifyContent="flex-end">
@@ -162,10 +165,12 @@ const MainPage = () => {
       <TabPanel value={tabValue} index={4}>
         <SdsSafetyInformationSummary />
       </TabPanel>
+      {/* Temporarily hidden
       <TabPanel value={tabValue} index={5}>
         <DifLanguageVersionsEndpointDetails />
       </TabPanel>
-      <TabPanel value={tabValue} index={6}>
+      */}
+      <TabPanel value={tabValue} index={5}>
         <Documentation />
       </TabPanel>
     </Box>

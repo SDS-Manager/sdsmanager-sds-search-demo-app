@@ -1057,6 +1057,7 @@ export default function SdsSearchDoc() {
 }'`}</code>
           </pre>
         </div>
+        {/* Temporarily hidden
         <div>
           <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
             SDS Different Language Versions
@@ -1155,6 +1156,7 @@ export default function SdsSearchDoc() {
             <code style={styleCodeTag}>is_current_version</code>.
           </p>
         </div>
+        */}
       </div>
     </>
   );
