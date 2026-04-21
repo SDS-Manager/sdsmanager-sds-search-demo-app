@@ -468,14 +468,22 @@ class SDSAPIClient:
 
         return response_jsons
 
-    async def upload_sds(self, file: UploadFile, fe: bool = False, sku:str = '', upc_ean:str = '', product_code:str = '', private_import: bool = False, email: str | None = None):
+    async def upload_sds(self, files: list[UploadFile], fe: bool = False, sku:str = '', upc_ean:str = '', product_code:str = '', private_import: bool = False, email: str | None = None):
         try:
-            if file.content_type != "application/pdf":
-                raise SDSBadRequestException("Only PDF files are allowed")
-            file_contents = await file.read()
-            if len(file_contents) > settings.SDS_MAX_FILE_SIZE:
-                raise SDSBadRequestException(
-                    f"File size exceeds the limit of {settings.SDS_MAX_FILE_SIZE / (1024 * 1024)} MB"
+            multipart_files = []
+            for f in files:
+                if f.content_type != "application/pdf":
+                    raise SDSBadRequestException(
+                        "Only PDF files are allowed"
+                    )
+                file_contents = await f.read()
+                if len(file_contents) > settings.SDS_MAX_FILE_SIZE:
+                    raise SDSBadRequestException(
+                        f"File size exceeds the limit of "
+                        f"{settings.SDS_MAX_FILE_SIZE / (1024 * 1024)} MB"
+                    )
+                multipart_files.append(
+                    ("file", (f.filename, file_contents, "application/pdf"))
                 )
             form_data = {
                 "sku": sku,
@@ -483,12 +491,12 @@ class SDSAPIClient:
                 "product_code": product_code,
                 "private_import": private_import,
                 "email": email,
-                "is_fe": fe,              
+                "is_fe": fe,
             }
             response = await self.session.post(
                 url="/sds/upload/",
                 timeout=600,
-                files={"file": (file.filename, file_contents)},
+                files=multipart_files,
                 data=form_data
             )
         except HTTPError:
@@ -531,16 +539,31 @@ class SDSAPIClient:
                 )
             raise SDSAPIInternalError
 
-        response_json: dict = response.json()
+        response_json = response.json()
         if response.status_code == status.HTTP_200_OK:
-            if response_json and response_json.get("id"):
-                if fe or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY") == settings.SDS_API_KEY:
-                    response_json["search_id"] = encrypt_number(
-                        response_json.get("id"),
-                        settings.SECRET_KEY,
-                    )
-                else:
-                    response_json["search_id"] = response_json.get("id")
+            access_key_match = (
+                fe
+                or self.session.headers.get("SDS-SEARCH-ACCESS-API-KEY")
+                == settings.SDS_API_KEY
+            )
+            items = (
+                response_json
+                if isinstance(response_json, list)
+                else [response_json]
+            )
+            for item in items:
+                if (
+                    item
+                    and isinstance(item, dict)
+                    and item.get("id")
+                ):
+                    if access_key_match:
+                        item["search_id"] = encrypt_number(
+                            item.get("id"),
+                            settings.SECRET_KEY,
+                        )
+                    else:
+                        item["search_id"] = item.get("id")
 
         return response_json
     
