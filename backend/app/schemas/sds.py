@@ -83,6 +83,13 @@ class SDSDetailsSchema(BaseSDSSchema):
         return value
 
 
+class SDSUploadRequestIdSchema(BaseModel):
+    id: str
+
+    class Config:
+        extra = "forbid"
+
+
 class NewerSDSInfoSchema(BaseModel):
     sds_id: str
     revision_date: datetime.date | None

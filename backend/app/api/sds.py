@@ -20,6 +20,8 @@ from .dependencies import sds_service_dependency
 
 router = APIRouter(prefix="/sds")
 
+MAX_UPLOAD_FILES = 20
+
 
 @router.post(
     "/details/",
@@ -306,13 +308,15 @@ async def search_for_multiple_new_sds_revision_info(
 
 @router.post(
     "/upload/",
-    description="If SDS will be successfully extracted, all information will be returned in response",
-    response_model=schemas.SDSDetailsSchema,
+    description="If SDS will be successfully extracted, all information will be returned in response. Accepts up to 20 PDF files in a single request via repeated 'file' multipart fields.",
+    response_model=(
+        schemas.SDSUploadRequestIdSchema | list[schemas.SDSDetailsSchema]
+    ),
 )
 @limiter.limit("5/minute")
 async def upload_new_sds(
     request: Request,
-    file: UploadFile,
+    file: list[UploadFile],
     sds_service: SDSService = sds_service_dependency,
     fe: bool = Query(False, description="Optional 'fe' parameter"),
     sku: str = Form(default=''),
@@ -321,8 +325,30 @@ async def upload_new_sds(
     private_import: bool = Form(default=False),
     email: str | None = Form(default=None),
 ):
+    if len(file) == 0 or len(file) > MAX_UPLOAD_FILES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Upload between 1 and {MAX_UPLOAD_FILES} PDF files",
+        )
     try:
-        return await sds_service.upload_sds(file=file, fe=fe, sku=sku, upc_ean=upc_ean, product_code=product_code, private_import=private_import, email=email)
+        return await sds_service.upload_sds(
+            files=file,
+            fe=fe,
+            sku=sku,
+            upc_ean=upc_ean,
+            product_code=product_code,
+            private_import=private_import,
+            email=email,
+        )
+    except SDSBadRequestException as ex:
+        detail = (
+            ex.args[0]
+            if len(ex.args) > 0 and ex.args[0]
+            else "Invalid file upload"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=detail
+        )
     except SDSAPIRequestNotAuthorized as ex:
         detail = (
             ex.args[0]
