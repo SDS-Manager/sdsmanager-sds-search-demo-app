@@ -97,7 +97,9 @@ class SDSService:
         private_import: bool,
         email: str | None = None,
     ) -> (
-        schemas.SDSUploadRequestIdSchema | list[schemas.SDSDetailsSchema]
+        schemas.SDSUploadRequestIdSchema
+        | schemas.SDSDetailsSchema
+        | list[schemas.SDSDetailsSchema]
     ):
         api_response = await self.sds_api_client.upload_sds(
             files=files,
@@ -110,6 +112,9 @@ class SDSService:
         )
         if fe or len(files) > 1:
             return schemas.SDSUploadRequestIdSchema(id=api_response["id"])
+        # Preserve pre-#84 contract: single-file sync upload returns one object, not a list.
+        if len(files) == 1:
+            return schemas.SDSDetailsSchema(**api_response[0])
         return [schemas.SDSDetailsSchema(**el) for el in api_response]
 
     async def get_extraction_status(
