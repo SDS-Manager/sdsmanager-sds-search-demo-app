@@ -310,7 +310,9 @@ async def search_for_multiple_new_sds_revision_info(
     "/upload/",
     description="If SDS will be successfully extracted, all information will be returned in response. Accepts up to 20 PDF files in a single request via repeated 'file' multipart fields.",
     response_model=(
-        schemas.SDSUploadRequestIdSchema | list[schemas.SDSDetailsSchema]
+        schemas.SDSUploadRequestIdSchema
+        | schemas.SDSDetailsSchema
+        | list[schemas.SDSDetailsSchema]
     ),
 )
 @limiter.limit("5/minute")
