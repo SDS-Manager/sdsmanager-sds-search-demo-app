@@ -114,7 +114,7 @@ class SDSService:
             return schemas.SDSUploadRequestIdSchema(id=api_response["id"])
         # Preserve pre-#84 contract: single-file sync upload returns one object, not a list.
         if len(files) == 1:
-            return schemas.SDSDetailsSchema(**api_response[0])
+            return schemas.SDSDetailsSchema(**api_response)
         return [schemas.SDSDetailsSchema(**el) for el in api_response]
 
     async def get_extraction_status(
