@@ -17,7 +17,7 @@
 
 ## Commit Rules
 
-- **1 PR = 1 commit.** If there are 2+ commits, squash with `git rebase -i` before opening the PR.
+- **Multiple commits per PR are fine.** Every PR is merged using GitHub's **Squash and merge**, so all commits on your branch collapse into a single commit on the base branch automatically — no need to `git rebase -i` locally. Write meaningful commit messages; the PR title becomes the squashed commit message.
 - Write clear commit messages describing what and why.
 - Prefix the commit message with the ClickUp task ID — e.g., `86c9796dr - Fix minimum_revision_date invalid datetime format`.
 
