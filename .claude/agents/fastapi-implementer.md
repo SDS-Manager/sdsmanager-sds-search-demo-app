@@ -5,8 +5,8 @@ description: >
   sdsmanager-sds-search-demo-app service (FastAPI, layered app/ architecture, httpx client,
   slowapi rate limiting). Reads this service's CLAUDE.md + .claude/rules FIRST, then writes
   code that strictly follows them. Do NOT use for the sds-web-sdsdiscovery FastAPI service
-  (it has its own fastapi-implementer), for this app's React/TypeScript frontend (use its
-  frontend-patterns), or any other service.
+  (it has its own fastapi-implementer), for this app's React/TypeScript frontend (use this
+  service's react-implementer), or any other service.
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: sonnet
 ---
