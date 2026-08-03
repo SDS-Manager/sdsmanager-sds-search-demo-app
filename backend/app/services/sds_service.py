@@ -32,14 +32,14 @@ class SDSService:
 
     async def get_sds_details(
         self, search: schemas.SDSDetailsBodySchema, fe: bool
-    ) -> schemas.SDSDetailsSchema:
+    ) -> schemas.SDSDetailsWithHazardousSchema:
         api_response = await self.sds_api_client.get_sds_details(
             sds_id=search.sds_id,
             language_code=search.language_code,
             pdf_md5=search.pdf_md5,
             fe=fe,
         )
-        return schemas.SDSDetailsSchema(**api_response)
+        return schemas.SDSDetailsWithHazardousSchema(**api_response)
 
     async def get_dif_language_versions(
         self, search: schemas.SDSDifLanguageVersionsBodySchema, fe: bool

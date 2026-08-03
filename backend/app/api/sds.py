@@ -26,7 +26,7 @@ MAX_UPLOAD_FILES = 20
 @router.post(
     "/details/",
     description="Returns JSON with extracted data of SDS",
-    response_model=schemas.SDSDetailsSchema,
+    response_model=schemas.SDSDetailsWithHazardousSchema,
 )
 @limiter.limit("5/minute")
 async def sds_details(

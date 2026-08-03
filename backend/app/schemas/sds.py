@@ -90,6 +90,30 @@ class SDSUploadRequestIdSchema(BaseModel):
         extra = "forbid"
 
 
+class HazardousComponentSchema(BaseModel):
+    name: str | None
+    cas_no: str | None
+    ec_no: str | None
+    concentration: str | None
+    reach_regulation: str | None
+    regulation_eec: str | None
+    ghs_symbols: list[str] | None
+
+
+class HazardousSchema(BaseModel):
+    is_hazardous: bool | None
+    conforms_to_regulation: str | None
+    components: list[HazardousComponentSchema] | None
+
+
+class SDSDetailsWithHazardousSchema(SDSDetailsSchema):
+    # Wish-list-gated hazardous classification, forwarded from the
+    # upstream SDS API only for /details/ (not /multipleDetails/, which
+    # keeps SDSDetailsSchema). Null when the customer has no wish-list
+    # item for this SDS or the gateway secret is not configured.
+    hazardous: HazardousSchema | None
+
+
 class NewerSDSInfoSchema(BaseModel):
     sds_id: str
     revision_date: datetime.date | None
