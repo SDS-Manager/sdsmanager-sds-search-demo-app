@@ -425,6 +425,54 @@ export default function SdsSearchDoc() {
   "language_code": null
 }'`}</code>
         </pre>
+        <strong>Response: hazardous classification</strong>
+        <p>
+          In addition to the extracted SDS data, the response includes a{' '}
+          <code style={styleCodeTag}>hazardous</code> field with the hazard
+          classification of the product. It is populated only when the
+          requested SDS is in your SDS library (wish list); for any other
+          SDS the field is <code style={styleCodeTag}>null</code>.
+          <pre>
+            <code style={styleCodeTag}>{`{
+  ...,
+  "hazardous": {
+    "is_hazardous": true,
+    "conforms_to_regulation": "EU GHS / CLP",
+    "components": [
+      {
+        "name": "Methanol",
+        "cas_no": "67-56-1",
+        "ec_no": "200-659-6",
+        "concentration": "10-30%",
+        "reach_regulation": "SVHC",
+        "regulation_eec": "",
+        "ghs_symbols": ["GHS02", "GHS06"]
+      }
+    ]
+  }
+}`}</code>
+          </pre>
+        </p>
+        <strong>Explanation of the hazardous field</strong>
+        <ul>
+          <li>
+            <strong>is_hazardous</strong>: Whether the product contains
+            hazardous chemicals.
+          </li>
+          <li>
+            <strong>conforms_to_regulation</strong>: The regulation the SDS
+            conforms to (e.g., "EU GHS / CLP"), or{' '}
+            <code style={styleCodeTag}>null</code> when not determined.
+          </li>
+          <li>
+            <strong>components</strong>: The chemical components of the
+            product, including any edits made in your SDS library. Each
+            component lists its name, CAS and EC numbers, concentration,
+            REACH and EEC regulation classification, and GHS pictogram
+            codes (<code style={styleCodeTag}>ghs_symbols</code>). The list
+            is empty when no component data has been extracted.
+          </li>
+        </ul>
       </div>
       <div>
         <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
