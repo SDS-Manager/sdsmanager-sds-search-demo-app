@@ -8,6 +8,7 @@ import uuid
 from cryptography.fernet import InvalidToken
 from fastapi import HTTPException
 from pydantic import BaseModel, validator
+from pydantic import ValidationError as PydanticValidationError
 from starlette import status
 
 from app.core.config import settings
@@ -112,6 +113,22 @@ class SDSDetailsWithHazardousSchema(SDSDetailsSchema):
     # keeps SDSDetailsSchema). Null when the customer has no wish-list
     # item for this SDS or the gateway secret is not configured.
     hazardous: HazardousSchema | None
+
+    @validator("hazardous", pre=True)
+    def validate_hazardous(cls, value):
+        # A malformed hazardous block from upstream must degrade to
+        # null, never fail the whole details response — the rest of
+        # the payload (extracted_data etc.) is loose dicts, so this
+        # typed field is the only part that could otherwise 500 an
+        # SDS whose core data is valid.
+        if value is None:
+            return None
+        if not isinstance(value, dict):
+            return None
+        try:
+            return HazardousSchema(**value)
+        except PydanticValidationError:
+            return None
 
 
 class NewerSDSInfoSchema(BaseModel):

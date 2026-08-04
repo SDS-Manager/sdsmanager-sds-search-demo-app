@@ -63,6 +63,10 @@ class SDSAPIClient:
         cls._client_registry.clear()
 
     @property
+    def api_key(self) -> str:
+        return self._api_key
+
+    @property
     def session(self) -> AsyncClient:
         return self.get_or_create_client(self._api_key)
 

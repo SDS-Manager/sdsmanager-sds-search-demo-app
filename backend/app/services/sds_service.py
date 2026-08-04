@@ -2,6 +2,7 @@ from fastapi import UploadFile
 
 from app import schemas
 from app.clients.sds_api_client import SDSAPIClient
+from app.core.config import settings
 
 
 class SDSService:
@@ -39,6 +40,14 @@ class SDSService:
             pdf_md5=search.pdf_md5,
             fe=fe,
         )
+        # Defense-in-depth: the public demo frontend (fe / internal
+        # fallback key) must never expose hazard data, even if the
+        # upstream ever attaches the block without checking the
+        # gateway header. The request side already withholds the
+        # header for the fallback key; this makes the invariant
+        # local to the gateway as well.
+        if fe or self.sds_api_client.api_key == settings.SDS_API_KEY:
+            api_response.pop("hazardous", None)
         return schemas.SDSDetailsWithHazardousSchema(**api_response)
 
     async def get_dif_language_versions(
