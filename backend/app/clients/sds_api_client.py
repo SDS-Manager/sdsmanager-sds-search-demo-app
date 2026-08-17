@@ -37,10 +37,21 @@ class SDSAPIClient:
                     asyncio.create_task(evicted.aclose())
                 except RuntimeError:
                     pass  # no running event loop, GC will handle it
+            headers = {"SDS-SEARCH-ACCESS-API-KEY": api_key}
+            # Authenticate this gateway to the upstream SDS API so it
+            # includes the wish-list-gated `hazardous` block — but only
+            # for real customer keys: the internal SDS_API_KEY serves the
+            # public sdsmanager.com demo frontend, which must not expose
+            # hazard data to anonymous visitors.
+            if (
+                settings.SDS_GATEWAY_SECRET
+                and api_key != settings.SDS_API_KEY
+            ):
+                headers["SDS-GATEWAY-AUTH"] = settings.SDS_GATEWAY_SECRET
             client = AsyncClient(
                 base_url=settings.SDS_API_URL,
                 timeout=settings.SDS_API_TIMEOUT,
-                headers={"SDS-SEARCH-ACCESS-API-KEY": api_key},
+                headers=headers,
             )
             cls._client_registry[api_key] = client
         return client
@@ -50,6 +61,10 @@ class SDSAPIClient:
         for client in cls._client_registry.values():
             await client.aclose()
         cls._client_registry.clear()
+
+    @property
+    def api_key(self) -> str:
+        return self._api_key
 
     @property
     def session(self) -> AsyncClient:
