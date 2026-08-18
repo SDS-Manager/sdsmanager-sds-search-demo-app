@@ -437,15 +437,23 @@ export default function SdsSearchDoc() {
   ...,
   "hazardous": {
     "is_hazardous": true,
-    "conforms_to_regulation": "EU GHS / CLP",
+    "regulation_check": {
+      "has_regulated_ingredients": true,
+      "regulated_ingredients": [
+        {
+          "name": "Methanol",
+          "cas_no": "67-56-1",
+          "concentration": "10% - 30%",
+          "regulation": "REACH Candidate List"
+        }
+      ]
+    },
     "components": [
       {
         "name": "Methanol",
         "cas_no": "67-56-1",
         "ec_no": "200-659-6",
         "concentration": "10-30%",
-        "reach_regulation": "SVHC",
-        "regulation_eec": "",
         "ghs_symbols": ["GHS02", "GHS06"]
       }
     ]
@@ -456,21 +464,29 @@ export default function SdsSearchDoc() {
         <strong>Explanation of the hazardous field</strong>
         <ul>
           <li>
-            <strong>is_hazardous</strong>: Whether the product contains
-            hazardous chemicals.
+            <strong>is_hazardous</strong>: Whether any ingredient of the
+            product appears on the regulation lists selected in your SDS
+            Manager account (the hazardous-substances ingredient check).
+            When no lists are selected, the default lists for your region
+            are used.
           </li>
           <li>
-            <strong>conforms_to_regulation</strong>: The regulation the SDS
-            conforms to (e.g., "EU GHS / CLP"), or{' '}
-            <code style={styleCodeTag}>null</code> when not determined.
+            <strong>regulation_check</strong>: Which ingredients are
+            regulated, based on the regulation lists selected in your
+            account. Each entry in{' '}
+            <code style={styleCodeTag}>regulated_ingredients</code> lists
+            the ingredient name, CAS number, concentration, and the name
+            of the regulation list it appears on. An ingredient present
+            on several selected lists appears once per list. The list is
+            empty when no regulation lists are selected in your account.
           </li>
           <li>
             <strong>components</strong>: The chemical components of the
             product, including any edits made in your SDS library. Each
             component lists its name, CAS and EC numbers, concentration,
-            REACH and EEC regulation classification, and GHS pictogram
-            codes (<code style={styleCodeTag}>ghs_symbols</code>). The list
-            is empty when no component data has been extracted.
+            and GHS pictogram codes (
+            <code style={styleCodeTag}>ghs_symbols</code>). The list is
+            empty when no component data has been extracted.
           </li>
         </ul>
       </div>
