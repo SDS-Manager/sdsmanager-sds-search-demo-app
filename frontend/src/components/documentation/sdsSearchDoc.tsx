@@ -477,8 +477,11 @@ export default function SdsSearchDoc() {
             <code style={styleCodeTag}>regulated_ingredients</code> lists
             the ingredient name, CAS number, concentration, and the name
             of the regulation list it appears on. An ingredient present
-            on several selected lists appears once per list. The list is
-            empty when no regulation lists are selected in your account.
+            on several selected lists appears once per list. When no
+            lists are selected in your account, the same region-default
+            lists as <code style={styleCodeTag}>is_hazardous</code> are
+            used — a hazardous product always shows which listing caused
+            the classification.
           </li>
           <li>
             <strong>components</strong>: The chemical components of the
