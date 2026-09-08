@@ -70,3 +70,17 @@ def get_root():
     :returns: Redirection to the docs page.
     """
     return RedirectResponse(url="docs/")
+
+
+@app.get("/api/docs")
+@app.get("/api/docs/")
+def get_legacy_docs():
+    """
+    Legacy docs path that was shared with API customers; the real
+    Swagger UI lives at /docs. Kept as a redirect so old links work
+    regardless of whether the edge routes /api/* to this app or to
+    the SPA (which carries the same redirect client-side).
+
+    :returns: Redirection to the docs page.
+    """
+    return RedirectResponse(url="/docs")
