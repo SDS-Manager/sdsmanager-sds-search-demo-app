@@ -27,11 +27,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The branch name is attacker-controlled. Interpolating
+      # `github.event.pull_request.head.ref` straight into a `run:` block
+      # was a script-injection hole: git permits a branch called
+      # `review-$(id)`, and the shell would execute it on the runner with
+      # the checkout credential in reach, before the review even starts.
+      #
+      # The ref now arrives through the environment and is quoted, so the
+      # shell treats it as data. Only the base ref is fetched: the head
+      # ref does not exist on `origin` for a fork PR, and `fetch-depth: 0`
+      # on the checkout above already brings the head history with it.
       - name: Fetch base branch
-        run: |
-          git fetch origin \
-            ${{ github.event.pull_request.base.ref }} \
-            ${{ github.event.pull_request.head.ref }}
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: git fetch origin "$BASE_REF"
 
       - name: Run Codex review
         id: codex
