@@ -96,14 +96,28 @@ class HazardousComponentSchema(BaseModel):
     cas_no: str | None
     ec_no: str | None
     concentration: str | None
-    reach_regulation: str | None
-    regulation_eec: str | None
     ghs_symbols: list[str] | None
 
 
+class RegulatedIngredientSchema(BaseModel):
+    name: str | None
+    cas_no: str | None
+    concentration: str | None
+    regulation: str | None
+
+
+class RegulationCheckSchema(BaseModel):
+    has_regulated_ingredients: bool | None
+    regulated_ingredients: list[RegulatedIngredientSchema] | None
+
+
 class HazardousSchema(BaseModel):
+    # Regulation semantics follow the customer owner's ingredient check
+    # (the regulation lists selected on /hazardous-substances/), matching
+    # the eCommerce library API (86caev9yg) — not the SDS document's own
+    # metadata.
     is_hazardous: bool | None
-    conforms_to_regulation: str | None
+    regulation_check: RegulationCheckSchema | None
     components: list[HazardousComponentSchema] | None
 
 
