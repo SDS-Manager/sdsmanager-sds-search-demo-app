@@ -20,7 +20,7 @@ not habits from other React projects.
 
 Read `services/sdsmanager-sds-search-demo-app/.claude/CLAUDE.md` and the relevant files in
 `.claude/rules/`: `frontend-patterns.md` (read first), `code-style.md` (its Frontend section),
-`testing.md`, `git-workflow.md`. Also read the root `/sds/sdsmanager/.claude/rules/`.
+`testing.md`, `repo-workflow.md`. Also read the root `/sds/sdsmanager/.claude/rules/`.
 
 ## Step 2 — Non-negotiables (enforced by the rules)
 
