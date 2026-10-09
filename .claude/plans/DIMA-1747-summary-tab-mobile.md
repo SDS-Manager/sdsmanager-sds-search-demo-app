@@ -1,6 +1,6 @@
 # Plan — Safety Information Summary tab usable on phones and tablets
 
-Status: In progress (step 0 done) · Author: Nguyen Duc Nha · 2026-10-09
+Status: Implemented, verified locally (steps 0–6 done; PR next) · Author: Nguyen Duc Nha · 2026-10-09
 Task: DIMA-1747 — https://work.sdsmanager.com/task/DIMA-1747 (imported from ClickUp `1245xawd6hv`, read-only)
 Branch: `bugfix/DIMA-1747` → `develop`
 
@@ -59,7 +59,7 @@ button. On desktop the tab looks and behaves exactly as today (500px `<iframe>`)
 |---|---|---|
 | D1 | Phones and tablets: react-pdf pages plus a **Download PDF** button. Desktop: the iframe, unchanged. | Agreed 2026-10-09. Same experience as Inventory #1629. |
 | D2 | "Mobile" is decided by `shouldUseMobileSummaryView()`, ported from Inventory: width `<768px`, **or** an iPhone/iPad/iPod/Android user agent, **or** iPadOS (`MacIntel` + touch). It is evaluated in the `useState` initialiser and again on `resize`. | Acceptance criterion: detection at first render. The user-agent check keeps a phone rotated to landscape on pages. |
-| D3 | `react-pdf ^5.3.2` + `@types/react-pdf ^5.7.4`. Worker: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`. | Agreed: the same version Inventory verified on devices. Uses explicit `https:` rather than a protocol-relative `//` URL. |
+| D3 | `react-pdf ^5.7.2` + `@types/react-pdf ^5.7.4`. Worker: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`. | Agreed: the same install Inventory verified on devices. Its `^5.3.2` also resolves to 5.7.2, the last 5.x; npm saved the resolved version. Uses explicit `https:` rather than a protocol-relative `//` URL. |
 | D4 | The react-pdf view goes in a new `MobilePdfPages.tsx`, loaded with `React.lazy`. | Desktop never downloads pdf.js, so it really is unchanged. `index.tsx` is already 281 lines, and code-style says to extract past ~200. |
 | D5 | Text and annotation layers off (`renderTextLayer={false}`, `renderAnnotationLayer={false}`). | Canvas only: no react-pdf CSS to import, and less work on low-end phones. Download covers text selection. Inventory renders both layers without their CSS; this does not copy that. |
 | D6 | Render every page; no lazy page rendering. | A real summary is 4 pages (step 0). Also checked with a 13-page PDF in step 6. |
@@ -70,7 +70,7 @@ button. On desktop the tab looks and behaves exactly as today (500px `<iframe>`)
 
 | File | Change |
 |---|---|
-| `frontend/package.json` | Add `react-pdf ^5.3.2` (dependencies) and `@types/react-pdf ^5.7.4` (devDependencies). Do not commit a generated `package-lock.json`; none is tracked. |
+| `frontend/package.json` | Add `react-pdf ^5.7.2` (dependencies) and `@types/react-pdf ^5.7.4` (devDependencies). Do not commit a generated `package-lock.json`; none is tracked. |
 | `frontend/src/utils/mobileSummaryView.ts` (new) | `isIPadOS()` and `shouldUseMobileSummaryView()`, ported from Inventory, with a comment pointing at DIMA-1747. |
 | `frontend/src/components/sds-safety-information-summary/MobilePdfPages.tsx` (new) | `Document` with one `Page` per PDF page, sized to the container width (`Box` ref, `clientWidth`) and re-fit on `resize`. Shows a loading spinner, and on error: "The PDF can't be shown here — use Download PDF." |
 | `frontend/src/components/sds-safety-information-summary/index.tsx` | Adds `isMobileView` state (lazy initialiser + resize listener). When `pdfUrl` is set: on mobile, the Download button plus `MobilePdfPages` inside `<Suspense>`; on desktop, the existing iframe block, unchanged. |
@@ -115,6 +115,29 @@ button. On desktop the tab looks and behaves exactly as today (500px `<iframe>`)
    `develop` once checks pass, so open it only after steps 5–6 are green. Run the Codex
    loop (max 5 rounds); any pushback comments are drafted for the developer to post.
 8. Stride comment with the PR link, drafted for the developer to post.
+
+## Results (2026-10-09)
+
+- **Unit and component tests:** 14 pass (`mobileSummaryView.test.ts`: 11;
+  `index.test.tsx`: 3). The component test fails on the old code for the phone and
+  resize cases. `tsc --noEmit` is clean.
+- **Build:** pdf.js is only in the two lazy chunks (115.7 kB gzipped). The main bundle
+  contains none of it.
+- **Emulation (Chromium), real 4-page summary:**
+  - iPhone 13, Pixel 5, iPad, iPadOS: no iframe, and all 4 pages are painted at the
+    container width (iPhone 302px, Pixel 305px).
+  - No sideways scroll, and the last page can be reached.
+  - Rotation re-fits the pages (iPhone 576px, Pixel 639px).
+  - Download saves `safety-information-summary.pdf`.
+- **13-page PDF** on iPhone, Pixel and iPad: all pages painted, with the same checks
+  passing.
+- **Desktop 1280 / 1920:**
+  - The tab bar is pixel-identical to the baseline.
+  - The iframe is unchanged at 500px, with no Download button.
+  - Over four runs, no react-pdf chunk or worker was requested.
+- **Tab bar below 1200px:** it scrolls, with arrows, so every tab can be reached.
+- **WebKit not run:** this machine lacks WebKit's system libraries (needs
+  `sudo apt-get install`). Safari behaviour is covered by the real-device check below.
 
 ## How to Test (draft for the PR — staging-demo after merge)
 
