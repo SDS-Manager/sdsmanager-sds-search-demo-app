@@ -96,7 +96,6 @@ class HazardousComponentSchema(BaseModel):
     cas_no: str | None
     ec_no: str | None
     concentration: str | None
-    ghs_symbols: list[str] | None
 
 
 class RegulatedIngredientSchema(BaseModel):
@@ -104,6 +103,16 @@ class RegulatedIngredientSchema(BaseModel):
     cas_no: str | None
     concentration: str | None
     regulation: str | None
+    # The regulation record's own listing / source data (DIMA-901).
+    # Null when the list doesn't provide it; private (customer-owned)
+    # lists never carry URLs or a release date.
+    listing: str | None
+    listing_short_desc: str | None
+    listing_url: str | None
+    chemical_name: str | None
+    ec_no: str | None
+    url: str | None
+    released_date: str | None
 
 
 class RegulationCheckSchema(BaseModel):
@@ -117,6 +126,9 @@ class HazardousSchema(BaseModel):
     # the eCommerce library API (86caev9yg) — not the SDS document's own
     # metadata.
     is_hazardous: bool | None
+    # SDS-level GHS pictogram codes, as shown on the Hazardous
+    # substances page (per-ingredient pictograms are not extracted).
+    ghs_symbols: list[str] | None
     regulation_check: RegulationCheckSchema | None
     components: list[HazardousComponentSchema] | None
 
