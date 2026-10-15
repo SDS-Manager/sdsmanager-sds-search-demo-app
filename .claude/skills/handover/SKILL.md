@@ -57,7 +57,7 @@ Use this exact structure. Do not skip sections — write "None" or "N/A" if a se
 - <...>
 
 **References**:
-- ClickUp: <task ID + URL, or "None">
+- Task: <ID + Stride URL, or "None">
 - GitHub issue: <url or "None">
 - PR: <url or "None">
 

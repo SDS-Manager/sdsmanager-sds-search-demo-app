@@ -1,16 +1,22 @@
-# ClickUp Task Creation Guidelines — SDS Manager Dev Project
+# Stride Task Guidelines — SDS Manager Dev Project
 
-**Board:** [SDS Manager Dev Project](https://app.clickup.com/90152360809/v/b/6-901521246467-2)
-**List ID:** `901521246467`
-**Default status for new tasks:** `ADD NEW TASKS HERE`
+**Team:** `DIMA` — Dev Inv Mgr+Admin
+**List:** [Dev Inv Mgr+Admin](https://work.sdsmanager.com/team/DIMA/f/tasks)
+**Default status for new tasks:** `Add new tasks here`
+**Task URL:** `https://work.sdsmanager.com/task/{ID}` — e.g. [DIMA-750](https://work.sdsmanager.com/task/DIMA-750)
 
-This guideline applies to all development tasks for the SDS Manager project. All tasks created via Claude Code are added to the board above with status "ADD NEW TASKS HERE" for triage.
+Since 2026-10-08 all development tasks for SDS Manager live in **Stride** (`work.sdsmanager.com`).
+ClickUp is read-only for old tasks and will be removed later — do not create or update tasks there.
+Tasks created via Claude Code land in the list above with status `Add new tasks here` for triage.
+
+The rules Claude follows are in [`.claude/rules/stride-tasks.md`](.claude/rules/stride-tasks.md);
+this page is the same process written for the people requesting the work.
 
 ## When Does This Apply?
 
 This guideline applies to **request-phase tasks** — new work that hasn't started yet. This is the full process with RIRE scoring, interviews, and acceptance criteria.
 
-**This does NOT apply to post-coding tasks** — when you've already written code and have a PR, Claude will create a simpler task documenting what was done (description + PR link). No RIRE scoring or interview needed.
+**This does NOT apply to post-coding tasks** — when you've already written code and have a PR, Claude will create a simpler task documenting what was done (title prefixed `CLAUDE CODE:`, description + PR link). No RIRE scoring or interview needed.
 
 ## Who Should Use This
 
@@ -18,11 +24,20 @@ Anyone requesting development work: product owners, team leads, developers, QA. 
 
 ## How to Create a Task
 
-Open Claude Code and describe what you need. Claude will ask clarifying questions, then create a properly structured ClickUp task on the SDS Manager Dev Project board. Example:
+1. Connect Stride to Claude Code once (create a personal API key in Stride first):
 
-> "Create a ClickUp task: we need to add bulk export of SDS documents as ZIP files from the inventory list page"
+   ```bash
+   claude mcp add --transport http --scope user stride https://work.sdsmanager.com/mcp \
+     --header "Authorization: Bearer <YOUR_STRIDE_KEY>"
+   ```
 
-Claude will guide you through the required fields below.
+   Restart Claude Code. Never commit your key.
+
+2. Open Claude Code and describe what you need. Claude will ask clarifying questions, show you a draft, and create the task in Stride only after you confirm. Example:
+
+   > "Create a task: we need to add bulk export of SDS documents as ZIP files from the inventory list page"
+
+Claude will guide you through the required fields below. You can also create a task directly in Stride — use the same structure.
 
 ---
 
@@ -45,7 +60,7 @@ Claude will guide you through the required fields below.
 **What should the end result look like?**
 - Describe the expected behavior from the user's perspective
 - Include specific examples or scenarios
-- If UI is involved: describe the interaction flow (screenshots/mockups are a bonus — attach or link them)
+- If UI is involved: describe the interaction flow (screenshots/mockups are a bonus — attach them to the task)
 - If API: describe the endpoint shape, inputs, outputs
 
 ### 4. Acceptance Criteria
@@ -76,7 +91,7 @@ Which part of the system does this touch?
 - **Infrastructure / DevOps**
 
 ### 7. Module
-Which module does this task belong to? These are set as custom fields in ClickUp — pick one:
+Which module does this task belong to? Stride has no custom fields, so the module is written on the `Module:` line at the top of the description — pick one:
 
 | Module | Description |
 |--------|-------------|
@@ -101,7 +116,7 @@ Which module does this task belong to? These are set as custom fields in ClickUp
 | Other | Anything not listed above |
 
 ### 8. RIRE Score (Prioritization)
-Every task must include RIRE ratings. These are set as custom fields in ClickUp — the SCORE is auto-calculated by a formula field.
+Every task must include RIRE ratings. They are written on the `RIRE:` line at the top of the description — Stride does not calculate the score, so Claude computes it for you.
 
 Claude will ask you to rate each dimension on a scale of **1–5**:
 
@@ -112,47 +127,40 @@ Claude will ask you to rate each dimension on a scale of **1–5**:
 | **Revenue** | No revenue impact | Indirect revenue impact (retention, efficiency) | Direct revenue impact (new sales, churn prevention) |
 | **Effort** | Quick fix (hours) | Moderate work (days) | Major effort (weeks+) |
 
-**Formula:** `RIRE Score = (Reach × Impact × Revenue) / Effort` (auto-calculated in ClickUp)
-
-| Score Range | Interpretation |
-|-------------|---------------|
-| **15–25** | Do this first — high value, manageable effort |
-| **5–15** | Strong candidate — schedule soon |
-| **2–5** | Moderate — plan when capacity allows |
-| **< 2** | Low priority — backlog or reconsider |
+**Formula:** `RIRE Score = (Reach × Impact × Revenue) / Effort` (range 0.2–125)
 
 ### 9. Priority (Auto-Proposed)
-Claude will **propose** a priority based on your RIRE score. You confirm or override.
+Claude will **propose** a priority based on your RIRE score. You confirm or override. The P-level is written on the `Priority:` line of the description and mapped onto Stride's built-in priority field.
 
-| RIRE Score | Proposed Priority |
-|------------|-------------------|
-| 15–25 | **P1 - BIG DEAL BLOCKED** |
-| 8–15 | **P2 - CUSTOMER ESCALATION** |
-| 3–8 | **P3 - NICE VALUE** |
-| 1–3 | **P4 - LOW VALUE** |
-| < 1 | **P6 - IDEA FOR SOMEDAY** |
+| RIRE Score | Proposed Priority | Stride priority |
+|------------|-------------------|-----------------|
+| ≥ 15 | **P1 - BIG DEAL BLOCKED** | Urgent |
+| 8 – under 15 | **P2 - CUSTOMER ESCALATION** | High |
+| 3 – under 8 | **P3 - NICE VALUE** | Medium |
+| 1 – under 3 | **P4 - LOW VALUE** | Low |
+| under 1 | **P6 - IDEA FOR SOMEDAY** | Low |
 
 **Override when needed:** A low-RIRE bug may still be P0 if production is down. A high-RIRE idea may be P6 if there's no capacity this quarter.
 
 All priority levels:
-| Priority | When to use |
-|----------|-------------|
-| **P0 - PRODUCTION BUG** | Production is broken, data loss, revenue impact now |
-| **P1 - BIG DEAL BLOCKED** | A sales deal or key customer is blocked |
-| **P2 - CUSTOMER ESCALATION** | Customer complaint or escalation |
-| **P3 - NICE VALUE** | Good value, no urgency |
-| **P4 - LOW VALUE** | Nice to have, backlog |
-| **P6 - IDEA FOR SOMEDAY** | Future idea, no commitment |
-| **Not sure** | Let the team triage |
+| Priority | When to use | Stride priority |
+|----------|-------------|-----------------|
+| **P0 - PRODUCTION BUG** | Production is broken, data loss, revenue impact now | Urgent |
+| **P1 - BIG DEAL BLOCKED** | A sales deal or key customer is blocked | Urgent |
+| **P2 - CUSTOMER ESCALATION** | Customer complaint or escalation | High |
+| **P3 - NICE VALUE** | Good value, no urgency | Medium |
+| **P4 - LOW VALUE** | Nice to have, backlog | Low |
+| **P6 - IDEA FOR SOMEDAY** | Future idea, no commitment | Low |
+| **Not sure** | Let the team triage | None |
 
 ---
 
 ## Recommended Fields (Include When Applicable)
 
 ### 10. Dependencies & Blockers
-- Does this require another task to be completed first?
+- Does this require another task to be completed first? Name it by its Stride ID (`DIMA-750`).
 - Does this depend on a third-party service, API, or external team?
-- Are there database migration needs? (Flag explicitly — these need extra care)
+- Are there database migration needs? (Flag explicitly — these need extra care, and get the `db migration` label)
 
 ### 11. Edge Cases & Risks
 - What could go wrong?
@@ -166,7 +174,7 @@ All priority levels:
 - Known technical constraints
 
 ### 13. New Packages or Schema Changes
-**If this task will likely require new packages or database changes, flag it explicitly at the top of the description.** These require extra review and approval before implementation.
+**If this task will likely require new packages or database changes, flag it explicitly at the top of the description** (`⚠️ DATABASE CHANGES REQUIRED` / `⚠️ NEW PACKAGES REQUIRED`). These require extra review and approval before implementation.
 
 ### 14. Mockups / Screenshots / Examples
 - Attach screenshots of current behavior (for bugs)
@@ -178,7 +186,7 @@ All priority levels:
 ## Task Types and What to Emphasize
 
 ### Bug Reports
-Emphasize: **Steps to reproduce**, expected vs actual behavior, browser/environment, screenshots, frequency (always/sometimes/once), severity (data loss? cosmetic? blocking?)
+Emphasize: **Steps to reproduce**, expected vs actual behavior, browser/environment, screenshots, frequency (always/sometimes/once), severity (data loss? cosmetic? blocking?). Add the `Bug` label.
 
 ### New Features
 Emphasize: **Problem statement**, user story, acceptance criteria, scope boundaries, mockups
@@ -192,6 +200,9 @@ Emphasize: **What's wrong** with current implementation, risks of not fixing, pr
 ### Data / Migration Tasks
 Emphasize: **Exact data changes**, rollback plan, affected records estimate, production impact, timing constraints
 
+### Problems with Stride itself
+Bugs or feature requests about Stride go to team `PH` (Project HubOne) with status `Stride` — not to `DIMA`.
+
 ---
 
 ## What Makes a BAD Task
@@ -201,7 +212,7 @@ Emphasize: **Exact data changes**, rollback plan, affected records estimate, pro
 - "Add validation" — for which fields? what rules? what error messages?
 - No acceptance criteria — nobody knows when it's done
 - Mixing multiple unrelated changes in one task
-- Copy-pasting a Slack message as the entire description
+- Copy-pasting a chat message as the entire description
 
 ## What Makes a GOOD Task
 
@@ -217,12 +228,9 @@ Emphasize: **Exact data changes**, rollback plan, affected records estimate, pro
 ## Template (for reference — Claude will structure this for you)
 
 ```
-## RIRE Score
-| Reach | Impact | Revenue | Effort | **Score** |
-|-------|--------|---------|--------|-----------|
-| 4     | 3      | 5       | 2      | **30.0**  |
-
-**Module:** Inventory Manager
+RIRE: Reach 4 · Impact 3 · Revenue 5 · Effort 2 → Score 30.0
+Module: Inventory Manager - New feature
+Priority: P1 - BIG DEAL BLOCKED
 
 ## Problem
 [Who is affected and what's the issue]
@@ -242,8 +250,8 @@ Emphasize: **Exact data changes**, rollback plan, affected records estimate, pro
 ## Affected Area
 [Frontend / Backend / Full stack / etc.]
 
-## Dependencies
-[Any blockers or prerequisites]
+## Dependencies & Blockers
+[Any blockers or prerequisites — or "None"]
 
 ## Edge Cases & Risks
 [What could go wrong]

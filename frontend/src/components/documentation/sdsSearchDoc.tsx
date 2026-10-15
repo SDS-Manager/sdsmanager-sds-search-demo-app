@@ -437,6 +437,7 @@ export default function SdsSearchDoc() {
   ...,
   "hazardous": {
     "is_hazardous": true,
+    "ghs_symbols": ["GHS02", "GHS06"],
     "regulation_check": {
       "has_regulated_ingredients": true,
       "regulated_ingredients": [
@@ -444,7 +445,14 @@ export default function SdsSearchDoc() {
           "name": "Methanol",
           "cas_no": "67-56-1",
           "concentration": "10% - 30%",
-          "regulation": "REACH Candidate List"
+          "regulation": "REACH SVHC Candidate List",
+          "listing": "REACH SVHC Candidate List",
+          "listing_short_desc": "SVHC",
+          "listing_url": "https://echa.europa.eu/candidate-list-table",
+          "chemical_name": "Methanol",
+          "ec_no": "200-659-6",
+          "url": "https://echa.europa.eu/substance-information/...",
+          "released_date": "2025-06-10"
         }
       ]
     },
@@ -453,8 +461,7 @@ export default function SdsSearchDoc() {
         "name": "Methanol",
         "cas_no": "67-56-1",
         "ec_no": "200-659-6",
-        "concentration": "10-30%",
-        "ghs_symbols": ["GHS02", "GHS06"]
+        "concentration": "10-30%"
       }
     ]
   }
@@ -467,29 +474,57 @@ export default function SdsSearchDoc() {
             <strong>is_hazardous</strong>: Whether any ingredient of the
             product appears on the regulation lists selected in your SDS
             Manager account (the hazardous-substances ingredient check).
-            When no lists are selected, the default lists for your region
-            are used.
+            It is <code style={styleCodeTag}>false</code> when no lists
+            are selected in your account.
+          </li>
+          <li>
+            <strong>ghs_symbols</strong>: The GHS hazard pictogram codes
+            of the product (for example{' '}
+            <code style={styleCodeTag}>GHS02</code>), including any edits
+            made in your SDS library. Empty when the SDS has no
+            pictograms.
           </li>
           <li>
             <strong>regulation_check</strong>: Which ingredients are
             regulated, based on the regulation lists selected in your
             account. Each entry in{' '}
             <code style={styleCodeTag}>regulated_ingredients</code> lists
-            the ingredient name, CAS number, concentration, and the name
-            of the regulation list it appears on. An ingredient present
-            on several selected lists appears once per list. When no
-            lists are selected in your account, the same region-default
-            lists as <code style={styleCodeTag}>is_hazardous</code> are
-            used — a hazardous product always shows which listing caused
-            the classification.
+            the ingredient name as it appears in your SDS library (
+            <code style={styleCodeTag}>name</code>) and as the regulation
+            list names it (<code style={styleCodeTag}>chemical_name</code>
+            ), its CAS and EC numbers, its concentration, the regulation
+            list it appears on (<code style={styleCodeTag}>listing</code>,
+            also returned as <code style={styleCodeTag}>regulation</code>,
+            and its short name{' '}
+            <code style={styleCodeTag}>listing_short_desc</code>), a link
+            to the list (<code style={styleCodeTag}>listing_url</code>), a
+            link to the substance's entry on it (
+            <code style={styleCodeTag}>url</code>) and the date it was
+            added (<code style={styleCodeTag}>released_date</code>). These
+            list details are <code style={styleCodeTag}>null</code> when
+            the regulation list doesn't provide them, which is common, and
+            always for your company's own (private) lists. An ingredient
+            present on several selected lists appears once per list, so
+            the number of entries grows with the number of lists you
+            select; the list is not paginated or capped. When no lists are
+            selected in your account, the list is empty.{' '}
+            <code style={styleCodeTag}>is_hazardous</code> is true exactly
+            when this list is not empty.
+          </li>
+          <li>
+            <strong>Data source</strong>: The hazardous field uses the
+            regulation check stored for the SDS in your SDS library — the
+            same data as the Hazardous substances page in SDS Manager. The
+            check runs when the SDS is added to your library and when its
+            ingredients are edited; your company's own (private) lists are
+            re-checked automatically when you change them.
           </li>
           <li>
             <strong>components</strong>: The chemical components of the
             product, including any edits made in your SDS library. Each
-            component lists its name, CAS and EC numbers, concentration,
-            and GHS pictogram codes (
-            <code style={styleCodeTag}>ghs_symbols</code>). The list is
-            empty when no component data has been extracted.
+            component lists its name, CAS and EC numbers, and
+            concentration. The list is empty when no component data has
+            been extracted.
           </li>
         </ul>
       </div>
@@ -497,6 +532,11 @@ export default function SdsSearchDoc() {
         <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
           SDS Multiple Details
         </h3>
+        <p>
+          This endpoint does not return the{' '}
+          <code style={styleCodeTag}>hazardous</code> field. Use SDS
+          Details to get the hazard classification of a product.
+        </p>
         <ul>
           <li>
             <strong>URL:</strong>

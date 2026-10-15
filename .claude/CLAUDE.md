@@ -55,7 +55,8 @@ FastAPI (backend) + React/TypeScript (frontend) demo application showcasing the 
 - [API Security](.claude/rules/api-security.md)
 - [Testing](.claude/rules/testing.md)
 - [Frontend Patterns](.claude/rules/frontend-patterns.md)
-- [ClickUp Tasks](.claude/rules/clickup-tasks.md)
+- [Stride Tasks](.claude/rules/stride-tasks.md)
+- [ClickUp Tasks — legacy, read-only](.claude/rules/clickup-tasks.md)
 
 ---
 
