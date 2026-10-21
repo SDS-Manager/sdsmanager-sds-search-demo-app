@@ -18,7 +18,7 @@ Match this service's layered architecture exactly — follow its rule files, not
 
 Read `services/sdsmanager-sds-search-demo-app/.claude/CLAUDE.md` and the relevant files in
 `services/sdsmanager-sds-search-demo-app/.claude/rules/`: `fastapi-patterns.md`, `api-design.md`,
-`api-security.md`, `code-style.md`, `testing.md`, `git-workflow.md` (and `frontend-patterns.md` only
+`api-security.md`, `code-style.md`, `testing.md`, `repo-workflow.md` (and `frontend-patterns.md` only
 if the task also touches the React side). Also read the root `/sds/sdsmanager/.claude/rules/`.
 
 ## Step 2 — Non-negotiables (enforced by the rules)
