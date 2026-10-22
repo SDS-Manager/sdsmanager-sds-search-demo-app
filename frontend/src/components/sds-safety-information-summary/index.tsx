@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import {
     FormControl,
     InputLabel,
@@ -9,9 +9,16 @@ import {
     Select,
     MenuItem,
 } from '@mui/material';
+import { Download } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from 'api';
+import { shouldUseMobileSummaryView } from 'utils/mobileSummaryView';
+
+// Phones and tablets only: keeps pdf.js out of the desktop bundle (DIMA-1747).
+const MobilePdfPages = lazy(
+    () => import('components/sds-safety-information-summary/MobilePdfPages')
+);
 
 enum SAFETY_SUMMARY_SECTION_DISPLAY {
     GENERAL_INFORMATION = 'general_information',
@@ -86,6 +93,11 @@ const DEFAULT_OPTIONS: Array<{
 const SdsSafetyInformationSummary = ({ }) => {
     const [loading, setLoading] = React.useState<boolean>(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    // Decided at first render, not only on resize: a PDF in an <iframe> is
+    // blank on Android Chrome and stuck on page 1 on iOS / iPadOS (DIMA-1747).
+    const [isMobileView, setIsMobileView] = useState<boolean>(
+        shouldUseMobileSummaryView
+    );
     const formSchema = yup.object().shape({
         sds_id: yup.string(),
         pdf_md5: yup.string(),
@@ -175,6 +187,12 @@ const SdsSafetyInformationSummary = ({ }) => {
         };
     }, [pdfUrl]);
 
+    React.useEffect(() => {
+        const onResize = () => setIsMobileView(shouldUseMobileSummaryView());
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+
     return (
         <Grid container spacing={5}>
             <Grid
@@ -260,6 +278,25 @@ const SdsSafetyInformationSummary = ({ }) => {
                 <Grid container item>
                     <Grid item xs={12}>
                         <CircularProgress />
+                    </Grid>
+                </Grid>
+            ) : pdfUrl && isMobileView ? (
+                <Grid container item rowSpacing={2}>
+                    <Grid item xs={12}>
+                        <Button
+                            variant={'outlined'}
+                            component="a"
+                            href={pdfUrl}
+                            download="safety-information-summary.pdf"
+                            startIcon={<Download />}
+                        >
+                            Download PDF
+                        </Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Suspense fallback={<CircularProgress />}>
+                            <MobilePdfPages file={pdfUrl} />
+                        </Suspense>
                     </Grid>
                 </Grid>
             ) : pdfUrl ? (

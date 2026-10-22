@@ -1,0 +1,133 @@
+name: Codex PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+concurrency:
+  group: codex-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  codex-review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    # Without this the default is 360 minutes. Now that this job gates the
+    # merge, a hung Codex run would leave the required check pending -- and
+    # auto-merge stalled -- for six hours with no signal.
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: |
+          git fetch origin \
+            ${{ github.event.pull_request.base.ref }} \
+            ${{ github.event.pull_request.head.ref }}
+
+      - name: Run Codex review
+        id: codex
+        uses: openai/codex-action@v1
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        with:
+          prompt: |
+            Review this pull request against its base branch as a senior engineer.
+
+            Focus on:
+            - correctness and logic bugs
+            - security issues
+            - authorization and tenant isolation
+            - migration and data integrity risks
+            - performance regressions
+            - missing tests
+
+            Only flag actionable issues introduced by this PR.
+            Be concise and prioritize high-severity findings.
+
+            Write your findings to a file at /tmp/codex-review.md formatted as markdown.
+
+            The FIRST line of that file must be exactly one of:
+              VERDICT: NONE
+              VERDICT: LOW
+              VERDICT: MEDIUM
+              VERDICT: HIGH
+            naming the highest severity you found. This line is parsed by CI to
+            decide whether the pull request may merge, so it is mandatory and must
+            be the first line, on its own, with no surrounding markdown.
+
+            After that line, use a numbered list with severity labels
+            (High/Medium/Low) and file references.
+            If there are no issues, write "VERDICT: NONE" followed by
+            "No issues found."
+
+            IMPORTANT: Do NOT attempt to use gh, curl, or any network commands.
+            Just write the review to /tmp/codex-review.md and exit.
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+
+      # Posted whether or not the gate below passes -- the developer needs to
+      # read the findings in order to act on them.
+      - name: Post review comment
+        if: always()
+        # This job now decides whether the PR can merge, so only the gate step
+        # below may fail it. A transient `gh pr comment` failure (secondary rate
+        # limit, or the read-only token a fork PR gets) must not turn a clean
+        # VERDICT: NONE review into a red required check.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f /tmp/codex-review.md ]; then
+            gh pr comment ${{ github.event.pull_request.number }} \
+              --body-file /tmp/codex-review.md
+          else
+            echo "No review file found — Codex may have failed."
+          fi
+
+      # The gate. Fails the check on a High finding, so branch protection blocks
+      # the merge and auto-merge never fires.
+      #
+      # Medium and Low are deliberately NOT blocking: Codex is an LLM and is not
+      # reproducible across runs, so a low-confidence severity band as a hard gate
+      # teaches developers to re-run the job until it passes. Medium/Low stay in
+      # the PR comment above. Revisit only once the false-positive rate is known
+      # (plan 1245xawbg3d, Task 1.4).
+      #
+      # Fails CLOSED: a missing file or a missing VERDICT line means Codex did not
+      # complete, which is not the same as "found nothing" and must not pass
+      # silently. Re-run the job.
+      - name: Gate on severity
+        if: always()
+        run: |
+          if [ ! -f /tmp/codex-review.md ]; then
+            echo "::error::Codex produced no review file — the review did not complete."
+            echo "Re-run this job. A failed review is not a passing review."
+            exit 1
+          fi
+
+          verdict=$(head -1 /tmp/codex-review.md | tr -d '\r' | sed -n 's/^VERDICT:[[:space:]]*\([A-Z]*\).*/\1/p')
+
+          case "$verdict" in
+            NONE|LOW|MEDIUM)
+              echo "Codex verdict: $verdict — not blocking."
+              ;;
+            HIGH)
+              echo "::error::Codex reported a HIGH severity finding. See the review comment on this PR."
+              echo "Fix it and push — an open high finding counts as unfinished work."
+              exit 1
+              ;;
+            *)
+              echo "::error::Could not parse a VERDICT line from /tmp/codex-review.md."
+              echo "First line was: $(head -1 /tmp/codex-review.md)"
+              echo "Treating as a failed review rather than a pass. Re-run this job."
+              exit 1
+              ;;
+          esac

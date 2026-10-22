@@ -11,6 +11,7 @@ import {
   Tab,
   Tabs,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 import SearchEndpointDetails from 'components/search-endpoint-details/SearchEndpointDetails';
 import SDSInfoEndpointDetails from 'components/sds-info-endpoint-details/SDSInfoEndpointDetails';
@@ -56,6 +57,9 @@ const MainPage = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [selectedSDSId, setSelectedSDSId] = React.useState<null | string>(null);
   const [apiKey, setApiKey] = React.useState<null | string>(localStorage.getItem('apiKey'));
+  // The six tabs need ~1052px. Narrower, a centred strip clips tabs on both
+  // sides with no way to reach them, so it scrolls instead (DIMA-1747).
+  const tabsFit = useMediaQuery('(min-width:1200px)', { noSsr: true });
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -92,7 +96,10 @@ const MainPage = () => {
           value={tabValue}
           onChange={handleChange}
           aria-label="basic tabs example"
-          centered
+          centered={tabsFit}
+          variant={tabsFit ? 'standard' : 'scrollable'}
+          scrollButtons="auto"
+          allowScrollButtonsMobile
         >
           <Tab label="SDS Search" {...a11yProps(0)} />
           <Tab label="SDS Details" {...a11yProps(1)} />

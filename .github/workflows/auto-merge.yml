@@ -1,0 +1,45 @@
+name: Arm auto-merge
+
+# Erlend's step 1: a finished change reaches staging without a human moving it.
+#
+# Auto-merge is per-PR by design -- the repository setting only PERMITS it, it
+# never arms it. This job does the arming, and nothing else.
+#
+# It deliberately checks NOTHING. It runs seconds after the PR opens, usually
+# before any check has started, and just tells GitHub "merge this once it is
+# mergeable". GitHub then waits for the checks the branch RULESET requires and
+# merges when they are green.
+#
+# So the list of required checks lives in the ruleset, not here. Duplicating it
+# into this file would create a second copy, free to drift from the real one.
+#
+# WARNING: with no required checks on the target branch, "merge when mergeable"
+# means "merge immediately". Never enable this against an empty ruleset.
+
+on:
+  pull_request:
+    types: [opened, ready_for_review, labeled, unlabeled]
+    branches: [develop]
+
+permissions:
+  contents: read
+
+jobs:
+  arm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >-
+      github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.labels.*.name, 'no-auto-merge') &&
+      !contains(github.event.pull_request.labels.*.name, 'needs-migration')
+    steps:
+      - name: Enable auto-merge
+        env:
+          # NOT GITHUB_TOKEN. Events triggered by GITHUB_TOKEN do not start new
+          # workflow runs, so a merge armed with it would land on develop without
+          # deploy.yml firing -- the PR merges and nothing reaches the
+          # environment, silently.
+          GH_TOKEN: ${{ secrets.DEPLOY_PAT }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} \
+            --auto --squash --repo ${{ github.repository }}
