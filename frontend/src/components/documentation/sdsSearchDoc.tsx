@@ -1035,6 +1035,330 @@ export default function SdsSearchDoc() {
             </pre>
           </div>
         </div>
+        <div>
+          <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>
+            Supplier Live Search and Import
+          </h3>
+          <p>
+            <code style={styleCodeTag}>/sds/search/</code> searches the SDS
+            Manager database. Supplier live search looks up a product{' '}
+            <strong>directly on a supplier's website</strong> when that SDS is
+            not in the database yet, and lets you import the result into SDS
+            Manager. Supplier results are never mixed into{' '}
+            <code style={styleCodeTag}>/sds/search/</code>: a supplier
+            candidate is not an SDS until you import it.
+          </p>
+          <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#e3f2fd', borderRadius: '4px', borderLeft: '5px solid #1976d2' }}>
+            <h4 style={{ margin: '0 0 10px 0', color: '#1976d2' }}>Integration Flow</h4>
+            <ol style={{ margin: 0 }}>
+              <li><strong>Step 1:</strong> Call Supplier Search. Each candidate with a PDF carries an <code>import_handle</code>.</li>
+              <li><strong>Step 2:</strong> Call Supplier Import with that <code>import_handle</code>. You receive a request <code>id</code> immediately (<code>202 Accepted</code>).</li>
+              <li><strong>Step 3:</strong> Poll Get Extraction Status with <code>request_id</code> set to that id, the same as for an asynchronous upload. On <code>SUCCESS</code>, <code>file_info.&lt;file&gt;.id</code> is the new SDS id.</li>
+              <li><strong>Step 4:</strong> Call SDS Details with that SDS id. The SDS carries <code>extraction_status</code>.</li>
+            </ol>
+          </div>
+          <h4 style={{ color: '#555' }}>Availability</h4>
+          <ul>
+            <li>
+              The feature is <strong>off by default</strong>. Ask SDS Manager to
+              enable "supplier connector results" for your account. Until then,
+              both endpoints return <code style={styleCodeTag}>403 CONNECTOR_SEARCH_NOT_ENABLED</code>,
+              and no supplier is contacted.
+            </li>
+            <li>
+              Your account needs the same active API subscription as the other
+              endpoints.
+            </li>
+            <li>
+              <strong>Optional header</strong>{' '}
+              <code style={styleCodeTag}>X-Customer-Id</code>: an opaque
+              identifier of <strong>your</strong> end customer, at most 128
+              characters. It is used only for usage statistics and never changes
+              the response. You can send it as the body field{' '}
+              <code style={styleCodeTag}>customer_id</code> instead; the body
+              wins if you send both.
+            </li>
+          </ul>
+
+          {/* ================= SUPPLIER SEARCH ================= */}
+          <h3 style={{ textTransform: 'uppercase', color: '#1976d2', borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>
+            Step 1: Supplier Search
+          </h3>
+          <ul>
+            <li>
+              <strong>URL:</strong>
+              <p>
+                <code style={styleCodeTag}>
+                  https://api.sdsmanager.com/sds/supplierSearch/
+                </code>
+              </p>
+            </li>
+            <li>
+              <strong>HTTP Method:</strong>
+              <p>
+                <code style={styleCodeTag}>POST</code>
+              </p>
+            </li>
+            <li>
+              <strong>Headers:</strong>
+              <ul>
+                <li>
+                  <code style={styleCodeTag}>Content-Type: application/json</code>
+                </li>
+                <li>
+                  <code style={styleCodeTag}>X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]</code>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <strong>Explanation of JSON Payload</strong>
+          <ul>
+            <li style={{ marginBottom: '10px' }}>
+              <strong>supplier</strong> <span style={{ color: 'red' }}>*Required</span><br />
+              A supplier connector key, for example <code>sigma-aldrich</code>, <code>merck-millipore</code>, <code>qiagen</code>, <code>tci-chemicals</code>, <code>strem</code>, <code>combi-blocks</code>, <code>thermo-fisher</code> or <code>fisher-scientific</code>. At most 50 characters. SDS Manager can switch a connector off at any time; ask SDS Manager for the current list.
+            </li>
+            <li style={{ marginBottom: '10px' }}>
+              <strong>search</strong> <span style={{ color: 'red' }}>*Required</span><br />
+              The supplier's product code or catalogue number, 3–255 characters.
+            </li>
+            <li style={{ marginBottom: '10px' }}>
+              <strong>country</strong> <span style={{ color: 'red' }}>*Required</span><br />
+              The market, as a country code of ASCII letters (2–8), for example <code>DE</code> or <code>US</code>.
+            </li>
+            <li style={{ marginBottom: '10px' }}>
+              <strong>language</strong> <span style={{ color: 'red' }}>*Required</span><br />
+              The SDS language, ASCII letters plus <code>-</code> (2–8), for example <code>de</code>, <code>en</code> or <code>en-GB</code>.
+              There are no defaults for <code>country</code> and <code>language</code>, because several suppliers serve a different SDS for each market.
+            </li>
+            <li style={{ marginBottom: '10px' }}>
+              <strong>product_name</strong> <span style={{ color: '#888' }}>(Optional)</span><br />
+              At most 255 characters. If you send it, candidates whose name plainly contradicts it are dropped.
+            </li>
+          </ul>
+          <strong>Example Usage</strong>
+          <pre>
+            <code style={styleCodeTag}>{`curl --location 'https://api.sdsmanager.com/sds/supplierSearch/' \\
+--header 'Content-Type: application/json' \\
+--header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+--header 'X-Customer-Id: tenant-42' \\
+--data '{
+  "supplier": "qiagen",
+  "search": "19101",
+  "country": "US",
+  "language": "en"
+}'`}</code>
+          </pre>
+          <strong>Example Response (200 OK)</strong>
+          <pre>
+            <code style={styleCodeTag}>{`{
+    "supplier": "qiagen",
+    "search": "19101",
+    "country": "US",
+    "language": "en",
+    "live_search_failed": false,
+    "candidates": [
+        {
+            "supplier": "qiagen",
+            "product_number": "19101",
+            "product_name": "RNase A",
+            "brand": "QIAGEN",
+            "country": "US",
+            "language": "en",
+            "requested_language_available": true,
+            "available_languages": ["en"],
+            "pdf_available": true,
+            "import_handle": "eJxNjs0KgzAQhF9F...:1xLBA3:yBc7A2kqWL7oOCEj5m0vSwKIT3FvpqizPEMt3OW9ivQ"
+        }
+    ]
+}`}</code>
+          </pre>
+          <strong>Response Explanation</strong>
+          <ul>
+            <li>
+              <strong>live_search_failed</strong>: <code>true</code> means the
+              lookup could not be completed: the supplier was blocked or
+              unreachable, the lookup did not finish within about 50 seconds, or
+              our lookup capacity was busy. <code>candidates</code> is then
+              empty. It does <strong>not</strong> mean the supplier has no SDS;
+              retry later, a retry is often answered from cache.{' '}
+              <code>false</code> with empty <code>candidates</code> means the
+              supplier answered and nothing matched.
+            </li>
+            <li>
+              <strong>candidates[].product_number / product_name / brand</strong>:
+              the product identity as the supplier publishes it.
+            </li>
+            <li>
+              <strong>candidates[].country / language</strong>: the market and
+              language the document is served for.
+            </li>
+            <li>
+              <strong>candidates[].requested_language_available / available_languages</strong>:
+              whether the language you asked for exists for this product, and
+              which languages the supplier lists.
+            </li>
+            <li>
+              <strong>candidates[].pdf_available</strong>: whether an SDS PDF
+              can be imported for this candidate.
+            </li>
+            <li>
+              <strong>candidates[].import_handle</strong>: the token for Supplier
+              Import, <code>null</code> when <code>pdf_available</code> is{' '}
+              <code>false</code>. It is an opaque, signed token: send it back
+              unchanged, as any change makes it invalid. It is bound to your
+              account and valid for <strong>24 hours</strong>.
+            </li>
+          </ul>
+          <p>
+            <strong>Response time:</strong> under a second when the answer comes
+            from cache. A live lookup can take tens of seconds; the server stops
+            waiting after about 50 seconds.
+          </p>
+          <strong>Errors</strong>
+          <ul>
+            <li><code style={styleCodeTag}>403 CONNECTOR_SEARCH_NOT_ENABLED</code>: supplier search is not enabled for your account. No supplier was contacted.</li>
+            <li><code style={styleCodeTag}>403 SUPPLIER_LIVE_SEARCH_DISABLED</code>: supplier live search is temporarily disabled platform-wide.</li>
+            <li><code style={styleCodeTag}>400 SUPPLIER_LIVE_SEARCH_UNSUPPORTED_SUPPLIER</code>: the supplier key is unknown, or that supplier is currently switched off.</li>
+            <li><code style={styleCodeTag}>400</code> field errors: validation failed. The body maps each field to its messages, for example <code>{`{"country": ["This field is required."]}`}</code>.</li>
+            <li><code style={styleCodeTag}>429 SDS_API_CONNECTOR_RATE_LIMIT_EXCEEDED</code>: the supplier search/import rate limit was exceeded. See the <code>Retry-After</code> header.</li>
+          </ul>
+
+          {/* ================= SUPPLIER IMPORT ================= */}
+          <h3 style={{ textTransform: 'uppercase', color: '#1976d2', marginTop: '40px', borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>
+            Step 2: Supplier Import
+          </h3>
+          <p>
+            Imports one candidate. The server downloads the PDF from the
+            supplier for the candidate's market, adds it to SDS Manager and runs
+            extraction, all asynchronously.
+          </p>
+          <ul>
+            <li>
+              <strong>URL:</strong>
+              <p>
+                <code style={styleCodeTag}>
+                  https://api.sdsmanager.com/sds/supplierImport/
+                </code>
+              </p>
+            </li>
+            <li>
+              <strong>HTTP Method:</strong>
+              <p>
+                <code style={styleCodeTag}>POST</code>
+              </p>
+            </li>
+            <li>
+              <strong>Headers:</strong>
+              <ul>
+                <li>
+                  <code style={styleCodeTag}>Content-Type: application/json</code>
+                </li>
+                <li>
+                  <code style={styleCodeTag}>X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]</code>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <strong>Explanation of JSON Payload</strong>
+          <ul>
+            <li style={{ marginBottom: '10px' }}>
+              <strong>import_handle</strong> <span style={{ color: 'red' }}>*Required</span><br />
+              Taken unchanged from Supplier Search. At most 4096 characters.
+            </li>
+          </ul>
+          <strong>Example Usage</strong>
+          <pre>
+            <code style={styleCodeTag}>{`curl --location 'https://api.sdsmanager.com/sds/supplierImport/' \\
+--header 'Content-Type: application/json' \\
+--header 'X-SDS-SEARCH-ACCESS-API-KEY: [Your API Key]' \\
+--data '{
+  "import_handle": "<import_handle>"
+}'`}</code>
+          </pre>
+          <strong>Example Response (202 Accepted)</strong>
+          <pre>
+            <code style={styleCodeTag}>{`{
+    "id": "6bde7387-3b73-4311-b97e-42d02352b648"
+}`}</code>
+          </pre>
+          <ul>
+            <li>
+              <code>id</code> is the <strong>request id</strong>. Poll it with{' '}
+              <code style={styleCodeTag}>https://api.sdsmanager.com/sds/getExtractionStatus/?request_id=&lt;id&gt;</code>{' '}
+              as described in the SDS Upload section. Poll every 3–5 seconds;
+              imports usually take between 10 seconds and 2 minutes. Stop when{' '}
+              <code>step</code> is <code>SUCCESS</code>, <code>FAILED</code>,{' '}
+              <code>TIMEOUT</code> or <code>NON_SDS</code>. The status record is
+              kept for 1 hour.
+            </li>
+            <li>
+              On <code>SUCCESS</code>, <code>file_info.&lt;file&gt;.id</code> is
+              the SDS id. Pass it as <code>sds_id</code> to SDS Details.
+            </li>
+            <li>
+              <strong>Already-known PDFs:</strong> if the same PDF already exists
+              in SDS Manager, the import returns the existing SDS, so no
+              duplicate is created.
+            </li>
+            <li>
+              <strong>Download failures:</strong> if the supplier PDF cannot be
+              downloaded, the request ends in <code>FAILED</code> with an
+              explanatory <code>error_message</code>.
+            </li>
+          </ul>
+          <strong>Errors</strong>
+          <ul>
+            <li><code style={styleCodeTag}>400 INVALID_IMPORT_HANDLE</code>: the handle was modified, is older than 24 hours, belongs to another account, or its document no longer passes the safety checks. Run Supplier Search again.</li>
+            <li><code style={styleCodeTag}>400 PDF_NOT_AVAILABLE</code>: the candidate has no PDF.</li>
+            <li><code style={styleCodeTag}>400 SUPPLIER_LIVE_SEARCH_UNSUPPORTED_SUPPLIER</code>: the supplier was switched off after the search.</li>
+            <li><code style={styleCodeTag}>403 CONNECTOR_SEARCH_NOT_ENABLED</code> / <code style={styleCodeTag}>403 SUPPLIER_LIVE_SEARCH_DISABLED</code>: as for Supplier Search.</li>
+            <li><code style={styleCodeTag}>429 SDS_API_CONNECTOR_RATE_LIMIT_EXCEEDED</code>: as for Supplier Search.</li>
+          </ul>
+
+          <h4 style={{ color: '#555' }}>extraction_status on SDS objects</h4>
+          <p>
+            SDS Details, Multiple SDS Details and the SDS objects in Get
+            Extraction Status carry <code style={styleCodeTag}>extraction_status</code>.
+            The response is always <code>200</code> for a known SDS id, whatever
+            its extraction state.
+          </p>
+          <ul>
+            <li><strong>full</strong>: extracted data is available. All documents that already had extracted data report <code>full</code>.</li>
+            <li><strong>pending</strong>: the SDS is known, but its extraction has not produced data yet. <code>extracted_data</code> is empty; the identity fields (product name, supplier, language, revision date if known, <code>pdf_md5</code>, PDF link) are still present.</li>
+            <li><strong>failed</strong>: extraction ended without data. The identity fields are still present.</li>
+          </ul>
+
+          <h4 style={{ color: '#555' }}>Rate Limits</h4>
+          <ul>
+            <li>
+              Supplier Search and Supplier Import share a separate per-API-key
+              limit: <strong>20 requests per 180 seconds</strong> by default. It
+              can be adjusted per account on request. When you exceed it, the
+              response is <code>429</code> with a <code>Retry-After</code> header
+              in seconds.
+            </li>
+            <li>
+              Get Extraction Status and SDS Details use the normal API limits.
+            </li>
+          </ul>
+
+          <h4 style={{ color: '#555' }}>Error Format</h4>
+          <p>
+            Errors from Supplier Search and Supplier Import use this envelope;
+            validation errors return <code>400</code> with a map from field to
+            messages instead. If the SDS service cannot be reached, the response
+            is <code>500</code> with{' '}
+            <code>{`{"detail": "SDS API request failed"}`}</code>.
+          </p>
+          <pre>
+            <code style={styleCodeTag}>{`{
+    "success": false,
+    "error_code": "CONNECTOR_SEARCH_NOT_ENABLED",
+    "error_message": "Supplier search is not enabled for this account.",
+    "not_show_snackbar": false
+}`}</code>
+          </pre>
+        </div>
         <div className="">
           <h3 style={{ textTransform: 'uppercase', color: '#1976d2' }}>SDS Safety Information Summary</h3>
           <p>
