@@ -127,6 +127,26 @@ class SDSService:
         )
         return schemas.SDSExtractionStatusSchema(**api_response)
 
+    async def supplier_search(
+        self,
+        search: schemas.SupplierSearchBodySchema,
+        end_customer_id: str | None,
+    ) -> tuple[int, dict | list, str | None]:
+        return await self.sds_api_client.supplier_search(
+            payload=search.dict(exclude_none=True),
+            end_customer_id=end_customer_id,
+        )
+
+    async def supplier_import(
+        self,
+        body: schemas.SupplierImportBodySchema,
+        end_customer_id: str | None,
+    ) -> tuple[int, dict | list, str | None]:
+        return await self.sds_api_client.supplier_import(
+            payload=body.dict(exclude_none=True),
+            end_customer_id=end_customer_id,
+        )
+
     async def get_sds_safety_information_summary(
         self, search: schemas.SDSSafetyInformationSummaryBodySchema, fe: bool
     ) -> bytes:

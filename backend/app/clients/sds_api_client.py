@@ -18,6 +18,10 @@ from app.exceptions import (
 )
 from app.utils import encrypt_number, update_search_id
 
+# admin55 gives up on a live supplier lookup at ~50 s and then answers 200
+# live_search_failed; waiting less would turn that answer into an error.
+SUPPLIER_SEARCH_MIN_TIMEOUT = 90
+
 
 class SDSAPIClient:
     _client_registry: dict[str, AsyncClient] = {}
@@ -620,6 +624,46 @@ class SDSAPIClient:
         response_json: dict = response.json()
         return response_json
 
+    async def supplier_search(
+        self, payload: dict, end_customer_id: str | None = None
+    ) -> tuple[int, dict | list, str | None]:
+        return await self._forward_json(
+            url="/sds/supplierSearch/",
+            payload=payload,
+            end_customer_id=end_customer_id,
+            timeout=max(
+                settings.SDS_API_TIMEOUT, SUPPLIER_SEARCH_MIN_TIMEOUT
+            ),
+        )
+
+    async def supplier_import(
+        self, payload: dict, end_customer_id: str | None = None
+    ) -> tuple[int, dict | list, str | None]:
+        return await self._forward_json(
+            url="/sds/supplierImport/",
+            payload=payload,
+            end_customer_id=end_customer_id,
+            timeout=settings.SDS_API_TIMEOUT,
+        )
+
+    async def _forward_json(
+        self,
+        url: str,
+        payload: dict,
+        end_customer_id: str | None,
+        timeout: int,
+    ) -> tuple[int, dict | list, str | None]:
+        """Status, JSON body and Retry-After of the upstream answer, as is:
+        the supplier routes keep admin55's error contract (DIMA-3332)."""
+        headers = {"X-Customer-Id": end_customer_id} if end_customer_id else None
+        try:
+            response = await self.session.post(
+                url=url, json=payload, headers=headers, timeout=timeout
+            )
+            body = response.json()
+        except (HTTPError, ValueError):
+            raise SDSAPIInternalError
+        return response.status_code, body, response.headers.get("Retry-After")
 
     async def get_sds_safety_information_summary(self, 
         sds_id: dict | None = None,
