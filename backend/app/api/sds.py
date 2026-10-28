@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, HTTPException, Query, Request, UploadFile, \
-    Form
-from fastapi.responses import Response
+    Form, Header
+from fastapi.responses import JSONResponse, Response
 from starlette import status
 
 from app import schemas
@@ -410,6 +410,67 @@ async def get_sds_extraction_status(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="SDS API request failed",
         )
+
+
+def _upstream_response(
+    status_code: int, body: dict | list, retry_after: str | None
+) -> JSONResponse:
+    # The supplier routes return admin55's status and body unchanged, so
+    # its error codes reach the caller (DIMA-3332).
+    return JSONResponse(
+        status_code=status_code,
+        content=body,
+        headers={"Retry-After": retry_after} if retry_after else None,
+    )
+
+
+@router.post(
+    "/supplierSearch/",
+    description="Live lookup of a product code on one supplier's website. Each candidate with a PDF carries an import_handle for /sds/supplierImport/. Opt-in per account; errors use the upstream error_code envelope.",
+    response_model=schemas.SupplierSearchResponseSchema,
+)
+@limiter.limit("5/minute")
+async def supplier_search(
+    request: Request,
+    search_body: schemas.SupplierSearchBodySchema = Body(...),
+    sds_service: SDSService = sds_service_dependency,
+    x_customer_id: str | None = Header(None),
+):
+    try:
+        upstream = await sds_service.supplier_search(
+            search=search_body, end_customer_id=x_customer_id
+        )
+    except SDSAPIInternalError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="SDS API request failed",
+        )
+    return _upstream_response(*upstream)
+
+
+@router.post(
+    "/supplierImport/",
+    description="Import a /sds/supplierSearch/ candidate by its import_handle. Returns 202 with a request id to poll with /sds/getExtractionStatus/.",
+    response_model=schemas.SDSUploadRequestIdSchema,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+@limiter.limit("5/minute")
+async def supplier_import(
+    request: Request,
+    import_body: schemas.SupplierImportBodySchema = Body(...),
+    sds_service: SDSService = sds_service_dependency,
+    x_customer_id: str | None = Header(None),
+):
+    try:
+        upstream = await sds_service.supplier_import(
+            body=import_body, end_customer_id=x_customer_id
+        )
+    except SDSAPIInternalError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="SDS API request failed",
+        )
+    return _upstream_response(*upstream)
 
 
 @router.post(
