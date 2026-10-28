@@ -75,6 +75,8 @@ class SDSDetailsSchema(BaseSDSSchema):
     extracted_data: dict | None
     other_data: dict | None
     sds_pdf_manufacture_full_info: dict | None
+    # full / pending / failed (DIMA-1177); null from an older upstream.
+    extraction_status: str | None
 
     @validator("english_sdspdf_id", pre=True)
     def validate_english_sdspdf_id(cls, value):
@@ -422,6 +424,44 @@ class SDSExtractionStatusSchema(BaseModel):
         if value and isinstance(value, (dict, list)):
             value = encrypt_ids(value)
         return value
+
+
+class SupplierSearchBodySchema(BaseModel):
+    # All optional on purpose: the upstream validates and its 400 field
+    # errors are returned unchanged (DIMA-3332).
+    supplier: str | None
+    search: str | None
+    country: str | None
+    language: str | None
+    product_name: str | None
+    customer_id: str | None
+
+
+class SupplierImportBodySchema(BaseModel):
+    import_handle: str | None
+    customer_id: str | None
+
+
+class SupplierCandidateSchema(BaseModel):
+    supplier: str | None
+    product_number: str | None
+    product_name: str | None
+    brand: str | None
+    country: str | None
+    language: str | None
+    requested_language_available: bool | None
+    available_languages: list[str] | None
+    pdf_available: bool | None
+    import_handle: str | None
+
+
+class SupplierSearchResponseSchema(BaseModel):
+    supplier: str | None
+    search: str | None
+    country: str | None
+    language: str | None
+    live_search_failed: bool | None
+    candidates: list[SupplierCandidateSchema] | None
 
 
 class SDSSafetyInformationSummaryBodySchema(BaseModel):
