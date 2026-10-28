@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "sds": {
+      "source": {
+        "source": "github",
+        "repo": "SDS-Manager/sds-localenv"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "sds-dev@sds": true
+  }
+}
