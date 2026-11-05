@@ -3,33 +3,115 @@ name: Arm auto-merge
 # Erlend's step 1: a finished change reaches staging without a human moving it.
 #
 # Auto-merge is per-PR by design -- the repository setting only PERMITS it, it
-# never arms it. This job does the arming, and nothing else.
+# never arms it. This workflow does the arming.
 #
-# It deliberately checks NOTHING. It runs seconds after the PR opens, usually
-# before any check has started, and just tells GitHub "merge this once it is
-# mergeable". GitHub then waits for the checks the branch RULESET requires and
-# merges when they are green.
-#
-# So the list of required checks lives in the ruleset, not here. Duplicating it
-# into this file would create a second copy, free to drift from the real one.
+# The list of required checks lives in the branch RULESET, not here. GitHub
+# waits for those checks after arming and merges when they are green.
+# Duplicating that list into this file would create a second copy, free to
+# drift from the real one.
 #
 # WARNING: with no required checks on the target branch, "merge when mergeable"
 # means "merge immediately". Never enable this against an empty ruleset.
+#
+# Human review gate
+# -----------------
+# PRs authored by a user listed in the AUTO_MERGE_EXCLUDED_USERS Actions
+# variable (org or repo level, comma/space separated, e.g. "sds-angie") are NOT
+# armed until a human approves the CURRENT head commit. A qualifying approval:
+#   - is the reviewer's latest non-comment review, state APPROVED,
+#   - was given on the PR's current head SHA (a new push needs a new approval),
+#   - comes from someone other than the PR author,
+#   - comes from someone NOT in AUTO_MERGE_EXCLUDED_USERS,
+#   - comes from someone with write/maintain/admin access (i.e. who can merge).
+# Without one, the gate disarms any auto-merge already armed and fails, so the
+# PR shows a red "review-gate" check. If the variable is unset, it defaults to
+# "sds-angie" -- the gate fails closed, never open.
+#
+# Add "review-gate" to the branch ruleset's required checks so the gate also
+# holds against a manual or bot-armed merge, not only this workflow's arming.
 
 on:
   pull_request:
-    types: [opened, ready_for_review, labeled, unlabeled]
+    # synchronize and reopened matter as much as opened. A pull request that
+    # already existed when this workflow landed never fires `opened` again --
+    # GitHub does not replay it -- so without `synchronize` those PRs can never
+    # arm themselves no matter how many commits they get. Measured on
+    # sds_store#655: opened 4.5h before this workflow merged, still pushing
+    # commits three days later, still unarmed.
+    types: [opened, reopened, ready_for_review, synchronize, labeled, unlabeled]
     branches: [develop]
+  # An approval (or a dismissal) re-runs the gate. `branches` is not supported
+  # on this event, hence the base.ref check on the jobs below.
+  pull_request_review:
+    types: [submitted, dismissed]
 
 permissions:
   contents: read
 
+concurrency:
+  group: auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
-  arm:
+  review-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: >-
-      github.event.pull_request.draft == false &&
+      github.event.pull_request.base.ref == 'develop' &&
+      github.event.pull_request.draft == false
+    steps:
+      - name: Require human approval for excluded authors
+        env:
+          # The collaborator-permission lookup needs push access, which
+          # GITHUB_TOKEN with contents:read does not have.
+          GH_TOKEN: ${{ secrets.DEPLOY_PAT }}
+          EXCLUDED_USERS: ${{ vars.AUTO_MERGE_EXCLUDED_USERS || 'sds-angie' }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          lc() { tr '[:upper:]' '[:lower:]'; }
+          excluded=" $(echo "$EXCLUDED_USERS" | tr ',' ' ' | lc | xargs) "
+          is_excluded() { [[ "$excluded" == *" $(echo "$1" | lc) "* ]]; }
+
+          if ! is_excluded "$AUTHOR"; then
+            echo "Author $AUTHOR is not gated."
+            exit 0
+          fi
+
+          # Latest non-comment review per reviewer; the API lists oldest first.
+          declare -A state commit
+          while IFS=$'\t' read -r user st sha; do
+            [ -n "$user" ] || continue
+            state[$user]=$st; commit[$user]=$sha
+          done < <(gh api --paginate "repos/$REPO/pulls/$PR/reviews?per_page=100" \
+            --jq '.[] | select(.state != "COMMENTED") | [.user.login, .state, .commit_id] | @tsv')
+
+          for user in "${!state[@]}"; do
+            [ "${state[$user]}" = APPROVED ] || continue
+            [ "${commit[$user]}" = "$HEAD_SHA" ] || continue
+            [ "$(echo "$user" | lc)" != "$(echo "$AUTHOR" | lc)" ] || continue
+            is_excluded "$user" && continue
+            perm=$(gh api "repos/$REPO/collaborators/$user/permission" --jq .permission 2>/dev/null || echo none)
+            case "$perm" in
+              admin|write)
+                echo "Approved by $user ($perm) on $HEAD_SHA."
+                exit 0 ;;
+            esac
+          done
+
+          # No qualifying approval: make sure nothing merges in the meantime.
+          gh pr merge "$PR" --disable-auto --repo "$REPO" 2>/dev/null || true
+          echo "::error::PR by $AUTHOR needs an approval of the current commit (${HEAD_SHA:0:7}) from a developer who can merge before it is auto-merged."
+          exit 1
+
+  arm:
+    needs: review-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >-
       !contains(github.event.pull_request.labels.*.name, 'no-auto-merge') &&
       !contains(github.event.pull_request.labels.*.name, 'needs-migration')
     steps:
