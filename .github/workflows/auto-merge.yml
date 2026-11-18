@@ -3,33 +3,82 @@ name: Arm auto-merge
 # Erlend's step 1: a finished change reaches staging without a human moving it.
 #
 # Auto-merge is per-PR by design -- the repository setting only PERMITS it, it
-# never arms it. This job does the arming, and nothing else.
+# never arms it. This workflow does the arming.
 #
-# It deliberately checks NOTHING. It runs seconds after the PR opens, usually
-# before any check has started, and just tells GitHub "merge this once it is
-# mergeable". GitHub then waits for the checks the branch RULESET requires and
-# merges when they are green.
-#
-# So the list of required checks lives in the ruleset, not here. Duplicating it
-# into this file would create a second copy, free to drift from the real one.
+# The list of required checks lives in the branch RULESET, not here. GitHub
+# waits for those checks after arming and merges when they are green.
+# Duplicating that list into this file would create a second copy, free to
+# drift from the real one.
 #
 # WARNING: with no required checks on the target branch, "merge when mergeable"
 # means "merge immediately". Never enable this against an empty ruleset.
+#
+# Allow-list gate
+# ---------------
+# Only PRs authored by a user listed in the AUTO_MERGE_ALLOWED_USERS Actions
+# variable (org or repo level, comma/space separated, case-insensitive, e.g.
+# "alice,bob") are armed. A PR from anyone else -- including bots such as
+# sds-angie -- is left alone and a human merges it by hand. The gate passes
+# (green) in that case; it only decides whether the arm job runs.
+#
+# If the variable is unset or empty, nobody is allowed: the gate fails closed,
+# never open.
 
 on:
   pull_request:
-    types: [opened, ready_for_review, labeled, unlabeled]
+    # synchronize and reopened matter as much as opened. A pull request that
+    # already existed when this workflow landed never fires `opened` again --
+    # GitHub does not replay it -- so without `synchronize` those PRs can never
+    # arm themselves no matter how many commits they get. Measured on
+    # sds_store#655: opened 4.5h before this workflow merged, still pushing
+    # commits three days later, still unarmed.
+    types: [opened, reopened, ready_for_review, synchronize, labeled, unlabeled]
     branches: [develop]
+  # An approval (or a dismissal) re-runs the gate. `branches` is not supported
+  # on this event, hence the base.ref check on the jobs below.
+  pull_request_review:
+    types: [submitted, dismissed]
 
 permissions:
   contents: read
 
+concurrency:
+  group: auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
-  arm:
+  allow-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: >-
-      github.event.pull_request.draft == false &&
+      github.event.pull_request.base.ref == 'develop' &&
+      github.event.pull_request.draft == false
+    outputs:
+      allowed: ${{ steps.check.outputs.allowed }}
+    steps:
+      - name: Check author is in the allow-list
+        id: check
+        env:
+          ALLOW_USERS: ${{ vars.AUTO_MERGE_ALLOWED_USERS || '' }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          set -euo pipefail
+          lc() { tr '[:upper:]' '[:lower:]'; }
+          allowed=" $(echo "$ALLOW_USERS" | tr ',' ' ' | lc | xargs) "
+          if [[ "$allowed" == *" $(echo "$AUTHOR" | lc) "* ]]; then
+            echo "Author $AUTHOR is allowed to auto-merge."
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Author $AUTHOR is not in AUTO_MERGE_ALLOWED_USERS; not arming."
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  arm:
+    needs: allow-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >-
+      needs.allow-gate.outputs.allowed == 'true' &&
       !contains(github.event.pull_request.labels.*.name, 'no-auto-merge') &&
       !contains(github.event.pull_request.labels.*.name, 'needs-migration')
     steps:
