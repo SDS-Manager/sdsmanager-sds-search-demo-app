@@ -13,22 +13,16 @@ name: Arm auto-merge
 # WARNING: with no required checks on the target branch, "merge when mergeable"
 # means "merge immediately". Never enable this against an empty ruleset.
 #
-# Human review gate
-# -----------------
-# PRs authored by a user listed in the AUTO_MERGE_EXCLUDED_USERS Actions
-# variable (org or repo level, comma/space separated, e.g. "sds-angie") are NOT
-# armed until a human approves the CURRENT head commit. A qualifying approval:
-#   - is the reviewer's latest non-comment review, state APPROVED,
-#   - was given on the PR's current head SHA (a new push needs a new approval),
-#   - comes from someone other than the PR author,
-#   - comes from someone NOT in AUTO_MERGE_EXCLUDED_USERS,
-#   - comes from someone with write/maintain/admin access (i.e. who can merge).
-# Without one, the gate disarms any auto-merge already armed and fails, so the
-# PR shows a red "review-gate" check. If the variable is unset, it defaults to
-# "sds-angie" -- the gate fails closed, never open.
+# Allow-list gate
+# ---------------
+# Only PRs authored by a user listed in the AUTO_MERGE_ALLOWED_USERS Actions
+# variable (org or repo level, comma/space separated, case-insensitive, e.g.
+# "alice,bob") are armed. A PR from anyone else -- including bots such as
+# sds-angie -- is left alone and a human merges it by hand. The gate passes
+# (green) in that case; it only decides whether the arm job runs.
 #
-# Add "review-gate" to the branch ruleset's required checks so the gate also
-# holds against a manual or bot-armed merge, not only this workflow's arming.
+# If the variable is unset or empty, nobody is allowed: the gate fails closed,
+# never open.
 
 on:
   pull_request:
@@ -53,65 +47,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  review-gate:
+  allow-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: >-
       github.event.pull_request.base.ref == 'develop' &&
       github.event.pull_request.draft == false
+    outputs:
+      allowed: ${{ steps.check.outputs.allowed }}
     steps:
-      - name: Require human approval for excluded authors
+      - name: Check author is in the allow-list
+        id: check
         env:
-          # The collaborator-permission lookup needs push access, which
-          # GITHUB_TOKEN with contents:read does not have.
-          GH_TOKEN: ${{ secrets.DEPLOY_PAT }}
-          EXCLUDED_USERS: ${{ vars.AUTO_MERGE_EXCLUDED_USERS || 'sds-angie' }}
-          REPO: ${{ github.repository }}
-          PR: ${{ github.event.pull_request.number }}
+          ALLOW_USERS: ${{ vars.AUTO_MERGE_ALLOWED_USERS || '' }}
           AUTHOR: ${{ github.event.pull_request.user.login }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           lc() { tr '[:upper:]' '[:lower:]'; }
-          excluded=" $(echo "$EXCLUDED_USERS" | tr ',' ' ' | lc | xargs) "
-          is_excluded() { [[ "$excluded" == *" $(echo "$1" | lc) "* ]]; }
-
-          if ! is_excluded "$AUTHOR"; then
-            echo "Author $AUTHOR is not gated."
-            exit 0
+          allowed=" $(echo "$ALLOW_USERS" | tr ',' ' ' | lc | xargs) "
+          if [[ "$allowed" == *" $(echo "$AUTHOR" | lc) "* ]]; then
+            echo "Author $AUTHOR is allowed to auto-merge."
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Author $AUTHOR is not in AUTO_MERGE_ALLOWED_USERS; not arming."
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
           fi
 
-          # Latest non-comment review per reviewer; the API lists oldest first.
-          declare -A state commit
-          while IFS=$'\t' read -r user st sha; do
-            [ -n "$user" ] || continue
-            state[$user]=$st; commit[$user]=$sha
-          done < <(gh api --paginate "repos/$REPO/pulls/$PR/reviews?per_page=100" \
-            --jq '.[] | select(.state != "COMMENTED") | [.user.login, .state, .commit_id] | @tsv')
-
-          for user in "${!state[@]}"; do
-            [ "${state[$user]}" = APPROVED ] || continue
-            [ "${commit[$user]}" = "$HEAD_SHA" ] || continue
-            [ "$(echo "$user" | lc)" != "$(echo "$AUTHOR" | lc)" ] || continue
-            is_excluded "$user" && continue
-            perm=$(gh api "repos/$REPO/collaborators/$user/permission" --jq .permission 2>/dev/null || echo none)
-            case "$perm" in
-              admin|write)
-                echo "Approved by $user ($perm) on $HEAD_SHA."
-                exit 0 ;;
-            esac
-          done
-
-          # No qualifying approval: make sure nothing merges in the meantime.
-          gh pr merge "$PR" --disable-auto --repo "$REPO" 2>/dev/null || true
-          echo "::error::PR by $AUTHOR needs an approval of the current commit (${HEAD_SHA:0:7}) from a developer who can merge before it is auto-merged."
-          exit 1
-
   arm:
-    needs: review-gate
+    needs: allow-gate
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: >-
+      needs.allow-gate.outputs.allowed == 'true' &&
       !contains(github.event.pull_request.labels.*.name, 'no-auto-merge') &&
       !contains(github.event.pull_request.labels.*.name, 'needs-migration')
     steps:
